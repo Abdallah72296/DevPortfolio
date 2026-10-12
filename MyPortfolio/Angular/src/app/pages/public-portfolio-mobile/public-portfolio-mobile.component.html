@@ -191,8 +191,8 @@
       </section>
 
       <!-- Telemetry Strip: Key Production Metrics -->
-      <section class="grid grid-cols-2 gap-space-xs">
-        <div class="p-space-sm rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-1">
+      <section *ngIf="showAnyMetrics" [ngClass]="visibleMetricsCount === 1 ? 'grid grid-cols-1 gap-space-xs' : 'grid grid-cols-2 gap-space-xs'">
+        <div *ngIf="isMetricVisible('projects')" class="p-space-sm rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-1">
           <div class="flex items-center justify-between font-label-mono text-[10px] text-outline">
             <span>PROJECTS</span>
             <span class="material-symbols-outlined text-secondary text-[14px]">folder_code</span>
@@ -204,7 +204,7 @@
           </div>
         </div>
 
-        <div class="p-space-sm rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-1">
+        <div *ngIf="isMetricVisible('skills')" class="p-space-sm rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-1">
           <div class="flex items-center justify-between font-label-mono text-[10px] text-outline">
             <span>SKILLS</span>
             <span class="material-symbols-outlined text-primary text-[14px]">terminal</span>
@@ -216,7 +216,7 @@
           </div>
         </div>
 
-        <div class="p-space-sm rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-1">
+        <div *ngIf="isMetricVisible('experience')" class="p-space-sm rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-1">
           <div class="flex items-center justify-between font-label-mono text-[10px] text-outline">
             <span>CAREER</span>
             <span class="material-symbols-outlined text-tertiary text-[14px]">work_history</span>
@@ -229,7 +229,7 @@
         </div>
 
         <!-- Metric 4: Credentials / Education (Adaptive) -->
-        <div *ngIf="hasCredentials" class="p-space-sm rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-1">
+        <div *ngIf="isMetricVisible('education')" class="p-space-sm rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-1">
           <div class="flex items-center justify-between font-label-mono text-[10px] text-outline">
             <span>{{ hasCertifications ? 'ACCREDITED' : 'EDUCATION' }}</span>
             <span class="material-symbols-outlined text-tertiary text-[14px]">{{ hasCertifications ? 'verified' : 'school' }}</span>

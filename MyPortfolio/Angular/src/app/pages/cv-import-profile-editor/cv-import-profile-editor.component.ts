@@ -9,13 +9,13 @@ import { DashboardSidebarComponent } from '../../shared/components/dashboard-sid
 import { AdminApiService } from '../../core/services/admin-api.service';
 import { formatFriendlyError, sanitizeTechnicalText } from '../../core/helpers/error-formatter';
 import { PRESET_PLATFORMS, resolveSocialPlatform, getSocialIconName, getSocialSvg, getSocialColor } from '../../core/helpers/social-icon.helper';
-import { 
-  searchSkillCatalog, 
-  resolveSkillIcon, 
-  registerLearnedSkill, 
-  getSkillIconDisplay, 
-  CatalogSkill, 
-  SkillIconDisplay 
+import {
+  searchSkillCatalog,
+  resolveSkillIcon,
+  registerLearnedSkill,
+  getSkillIconDisplay,
+  CatalogSkill,
+  SkillIconDisplay
 } from '../../core/helpers/skill-registry.helper';
 import {
   CertificationDto,
@@ -29,6 +29,12 @@ import {
   SkillCategoryDto,
   SocialLinkDto
 } from '../../core/models/admin.models';
+import { 
+  MetricsVisibilityConfig, 
+  parseMetricsConfig, 
+  encodeMetricsConfig, 
+  DEFAULT_METRICS_CONFIG 
+} from '../../core/helpers/metrics-config.helper';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -40,6 +46,10 @@ import { environment } from '../../../environments/environment';
 })
 export class CvImportProfileEditorComponent implements OnInit {
   readonly api = inject(AdminApiService);
+
+  // Hero Metrics & Stat Cards Visibility Configuration
+  metricsConfig: MetricsVisibilityConfig = { ...DEFAULT_METRICS_CONFIG };
+  existingParagraphs: string[] = [];
 
   // Profile Form
   formData = {
@@ -154,6 +164,8 @@ export class CvImportProfileEditorComponent implements OnInit {
       next: response => {
         if (response.succeeded && response.data) {
           const p = response.data;
+          this.existingParagraphs = p.paragraphs ?? [];
+          this.metricsConfig = parseMetricsConfig(p.paragraphs);
           this.formData = {
             name: p.fullName ?? '',
             title: p.title ?? '',
@@ -171,9 +183,9 @@ export class CvImportProfileEditorComponent implements OnInit {
     });
   }
 
-  saveAndDeploy(): void {
-    this.isSaving = true;
-    this.errorMsg = '';
+  saveMetricsConfig(): void {
+    const updatedParagraphs = encodeMetricsConfig(this.metricsConfig, this.existingParagraphs);
+    this.existingParagraphs = updatedParagraphs;
     this.api.updateProfile({
       fullName: this.formData.name,
       title: this.formData.title,
@@ -183,7 +195,35 @@ export class CvImportProfileEditorComponent implements OnInit {
       summary: this.formData.bio,
       avatarUrl: this.formData.avatarUrl,
       cvUrl: this.formData.cvUrl,
-      availableForHire: this.formData.availableForHire
+      availableForHire: this.formData.availableForHire,
+      paragraphs: updatedParagraphs
+    }).subscribe({
+      next: () => {
+        this.toastMsg = 'تم حفظ إعدادات إظهار وإخفاء إحصائيات الهيدر بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3500);
+      },
+      error: () => {
+        this.errorMsg = 'تعذر حفظ إعدادات الإحصائيات، تحقق من الاتصال.';
+      }
+    });
+  }
+
+  saveAndDeploy(): void {
+    this.isSaving = true;
+    this.errorMsg = '';
+    const updatedParagraphs = encodeMetricsConfig(this.metricsConfig, this.existingParagraphs);
+    this.existingParagraphs = updatedParagraphs;
+    this.api.updateProfile({
+      fullName: this.formData.name,
+      title: this.formData.title,
+      location: this.formData.location,
+      email: this.formData.email,
+      phone: this.formData.phone,
+      summary: this.formData.bio,
+      avatarUrl: this.formData.avatarUrl,
+      cvUrl: this.formData.cvUrl,
+      availableForHire: this.formData.availableForHire,
+      paragraphs: updatedParagraphs
     }).subscribe({
       next: response => {
         this.isSaving = false;
@@ -542,8 +582,8 @@ export class CvImportProfileEditorComponent implements OnInit {
     this.showSkillSuggestions = false;
 
     // Auto-select category if matching category exists
-    const matchCat = this.categories.find(c => 
-      c.name.toLowerCase().includes(item.category.toLowerCase()) || 
+    const matchCat = this.categories.find(c =>
+      c.name.toLowerCase().includes(item.category.toLowerCase()) ||
       item.category.toLowerCase().includes(c.name.toLowerCase())
     );
     if (matchCat) {

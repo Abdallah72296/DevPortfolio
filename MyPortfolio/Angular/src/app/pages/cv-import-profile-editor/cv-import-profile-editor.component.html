@@ -291,6 +291,74 @@
                   </div>
                   <textarea name="bio" [(ngModel)]="formData.bio" class="w-full p-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:border-primary outline-none resize-y" rows="3"></textarea>
                 </div>
+
+                <!-- Hero Metrics & Telemetry Visibility Controls -->
+                <div class="md:col-span-2 p-space-md rounded-xl bg-surface-container flex flex-col gap-space-sm border border-outline-variant/30 mt-1">
+                  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-outline-variant/20 pb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="material-symbols-outlined text-secondary text-[20px]">analytics</span>
+                      <span class="font-headline-sm text-sm text-on-surface font-semibold">Hero Metrics &amp; Stat Cards (إحصائيات الهيدر في الواجهة)</span>
+                    </div>
+                    <label class="flex items-center gap-2 text-body-sm cursor-pointer">
+                      <input type="checkbox" [(ngModel)]="metricsConfig.showMetricsStrip" (change)="saveMetricsConfig()" class="rounded accent-primary w-4 h-4 cursor-pointer">
+                      <span class="font-medium text-secondary">عرض شريط الإحصائيات (Master Toggle)</span>
+                    </label>
+                  </div>
+                  
+                  <p class="font-body-sm text-xs text-on-surface-variant">
+                    تحكم في ظهور أو إخفاء بطاقات الإحصائيات (المشاريع، المهارات، مسار الخبرة، والمؤهلات) المعروضة في أعلى صفحة البروفايل:
+                  </p>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-xs pt-1">
+                    <!-- Featured Projects Toggle -->
+                    <label class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high/60 border border-outline-variant/20 flex items-center justify-between gap-2 cursor-pointer transition-colors" [class.opacity-60]="!metricsConfig.showMetricsStrip">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <span class="material-symbols-outlined text-secondary text-[18px] shrink-0">folder_code</span>
+                        <div class="flex flex-col min-w-0">
+                          <span class="font-label-mono text-[11px] font-semibold text-on-surface truncate">FEATURED_PROJECTS</span>
+                          <span class="text-[10px] text-on-surface-variant truncate">المشاريع</span>
+                        </div>
+                      </div>
+                      <input type="checkbox" [(ngModel)]="metricsConfig.showProjects" (change)="saveMetricsConfig()" [disabled]="!metricsConfig.showMetricsStrip" class="rounded accent-primary w-4 h-4 cursor-pointer shrink-0">
+                    </label>
+
+                    <!-- Core Skills Toggle -->
+                    <label class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high/60 border border-outline-variant/20 flex items-center justify-between gap-2 cursor-pointer transition-colors" [class.opacity-60]="!metricsConfig.showMetricsStrip">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <span class="material-symbols-outlined text-primary text-[18px] shrink-0">terminal</span>
+                        <div class="flex flex-col min-w-0">
+                          <span class="font-label-mono text-[11px] font-semibold text-on-surface truncate">CORE_SKILLS</span>
+                          <span class="text-[10px] text-on-surface-variant truncate">المهارات</span>
+                        </div>
+                      </div>
+                      <input type="checkbox" [(ngModel)]="metricsConfig.showSkills" (change)="saveMetricsConfig()" [disabled]="!metricsConfig.showMetricsStrip" class="rounded accent-primary w-4 h-4 cursor-pointer shrink-0">
+                    </label>
+
+                    <!-- Career Track Toggle -->
+                    <label class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high/60 border border-outline-variant/20 flex items-center justify-between gap-2 cursor-pointer transition-colors" [class.opacity-60]="!metricsConfig.showMetricsStrip">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <span class="material-symbols-outlined text-tertiary text-[18px] shrink-0">work_history</span>
+                        <div class="flex flex-col min-w-0">
+                          <span class="font-label-mono text-[11px] font-semibold text-on-surface truncate">CAREER_TRACK</span>
+                          <span class="text-[10px] text-on-surface-variant truncate">مسار الخبرة</span>
+                        </div>
+                      </div>
+                      <input type="checkbox" [(ngModel)]="metricsConfig.showExperience" (change)="saveMetricsConfig()" [disabled]="!metricsConfig.showMetricsStrip" class="rounded accent-primary w-4 h-4 cursor-pointer shrink-0">
+                    </label>
+
+                    <!-- Credentials / Education Toggle -->
+                    <label class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high/60 border border-outline-variant/20 flex items-center justify-between gap-2 cursor-pointer transition-colors" [class.opacity-60]="!metricsConfig.showMetricsStrip">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <span class="material-symbols-outlined text-tertiary text-[18px] shrink-0">school</span>
+                        <div class="flex flex-col min-w-0">
+                          <span class="font-label-mono text-[11px] font-semibold text-on-surface truncate">EDUCATION</span>
+                          <span class="text-[10px] text-on-surface-variant truncate">المؤهلات والشهادات</span>
+                        </div>
+                      </div>
+                      <input type="checkbox" [(ngModel)]="metricsConfig.showEducation" (change)="saveMetricsConfig()" [disabled]="!metricsConfig.showMetricsStrip" class="rounded accent-primary w-4 h-4 cursor-pointer shrink-0">
+                    </label>
+                  </div>
+                </div>
               </div>
             </section>
 

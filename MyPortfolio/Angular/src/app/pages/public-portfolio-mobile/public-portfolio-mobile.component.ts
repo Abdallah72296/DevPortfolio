@@ -9,6 +9,7 @@ import { PortfolioDataService } from '../../core/services/portfolio-data.service
 import { PortfolioPresentationService } from '../../core/services/portfolio-presentation.service';
 import { getSocialIconName, getSocialSvg, getSocialColor } from '../../core/helpers/social-icon.helper';
 import { getSkillIconDisplay, SkillIconDisplay } from '../../core/helpers/skill-registry.helper';
+import { parseMetricsConfig, MetricsVisibilityConfig } from '../../core/helpers/metrics-config.helper';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -89,6 +90,41 @@ export class PublicPortfolioMobileComponent implements OnInit {
 
   get hasCredentials(): boolean {
     return this.hasEducation || this.hasCertifications;
+  }
+
+  get metricsConfig(): MetricsVisibilityConfig {
+    return parseMetricsConfig(this.portfolio?.profile?.paragraphs);
+  }
+
+  isMetricVisible(metric: 'projects' | 'skills' | 'experience' | 'education'): boolean {
+    const config = this.metricsConfig;
+    if (!config.showMetricsStrip) return false;
+
+    switch (metric) {
+      case 'projects':
+        return config.showProjects;
+      case 'skills':
+        return config.showSkills;
+      case 'experience':
+        return config.showExperience && Array.isArray(this.portfolio?.experiences) && this.portfolio.experiences.length > 0;
+      case 'education':
+        return config.showEducation && this.hasCredentials;
+      default:
+        return true;
+    }
+  }
+
+  get visibleMetricsCount(): number {
+    let count = 0;
+    if (this.isMetricVisible('projects')) count++;
+    if (this.isMetricVisible('skills')) count++;
+    if (this.isMetricVisible('experience')) count++;
+    if (this.isMetricVisible('education')) count++;
+    return count;
+  }
+
+  get showAnyMetrics(): boolean {
+    return this.metricsConfig.showMetricsStrip && this.visibleMetricsCount > 0;
   }
 
   get credentialsLabel(): string {

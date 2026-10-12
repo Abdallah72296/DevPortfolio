@@ -262,9 +262,9 @@
         </div>
 
         <!-- Telemetry Strip: Production Metrics -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md pt-space-md" [ngClass]="hasCredentials ? 'lg:grid-cols-4' : 'lg:grid-cols-3'">
+        <div *ngIf="showAnyMetrics" [ngClass]="metricsGridClass">
           <!-- Metric 1: Featured Projects -->
-          <div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+          <div *ngIf="isMetricVisible('projects')" class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
             <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
               <span>FEATURED_PROJECTS</span>
               <span class="material-symbols-outlined text-secondary text-[16px]">folder_code</span>
@@ -279,7 +279,7 @@
           </div>
 
           <!-- Metric 2: Core Skills & Stack -->
-          <div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+          <div *ngIf="isMetricVisible('skills')" class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
             <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
               <span>CORE_SKILLS</span>
               <span class="material-symbols-outlined text-primary text-[16px]">terminal</span>
@@ -294,7 +294,7 @@
           </div>
 
           <!-- Metric 3: Career Track -->
-          <div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+          <div *ngIf="isMetricVisible('experience')" class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
             <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
               <span>CAREER_TRACK</span>
               <span class="material-symbols-outlined text-tertiary text-[16px]">work_history</span>
@@ -309,7 +309,7 @@
           </div>
 
           <!-- Metric 4: Credentials / Education -->
-          <div *ngIf="hasCredentials" class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+          <div *ngIf="isMetricVisible('education')" class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
             <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
               <span>{{ hasCertifications ? 'CREDENTIALS' : 'EDUCATION' }}</span>
               <span class="material-symbols-outlined text-tertiary text-[16px]">{{ hasCertifications ? 'verified' : 'school' }}</span>
