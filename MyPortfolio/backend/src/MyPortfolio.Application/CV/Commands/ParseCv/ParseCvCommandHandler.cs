@@ -129,13 +129,26 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
         // 3. Experiences sanitization
         var experiences = (draft.Experiences ?? [])
             .Where(e => !string.IsNullOrWhiteSpace(e.JobTitle) || !string.IsNullOrWhiteSpace(e.CompanyName))
-            .Select(e => new CvExperienceDraft(
-                Clamp(e.JobTitle.Trim(), 150) ?? "Professional",
-                Clamp(e.CompanyName.Trim(), 150) ?? "Company",
-                Clamp(e.Description, 2000),
-                e.StartDate,
-                e.IsCurrent ? null : e.EndDate,
-                e.IsCurrent))
+            .Select(e =>
+            {
+                var jobTitle = Clamp(e.JobTitle?.Trim(), 150) ?? "Professional";
+                var companyName = Clamp(e.CompanyName?.Trim(), 150) ?? "Company";
+                var desc = Clamp(e.Description?.Trim(), 2000);
+                if (string.IsNullOrWhiteSpace(desc))
+                {
+                    desc = $"{jobTitle} at {companyName}";
+                }
+                var startDate = NormalizeDateString(e.StartDate) ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+                var endDate = e.IsCurrent ? null : NormalizeDateString(e.EndDate, true);
+
+                return new CvExperienceDraft(
+                    jobTitle,
+                    companyName,
+                    desc,
+                    startDate,
+                    endDate,
+                    e.IsCurrent);
+            })
             .ToList();
 
         // 4. Projects sanitization
@@ -154,14 +167,27 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
         // 5. Education sanitization
         var educations = (draft.Education ?? [])
             .Where(e => !string.IsNullOrWhiteSpace(e.InstitutionName) || !string.IsNullOrWhiteSpace(e.Degree))
-            .Select(e => new CvEducationDraft(
-                Clamp(e.InstitutionName.Trim(), 200) ?? "Institution",
-                Clamp(e.Degree.Trim(), 150) ?? "Degree",
-                Clamp(e.FieldOfStudy, 150),
-                Clamp(e.Description, 1000),
-                e.StartDate,
-                e.IsCurrent ? null : e.EndDate,
-                e.IsCurrent))
+            .Select(e =>
+            {
+                var inst = Clamp(e.InstitutionName?.Trim(), 200) ?? "Institution";
+                var degree = Clamp(e.Degree?.Trim(), 150) ?? "Degree";
+                var desc = Clamp(e.Description?.Trim(), 1000);
+                if (string.IsNullOrWhiteSpace(desc))
+                {
+                    desc = $"{degree} - {inst}";
+                }
+                var startDate = NormalizeDateString(e.StartDate) ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+                var endDate = e.IsCurrent ? null : NormalizeDateString(e.EndDate, true);
+
+                return new CvEducationDraft(
+                    inst,
+                    degree,
+                    Clamp(e.FieldOfStudy, 150),
+                    desc,
+                    startDate,
+                    endDate,
+                    e.IsCurrent);
+            })
             .ToList();
 
         // 6. Certifications sanitization
@@ -170,7 +196,7 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
             .Select(c => new CvCertificationDraft(
                 Clamp(c.Name.Trim(), 200)!,
                 Clamp(c.IssuingOrganization?.Trim() ?? "Organization", 200)!,
-                c.IssueDate,
+                NormalizeDateString(c.IssueDate) ?? DateTime.UtcNow.ToString("yyyy-MM-dd"),
                 Clamp(c.CredentialId, 100),
                 NormalizeUrl(c.CredentialUrl),
                 Clamp(c.Description, 1000)))
@@ -226,5 +252,56 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
         }
 
         return null;
+    }
+
+    private static string? NormalizeDateString(string? rawDate, bool isEndDate = false)
+    {
+        if (string.IsNullOrWhiteSpace(rawDate))
+        {
+            return null;
+        }
+
+        var trimmed = rawDate.Trim();
+
+        // Already valid ISO yyyy-MM-dd
+        if (System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^\d{4}-\d{2}-\d{2}$"))
+        {
+            return trimmed;
+        }
+
+        // yyyy-MM -> yyyy-MM-01
+        if (System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^\d{4}-\d{2}$"))
+        {
+            return $"{trimmed}-01";
+        }
+
+        // Try standard DateTime parsing
+        if (DateTime.TryParse(trimmed, System.Globalization.CultureInfo.InvariantCulture, out var dt))
+        {
+            return dt.ToString("yyyy-MM-dd");
+        }
+
+        // Regex for Year and Month name (e.g. 'Oct. 2020', 'Dec 2024')
+        var yearMatch = System.Text.RegularExpressions.Regex.Match(trimmed, @"\b(19\d\d|20\d\d)\b");
+        if (yearMatch.Success)
+        {
+            int year = int.Parse(yearMatch.Value);
+            int month = 1;
+
+            string[] months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+            var lower = trimmed.ToLowerInvariant();
+            for (int i = 0; i < months.Length; i++)
+            {
+                if (lower.Contains(months[i]))
+                {
+                    month = i + 1;
+                    break;
+                }
+            }
+
+            return new DateTime(year, month, 1).ToString("yyyy-MM-dd");
+        }
+
+        return isEndDate ? null : DateTime.UtcNow.ToString("yyyy-MM-dd");
     }
 }

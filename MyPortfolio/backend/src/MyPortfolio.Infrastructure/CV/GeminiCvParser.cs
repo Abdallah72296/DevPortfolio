@@ -29,10 +29,11 @@ public class GeminiCvParser : ICvParser
         8. Do NOT turn generic technology mentions or keywords into fake projects.
         9. Do NOT create information just to fill empty or missing fields.
         10. If a field or detail cannot be confidently extracted, leave it null or empty.
-        11. Normalize dates to ISO formats: 'yyyy-MM-dd' if exact day is known, 'yyyy-MM' if month and year are known, or 'yyyy' if only year is known. Do NOT invent a day (like 01) if only month/year is provided. If current job or study, set isCurrent=true and endDate=null.
-        12. Map ONLY to the supported sections: PersonalInfo (Hero/About), Skills, Experiences, Projects, Education, Certifications, SocialLinks.
-        13. Do NOT create custom sections (e.g. awards, testimonials, languages, interests, hobbies).
-        14. Output MUST strictly adhere to the provided JSON schema.
+        11. ALWAYS format all dates as strict ISO-8601 'yyyy-MM-dd' (e.g. '2024-12-01' for Dec 2024, '2020-10-01' for Oct 2020, '2020-01-01' if only year 2020 is given). If current job or study, set isCurrent=true and endDate=null.
+        12. Extract ALL educational backgrounds (degrees, universities, graduation projects) into the 'education' array.
+        13. Extract ALL work experiences, jobs, internships, freelance, or teaching roles into the 'experiences' array with descriptive responsibilities.
+        14. Map ONLY to the supported sections: PersonalInfo (Hero/About), Skills, Experiences, Projects, Education, Certifications, SocialLinks.
+        15. Output MUST strictly adhere to the provided JSON schema.
         """;
 
     private const string JsonSchema = """
