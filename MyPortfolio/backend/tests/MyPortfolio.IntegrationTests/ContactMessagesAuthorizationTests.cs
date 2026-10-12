@@ -91,12 +91,12 @@ public class ContactMessagesAuthorizationTests : IClassFixture<WebApplicationFac
         // Act
         var response = await client.GetAsync("/api/admin/contact-messages");
 
-        // Assert: Guest users must receive 403 Forbidden
+        // Assert: Guest role must receive 403 Forbidden
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
-    public async Task OrdinaryUser_Cannot_List_Contact_Messages()
+    public async Task OrdinaryUser_Can_List_Their_Contact_Messages()
     {
         // Arrange
         var client = _factory.CreateClient();
@@ -106,8 +106,8 @@ public class ContactMessagesAuthorizationTests : IClassFixture<WebApplicationFac
         // Act
         var response = await client.GetAsync("/api/admin/contact-messages");
 
-        // Assert: Standard users must receive 403 Forbidden
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        // Assert: Ordinary portfolio owners (User role) are authorized to view messages sent to their portfolio
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class ContactMessagesAuthorizationTests : IClassFixture<WebApplicationFac
     }
 
     [Fact]
-    public async Task OrdinaryUser_Cannot_Delete_Contact_Message()
+    public async Task OrdinaryUser_Passes_Authorization_On_Delete_Contact_Message()
     {
         // Arrange
         var client = _factory.CreateClient();
@@ -137,8 +137,12 @@ public class ContactMessagesAuthorizationTests : IClassFixture<WebApplicationFac
         // Act
         var response = await client.DeleteAsync($"/api/admin/contact-messages/{targetId}");
 
-        // Assert: Standard users must receive 403 Forbidden
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        // Assert: User must NOT be forbidden (403) or unauthorized (401); returns 404 because random ID doesn't exist for this user
+        Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.True(
+            response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.NoContent,
+            $"Expected 404 or 204, but received {response.StatusCode}");
     }
 
     [Fact]
@@ -153,7 +157,7 @@ public class ContactMessagesAuthorizationTests : IClassFixture<WebApplicationFac
         // Act
         var response = await client.DeleteAsync($"/api/admin/contact-messages/{targetId}");
 
-        // Assert: Guest users must receive 403 Forbidden
+        // Assert: Guest role must receive 403 Forbidden
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 

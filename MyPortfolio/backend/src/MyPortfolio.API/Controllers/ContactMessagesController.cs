@@ -12,7 +12,7 @@ using MyPortfolio.Application.ContactMessages.Queries.GetContactMessages;
 namespace MyPortfolio.API.Controllers;
 
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,User")]
 [Route("api/admin/contact-messages")]
 public class ContactMessagesController : ControllerBase
 {

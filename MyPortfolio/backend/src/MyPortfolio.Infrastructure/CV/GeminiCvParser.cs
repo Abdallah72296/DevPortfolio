@@ -225,10 +225,10 @@ public class GeminiCvParser : ICvParser
 
             var primaryModel = !string.IsNullOrWhiteSpace(_options.Model)
                 ? _options.Model
-                : "gemini-3.8-flash";
+                : "gemini-flash-latest";
 
             var modelCandidates = new List<string> { primaryModel };
-            string[] fallbackCandidates = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash"];
+            string[] fallbackCandidates = ["gemini-flash-latest", "gemini-3.5-flash", "gemini-flash-lite-latest", "gemini-3.8-flash"];
             foreach (var fb in fallbackCandidates)
             {
                 if (!modelCandidates.Contains(fb, StringComparer.OrdinalIgnoreCase))
@@ -265,7 +265,7 @@ public class GeminiCvParser : ICvParser
                 {
                     _logger.LogInformation("Sending CV document directly to Gemini model: {Model}", model);
                     using var modelCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                    modelCts.CancelAfter(TimeSpan.FromSeconds(20));
+                    modelCts.CancelAfter(TimeSpan.FromSeconds(60));
                     response = await client.Models.GenerateContentAsync(model, content, config, modelCts.Token);
                     if (response != null && !string.IsNullOrWhiteSpace(response.Text))
                     {
