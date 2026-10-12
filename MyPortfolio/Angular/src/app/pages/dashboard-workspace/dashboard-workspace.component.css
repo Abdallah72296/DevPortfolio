@@ -1,0 +1,4 @@
+/* dashboard-workspace scoped styles */
+:host {
+  display: block;
+}

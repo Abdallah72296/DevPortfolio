@@ -1,0 +1,131 @@
+<aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/20 z-40 flex flex-col justify-between overflow-y-auto">
+  <div class="py-space-md flex flex-col gap-space-md">
+    <!-- OVERVIEW -->
+    <div class="px-space-md">
+      <div class="font-label-mono text-label-mono text-outline uppercase tracking-wider mb-space-xs px-space-sm">
+        OVERVIEW
+      </div>
+      <nav class="flex flex-col gap-0.5">
+        <a 
+          routerLink="/dashboard" 
+          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary" 
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">space_dashboard</span>
+          <span class="font-body-sm text-body-sm">Dashboard Summary</span>
+        </a>
+        <a 
+          routerLink="/workspace"
+          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">devices</span>
+          <span class="font-body-sm text-body-sm">Workspace &amp; Simulator</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- ADMINISTRATION -->
+    <div *ngIf="auth.isAdmin()" class="px-space-md">
+      <div class="font-label-mono text-label-mono text-outline uppercase tracking-wider mb-space-xs px-space-sm">ADMINISTRATION</div>
+      <nav class="flex flex-col gap-0.5">
+        <a routerLink="/access-control" routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary" class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+          <span class="font-body-sm text-body-sm">Access Control</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- PORTFOLIO CONTENT -->
+    <div class="px-space-md">
+      <div class="font-label-mono text-label-mono text-outline uppercase tracking-wider mb-space-xs px-space-sm">
+        PORTFOLIO CONTENT
+      </div>
+      <nav class="flex flex-col gap-0.5">
+        <a 
+          routerLink="/profile-editor" 
+          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">person_outline</span>
+          <span class="font-body-sm text-body-sm">Profile &amp; CV Editor</span>
+        </a>
+        <a 
+          [routerLink]="['/skills-experience']"
+          [queryParams]="{ tab: 'experience' }"
+          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">work_outline</span>
+          <span class="font-body-sm text-body-sm">Experience &amp; Career</span>
+        </a>
+        <a 
+          [routerLink]="['/skills-experience']"
+          [queryParams]="{ tab: 'education' }"
+          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">school</span>
+          <span class="font-body-sm text-body-sm">Education &amp; Certs</span>
+        </a>
+        <a 
+          [routerLink]="['/skills-experience']"
+          [queryParams]="{ tab: 'skills' }"
+          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">terminal</span>
+          <span class="font-body-sm text-body-sm">Skills &amp; Tech Stack</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- SHOWCASE -->
+    <div class="px-space-md">
+      <div class="font-label-mono text-label-mono text-outline uppercase tracking-wider mb-space-xs px-space-sm">
+        SHOWCASE
+      </div>
+      <nav class="flex flex-col gap-0.5">
+        <a 
+          routerLink="/projects" 
+          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">folder_code</span>
+          <span class="font-body-sm text-body-sm">Projects &amp; Repos</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- APPEARANCE -->
+    <div class="px-space-md">
+      <div class="font-label-mono text-label-mono text-outline uppercase tracking-wider mb-space-xs px-space-sm">
+        APPEARANCE
+      </div>
+      <nav class="flex flex-col gap-0.5">
+        <a 
+          routerLink="/integrations"
+          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined text-[18px]">palette</span>
+          <span class="font-body-sm text-body-sm">Theme &amp; Templates</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- FOOTER CLIENT ENGINE WIDGET -->
+  <div class="p-space-md border-t border-outline-variant/20 bg-surface-container-low/50">
+    <div class="rounded bg-surface-container p-space-sm border border-outline-variant/30 flex flex-col gap-space-xs">
+      <div class="flex items-center justify-between">
+        <span class="font-label-mono text-label-mono text-on-surface-variant">CLIENT ENGINE</span>
+        <span class="font-code-sm text-code-sm text-tertiary flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>Active
+        </span>
+      </div>
+      <div class="font-code-sm text-code-sm text-on-surface font-medium">Angular Client v17.3</div>
+      <div class="flex items-center justify-between pt-1 border-t border-outline-variant/20 font-label-mono text-label-mono text-outline">
+        <span class="flex items-center gap-1">
+          <span class="material-symbols-outlined text-[12px] text-secondary">sync</span>Sync: OK
+        </span>
+        <a class="text-primary hover:underline flex items-center gap-0.5" routerLink="/portfolio" target="_blank" rel="noopener">
+          My portfolio<span class="material-symbols-outlined text-[10px]">north_east</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</aside>

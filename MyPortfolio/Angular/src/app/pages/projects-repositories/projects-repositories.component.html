@@ -1,0 +1,716 @@
+<app-dashboard-header></app-dashboard-header>
+<app-dashboard-sidebar></app-dashboard-sidebar>
+
+<div class="pl-64">
+  <main class="w-full pt-16 min-h-screen bg-background text-on-surface px-gutter-desktop py-space-lg">
+    <div class="flex flex-col w-full gap-space-lg">
+      
+      <!-- Dynamic Chromatic Backdrop Glow -->
+      <div class="relative w-full">
+        <div class="absolute -top-10 left-1/4 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-20 right-10 w-80 h-80 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Header Section -->
+        <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-space-md">
+          <div class="flex flex-col gap-space-xs">
+            <div class="flex items-center gap-space-sm">
+              <span class="font-label-mono text-label-mono text-secondary px-space-xs py-0.5 bg-secondary/10 rounded">PORTFOLIO DEPLOYMENT ARTIFACTS</span>
+              <span class="font-label-mono text-label-mono text-outline font-normal">/</span>
+              <span class="font-label-mono text-label-mono text-tertiary flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping"></span>
+                LIVE DATABASE SYNCHRONIZED
+              </span>
+            </div>
+            <h1 class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">Projects &amp; Work Showcase</h1>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+              Manage case studies, open source repos, and engineering highlights stored in your database. Changes hot-reload to your live public portfolio immediately.
+            </p>
+          </div>
+
+          <!-- Action Button Group -->
+          <div class="flex flex-wrap items-center gap-space-sm">
+            <button 
+              type="button" 
+              (click)="syncGithub()" 
+              class="inline-flex items-center gap-2 px-space-md py-2 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm font-medium transition-all shadow-sm group cursor-pointer" 
+              id="syncGithubBtn">
+              <svg *ngIf="!syncingGithub && !syncGithubSuccess" class="w-4 h-4 text-on-surface-variant group-hover:text-secondary transition-colors fill-current" viewBox="0 0 24 24">
+                <path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+              </svg>
+              <span *ngIf="syncingGithub" class="material-symbols-outlined text-[16px] animate-spin text-secondary">sync</span>
+              <span *ngIf="syncGithubSuccess" class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span>
+              <span>{{ syncingGithub ? 'Syncing with Database...' : (syncGithubSuccess ? 'Database Synchronized' : 'Sync Repositories') }}</span>
+              <span class="font-label-mono text-label-mono text-secondary bg-secondary/10 px-1 py-0.5 rounded">AUTO</span>
+            </button>
+
+            <button 
+              type="button" 
+              (click)="categoryFilter = (categoryFilter === 'all' ? 'distributed' : 'all')" 
+              class="inline-flex items-center gap-1.5 px-space-md py-2 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm font-medium transition-all shadow-sm cursor-pointer">
+              <span class="material-symbols-outlined text-[18px] text-on-surface-variant">tune</span>
+              <span>Filter by Tech Stack</span>
+            </button>
+
+            <button 
+              type="button" 
+              (click)="toggleReorderMode()" 
+              [class.bg-secondary]="isReorderMode"
+              [class.text-on-secondary]="isReorderMode"
+              class="inline-flex items-center gap-1.5 px-space-md py-2 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm font-medium transition-all shadow-sm cursor-pointer" 
+              id="reorderBtn">
+              <span class="material-symbols-outlined text-[18px]" [class.text-on-surface-variant]="!isReorderMode">drag_indicator</span>
+              <span>{{ isReorderMode ? 'Exit Reorder' : 'Reorder Projects' }}</span>
+            </button>
+
+            <button 
+              type="button" 
+              (click)="openDrawer()" 
+              class="inline-flex items-center gap-1.5 px-space-md py-2 rounded bg-primary-container text-on-primary-container font-body-sm text-body-sm font-medium transition-all shadow-lg hover:bg-primary hover:text-on-primary cursor-pointer" 
+              id="openNewProjectModal">
+              <span class="material-symbols-outlined text-[18px]">add</span>
+              <span>Add New Project</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telemetry Bar & Summary Widgets (Computed from Database) -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-space-md">
+        <div class="p-space-md bg-surface-container-low rounded-xl shadow-sm flex items-center justify-between border border-outline-variant/20">
+          <div class="flex flex-col">
+            <span class="font-label-mono text-label-mono text-outline uppercase">Active Showcase Repos</span>
+            <span class="font-headline-md text-headline-md font-semibold text-on-surface">{{ publishedCount }} <span class="text-secondary font-code-sm text-code-sm">/ {{ projects.length }} total</span></span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+            <span class="material-symbols-outlined text-[20px]">folder_special</span>
+          </div>
+        </div>
+
+        <div class="p-space-md bg-surface-container-low rounded-xl shadow-sm flex items-center justify-between border border-outline-variant/20">
+          <div class="flex flex-col">
+            <span class="font-label-mono text-label-mono text-outline uppercase">Featured Projects</span>
+            <span class="font-headline-md text-headline-md font-semibold text-on-surface">{{ featuredCount }} <span class="text-tertiary font-code-sm text-code-sm font-normal">Featured</span></span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary">
+            <span class="material-symbols-outlined text-[20px]">star</span>
+          </div>
+        </div>
+
+        <div class="p-space-md bg-surface-container-low rounded-xl shadow-sm flex items-center justify-between border border-outline-variant/20">
+          <div class="flex flex-col">
+            <span class="font-label-mono text-label-mono text-outline uppercase">Live Production Demos</span>
+            <span class="font-headline-md text-headline-md font-semibold text-on-surface">{{ liveDemosCount }} Active <span class="text-tertiary font-code-sm text-code-sm">Online</span></span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+            <span class="material-symbols-outlined text-[20px]">bolt</span>
+          </div>
+        </div>
+
+        <div class="p-space-md bg-surface-container-low rounded-xl shadow-sm flex items-center justify-between border border-outline-variant/20">
+          <div class="flex flex-col">
+            <span class="font-label-mono text-label-mono text-outline uppercase">Database Status</span>
+            <span class="font-headline-md text-headline-md font-semibold text-tertiary">Connected <span class="text-on-surface-variant font-code-sm text-code-sm">Live</span></span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary">
+            <span class="material-symbols-outlined text-[20px]">cloud_sync</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Workbench Toolbar -->
+      <div class="p-space-md bg-surface-container-low rounded-xl shadow-md flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md border border-outline-variant/20">
+        <!-- Left: Search & Filter Stack -->
+        <div class="flex flex-wrap items-center gap-space-sm flex-1">
+          <!-- Search Input with IDE styling -->
+          <div class="relative min-w-[280px] flex-1 sm:flex-initial">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+            <input 
+              [(ngModel)]="searchQuery" 
+              class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline pl-9 pr-16 py-2 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-inner border border-outline-variant/20" 
+              id="projectSearchInput" 
+              placeholder="Filter by name, tag, or stack (e.g. rust, raft, envoy)..." 
+              type="text">
+            <span class="absolute right-2.5 top-1/2 -translate-y-1/2 font-label-mono text-label-mono text-outline bg-surface-container-high px-1 py-0.5 rounded">⌘K</span>
+          </div>
+
+          <!-- Filter Dropdowns -->
+          <div class="flex items-center gap-space-xs">
+            <div class="relative">
+              <select 
+                [(ngModel)]="statusFilter" 
+                class="appearance-none bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm pl-3 pr-8 py-2 rounded-lg cursor-pointer focus:outline-none focus:ring-1 focus:ring-secondary border border-outline-variant/20" 
+                id="statusFilter">
+                <option value="all">Status: All ({{ projects.length }})</option>
+                <option value="published">Published Only</option>
+                <option value="draft">Hidden / Draft</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none">expand_more</span>
+            </div>
+
+            <div class="relative">
+              <select 
+                [(ngModel)]="categoryFilter" 
+                class="appearance-none bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm pl-3 pr-8 py-2 rounded-lg cursor-pointer focus:outline-none focus:ring-1 focus:ring-secondary border border-outline-variant/20" 
+                id="categoryFilter">
+                <option value="all">Category: All</option>
+                <option value="distributed">Distributed Systems</option>
+                <option value="frontend">Frontend / SSR</option>
+                <option value="cloud">Cloud &amp; Networking</option>
+                <option value="ai">AI / Vector Search</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none">expand_more</span>
+            </div>
+
+            <button 
+              type="button" 
+              (click)="featuredOnly = !featuredOnly" 
+              [class]="featuredOnly ? 'inline-flex items-center gap-1.5 px-space-sm py-2 rounded-lg bg-primary-container text-on-primary-container font-body-sm text-body-sm transition-colors cursor-pointer' : 'inline-flex items-center gap-1.5 px-space-sm py-2 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-colors cursor-pointer'" 
+              id="featuredToggleBtn">
+              <span class="material-symbols-outlined text-[16px] text-primary">hotel_class</span>
+              <span>Featured Only</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: View Mode Segmented Controls -->
+        <div class="flex items-center justify-between sm:justify-end gap-space-md">
+          <div class="flex items-center bg-surface-container-lowest p-0.5 rounded-lg shadow-inner border border-outline-variant/20">
+            <button 
+              type="button" 
+              (click)="setViewMode('grid')" 
+              [class]="viewMode === 'grid' ? 'flex items-center gap-1.5 px-space-sm py-1.5 rounded-md font-body-sm text-body-sm font-medium bg-surface-container-high text-on-surface shadow-sm' : 'flex items-center gap-1.5 px-space-sm py-1.5 rounded-md font-body-sm text-body-sm font-medium text-on-surface-variant hover:text-on-surface'" 
+              id="viewGrid">
+              <span class="material-symbols-outlined text-[16px]" [class.text-secondary]="viewMode === 'grid'">grid_view</span>
+              <span class="hidden sm:inline">Grid</span>
+            </button>
+
+            <button 
+              type="button" 
+              (click)="setViewMode('list')" 
+              [class]="viewMode === 'list' ? 'flex items-center gap-1.5 px-space-sm py-1.5 rounded-md font-body-sm text-body-sm font-medium bg-surface-container-high text-on-surface shadow-sm' : 'flex items-center gap-1.5 px-space-sm py-1.5 rounded-md font-body-sm text-body-sm font-medium text-on-surface-variant hover:text-on-surface'" 
+              id="viewList">
+              <span class="material-symbols-outlined text-[16px]" [class.text-secondary]="viewMode === 'list'">view_list</span>
+              <span class="hidden sm:inline">Compact List</span>
+            </button>
+
+            <button 
+              type="button" 
+              (click)="setViewMode('architecture')" 
+              [class]="viewMode === 'architecture' ? 'flex items-center gap-1.5 px-space-sm py-1.5 rounded-md font-body-sm text-body-sm font-medium bg-surface-container-high text-on-surface shadow-sm' : 'flex items-center gap-1.5 px-space-sm py-1.5 rounded-md font-body-sm text-body-sm font-medium text-on-surface-variant hover:text-on-surface'" 
+              id="viewArchitecture">
+              <span class="material-symbols-outlined text-[16px]" [class.text-secondary]="viewMode === 'architecture'">account_tree</span>
+              <span class="hidden sm:inline">Architecture</span>
+            </button>
+          </div>
+
+          <div class="hidden lg:flex items-center gap-1 font-label-mono text-label-mono text-outline">
+            <span>SORT:</span>
+            <span class="text-on-surface font-medium cursor-pointer hover:underline" (click)="toggleReorderMode()">Manual Drag</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reorder Active Alert Banner -->
+      <div *ngIf="isReorderMode" class="p-space-sm px-space-md bg-secondary/10 rounded-xl flex items-center justify-between text-secondary border border-secondary/30" id="reorderNotice">
+        <div class="flex items-center gap-space-sm">
+          <span class="material-symbols-outlined text-[18px]">drag_pan</span>
+          <span class="font-body-sm text-body-sm font-medium">Reorder Mode Enabled: Use the handles to configure public showcase priority order.</span>
+        </div>
+        <button 
+          type="button" 
+          (click)="saveOrder()" 
+          class="font-label-mono text-label-mono bg-secondary text-on-secondary px-space-sm py-1 rounded-lg hover:opacity-90 transition-opacity font-semibold cursor-pointer" 
+          id="saveOrderBtn">
+          SAVE ORDER
+        </button>
+      </div>
+
+      <!-- Alerts / Feedback -->
+      <div *ngIf="notice" class="p-3 rounded-xl bg-tertiary/10 border border-tertiary/30 text-tertiary text-body-sm flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+        <span>{{ notice }}</span>
+      </div>
+      <div *ngIf="error" class="p-3 rounded-xl bg-error/10 border border-error/30 text-error text-body-sm flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">error</span>
+        <span>{{ error }}</span>
+      </div>
+      <div *ngIf="loading" class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/20 flex items-center gap-3 text-secondary">
+        <span class="material-symbols-outlined text-[20px] animate-spin">refresh</span>
+        <span>Loading projects from database...</span>
+      </div>
+
+      <!-- Projects Showcase Grid (Real Database Projects) -->
+      <div 
+        [ngClass]="{
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg': viewMode === 'grid',
+          'grid grid-cols-1 gap-space-md': viewMode === 'list',
+          'grid grid-cols-1 md:grid-cols-2 gap-space-lg': viewMode === 'architecture'
+        }" 
+        id="projectsGrid">
+
+        <!-- Dynamic Card for each Database Project -->
+        <div 
+          *ngFor="let project of filteredProjects; let i = index" 
+          class="project-card group flex flex-col bg-surface-container-low rounded-xl shadow-md hover:bg-surface-container transition-all relative overflow-hidden border border-outline-variant/20"
+          [class.ring-1]="isReorderMode"
+          [class.ring-secondary]="isReorderMode">
+
+          <!-- Accent chromatic line at top -->
+          <div 
+            class="absolute top-0 left-0 right-0 h-1 opacity-80"
+            [ngClass]="{
+              'bg-gradient-to-r from-secondary via-primary to-transparent': getProjectCategory(project) === 'distributed',
+              'bg-gradient-to-r from-primary via-tertiary to-transparent': getProjectCategory(project) === 'cloud',
+              'bg-gradient-to-r from-secondary via-tertiary to-transparent': getProjectCategory(project) === 'frontend',
+              'bg-gradient-to-r from-tertiary via-secondary to-transparent': getProjectCategory(project) === 'ai'
+            }">
+          </div>
+
+          <!-- Card Header Toolbar -->
+          <div class="p-space-md pb-space-sm flex items-center justify-between">
+            <div class="flex items-center gap-space-xs flex-wrap">
+              <!-- Reorder handle / indicators -->
+              <span 
+                *ngIf="isReorderMode" 
+                class="drag-handle material-symbols-outlined text-secondary cursor-pointer text-[18px] hover:scale-110" 
+                title="Move up" 
+                (click)="moveProject(project, -1)">north</span>
+              <span 
+                *ngIf="isReorderMode" 
+                class="drag-handle material-symbols-outlined text-secondary cursor-pointer text-[18px] hover:scale-110" 
+                title="Move down" 
+                (click)="moveProject(project, 1)">south</span>
+              <span 
+                *ngIf="!isReorderMode" 
+                class="drag-handle material-symbols-outlined text-outline hover:text-on-surface cursor-grab text-[18px]" 
+                title="Drag to reorder">drag_indicator</span>
+
+              <!-- Featured badge -->
+              <span 
+                *ngIf="project.isFeatured" 
+                class="font-label-mono text-label-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                <span class="material-symbols-outlined text-[12px]">hotel_class</span>
+                FEATURED
+              </span>
+
+              <!-- Status badge (Real Database isVisible) -->
+              <span 
+                *ngIf="project.isVisible" 
+                class="font-label-mono text-label-mono text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+                PUBLISHED
+              </span>
+
+              <span 
+                *ngIf="!project.isVisible" 
+                class="font-label-mono text-label-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                DRAFT / HIDDEN
+              </span>
+
+              <!-- Category tag -->
+              <span 
+                *ngIf="project.technologies && project.technologies.length" 
+                class="font-label-mono text-label-mono text-on-surface-variant bg-surface-container-high px-1.5 py-0.5 rounded">
+                {{ project.technologies.length }} TECHS
+              </span>
+            </div>
+
+            <!-- Quick Visibility Toggle & Menu -->
+            <div class="flex items-center gap-space-xs">
+              <button 
+                type="button" 
+                (click)="toggleVisibility(project)" 
+                class="w-6 h-6 rounded flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer" 
+                [title]="project.isVisible ? 'Hide from live portfolio' : 'Publish to live portfolio'">
+                <span class="material-symbols-outlined text-[16px]" [ngClass]="project.isVisible ? 'text-tertiary' : 'text-outline'">
+                  {{ project.isVisible ? 'visibility' : 'visibility_off' }}
+                </span>
+              </button>
+
+              <button 
+                type="button" 
+                (click)="openDrawer(project)" 
+                class="action-menu-btn w-6 h-6 rounded flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-[16px]">more_vert</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card Visual Representation (Real Image or Modern Developer Schematic) -->
+          <div class="px-space-md">
+            <!-- 1. Real Image if present in Database -->
+            <div *ngIf="project.image" class="relative w-full h-36 rounded-lg overflow-hidden shadow-inner border border-outline-variant/10">
+              <img 
+                [src]="project.image" 
+                [alt]="project.title" 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                [class.opacity-70]="!project.isVisible">
+              <div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent"></div>
+              <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between font-label-mono text-label-mono text-on-surface">
+                <span class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded">{{ project.technologies[0] || 'App' }}</span>
+                <span class="bg-surface-container-lowest/90 px-1.5 py-0.5 rounded text-tertiary">{{ project.isVisible ? 'Live' : 'Draft' }}</span>
+              </div>
+            </div>
+
+            <!-- 2. High-Tech Developer Artifact Schematic (when no image uploaded yet) -->
+            <div *ngIf="!project.image" class="w-full h-36 bg-surface-container-lowest rounded-lg p-space-sm relative overflow-hidden flex flex-col justify-between border border-outline-variant/10">
+              <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
+                <span>DATABASE ARTIFACT // {{ getProjectCategory(project).toUpperCase() }}</span>
+                <span class="text-secondary font-code-sm text-code-sm">v1.0</span>
+              </div>
+              <div class="flex items-center justify-around py-3">
+                <div class="px-2 py-1 bg-surface-container-high rounded font-code-sm text-code-sm text-on-surface text-center">
+                  {{ project.technologies[0] || 'Core' }}
+                </div>
+                <div class="h-0.5 w-6 bg-secondary/50 relative">
+                  <span class="absolute -top-1 left-1.5 w-2 h-2 rounded-full bg-secondary"></span>
+                </div>
+                <div class="px-2 py-1 bg-primary/20 text-primary rounded font-code-sm text-code-sm text-center font-semibold">
+                  {{ project.technologies[1] || 'Service' }}
+                </div>
+                <div class="h-0.5 w-6 bg-tertiary/50"></div>
+                <div class="px-2 py-1 bg-surface-container-high rounded font-code-sm text-code-sm text-tertiary text-center">
+                  {{ project.technologies[2] || 'Store' }}
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm pt-1 border-t border-outline-variant/10">
+                <span class="flex items-center gap-1 text-on-surface"><span class="material-symbols-outlined text-[13px] text-tertiary">check_circle</span> Active Record</span>
+                <span class="text-secondary font-label-mono text-label-mono">{{ project.isVisible ? 'Published' : 'Draft' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Metadata Content -->
+          <div class="p-space-md flex flex-col gap-space-sm flex-1">
+            <div>
+              <h2 
+                (click)="openDrawer(project)" 
+                class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight hover:text-secondary cursor-pointer transition-colors">
+                {{ project.title }}
+              </h2>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">
+                {{ project.description || 'No description provided for this database project.' }}
+              </p>
+            </div>
+
+            <!-- Tech Stack Badges -->
+            <div class="flex flex-wrap gap-1.5 py-1">
+              <span 
+                *ngFor="let tech of project.technologies" 
+                class="font-label-mono text-label-mono text-secondary bg-surface-container-lowest px-2 py-0.5 rounded border border-outline-variant/10">
+                {{ tech }}
+              </span>
+              <span *ngIf="!project.technologies || !project.technologies.length" class="text-xs text-outline italic">No technologies specified</span>
+            </div>
+
+            <!-- Telemetry & Link Footer -->
+            <div class="mt-auto pt-space-sm flex items-center justify-between font-body-sm text-body-sm border-t border-outline-variant/10">
+              <!-- Left stats / info -->
+              <div class="flex items-center gap-space-sm font-label-mono text-label-mono text-on-surface-variant">
+                <span class="flex items-center gap-1 text-on-surface">
+                  <span class="material-symbols-outlined text-[14px]" [ngClass]="project.isFeatured ? 'text-primary' : 'text-outline'">hotel_class</span>
+                  {{ project.isFeatured ? 'Featured Hero' : 'Standard' }}
+                </span>
+              </div>
+
+              <!-- Right action icons -->
+              <div class="flex items-center gap-space-xs">
+                <!-- GitHub Repo link -->
+                <a 
+                  *ngIf="project.githubUrl" 
+                  [href]="project.githubUrl.startsWith('http') ? project.githubUrl : 'https://github.com/' + project.githubUrl" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" 
+                  title="View GitHub Repository">
+                  <span class="material-symbols-outlined text-[18px]">code</span>
+                </a>
+
+                <!-- Live Demo link -->
+                <a 
+                  *ngIf="project.liveUrl" 
+                  [href]="project.liveUrl" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="p-1 rounded hover:bg-surface-container-high text-secondary transition-colors" 
+                  title="Launch Live Demo">
+                  <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                </a>
+
+                <!-- Open Inspector Drawer Button -->
+                <button 
+                  type="button" 
+                  (click)="openDrawer(project)" 
+                  class="open-inspector-btn p-1 rounded hover:bg-surface-container-high text-primary hover:text-primary-fixed transition-colors cursor-pointer" 
+                  title="Edit Configuration">
+                  <span class="material-symbols-outlined text-[18px]">edit_note</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Add New Project Slot Card -->
+        <div 
+          (click)="openDrawer()" 
+          class="group flex flex-col items-center justify-center p-space-lg bg-surface-container-lowest hover:bg-surface-container-low border border-dashed border-outline-variant/50 hover:border-primary rounded-xl transition-all cursor-pointer min-h-[360px] text-center" 
+          id="addNewSlotCard">
+          <div class="w-14 h-14 rounded-full bg-primary-container/10 group-hover:bg-primary-container text-primary group-hover:text-on-primary-container flex items-center justify-center transition-all mb-space-sm shadow-md">
+            <span class="material-symbols-outlined text-[28px]">add_box</span>
+          </div>
+          <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">Register New Engineering Artifact</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs mt-1">
+            Store a new showcase project in your database with GitHub repo links, live demo endpoints, and custom tech stack badges.
+          </p>
+          <div class="mt-space-md flex items-center gap-2">
+            <span class="font-label-mono text-label-mono text-secondary bg-secondary/10 px-2 py-1 rounded">Database Ready</span>
+            <span class="font-label-mono text-label-mono text-outline">Press [N]</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Empty State if database has no projects -->
+      <div *ngIf="!loading && !projects.length" class="p-space-lg rounded-2xl bg-surface-container-low border border-outline-variant/30 text-center flex flex-col items-center justify-center gap-space-sm my-4">
+        <span class="material-symbols-outlined text-[48px] text-outline">folder_off</span>
+        <h3 class="font-headline-sm text-on-surface font-semibold">No Projects in the Database Yet</h3>
+        <p class="text-body-sm text-on-surface-variant max-w-md">
+          Your project showcase repository in the database is currently empty. Click below to add your first project.
+        </p>
+        <button 
+          type="button" 
+          (click)="openDrawer()" 
+          class="mt-2 inline-flex items-center gap-2 px-space-md py-2 rounded-lg bg-primary-container text-on-primary-container font-body-sm text-body-sm font-medium hover:bg-primary hover:text-on-primary transition-all cursor-pointer shadow-md">
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          <span>Create First Project</span>
+        </button>
+      </div>
+
+      <!-- Slide-in Drawer: Quick Add / Inspector Modal Preview -->
+      <div 
+        class="fixed inset-y-0 right-0 w-full max-w-xl bg-surface-container-low shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col border-l border-outline-variant/30" 
+        [class.translate-x-0]="drawerOpen"
+        [class.translate-x-full]="!drawerOpen"
+        id="inspectorDrawer">
+
+        <!-- Drawer Header -->
+        <div class="p-space-md bg-surface-container flex items-center justify-between border-b border-outline-variant/20">
+          <div class="flex items-center gap-space-sm">
+            <span class="material-symbols-outlined text-secondary text-[22px]">terminal</span>
+            <div>
+              <h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Project Configuration Studio</h2>
+              <span class="font-label-mono text-label-mono text-outline">DATABASE ENTITY • DEV-FOLIO</span>
+            </div>
+          </div>
+          <button 
+            type="button" 
+            (click)="closeDrawer()" 
+            class="w-8 h-8 rounded hover:bg-surface-bright flex items-center justify-center text-outline hover:text-on-surface transition-colors cursor-pointer" 
+            id="closeDrawerBtn">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+
+        <!-- Drawer Content Form -->
+        <div *ngIf="selected" class="p-space-lg flex-1 overflow-y-auto flex flex-col gap-space-md">
+          <!-- In-Drawer Validation Alert -->
+          <div *ngIf="drawerError" class="p-3 rounded-xl bg-error/15 border border-error/40 text-error text-body-sm flex items-start gap-2.5 animate-fadeIn" id="projectDrawerError">
+            <span class="material-symbols-outlined text-[20px] text-error shrink-0 mt-0.5">error</span>
+            <div class="flex flex-col">
+              <span class="font-semibold text-xs uppercase tracking-wider">تنبيه / Validation Error</span>
+              <span>{{ drawerError }}</span>
+            </div>
+          </div>
+
+          <!-- Title & Live URL -->
+          <div class="flex flex-col gap-space-xs">
+            <div class="flex items-center justify-between">
+              <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">
+                Project Display Name <span class="text-error font-bold">*</span>
+              </label>
+              <span class="text-xs text-error font-label-mono font-medium">مطلوب *</span>
+            </div>
+            <input 
+              [(ngModel)]="selected.title" 
+              (input)="drawerError = ''; drawerTitleTouched = true"
+              [class.border-error]="drawerTitleTouched && (!selected.title || !selected.title.trim())"
+              [class.focus:ring-error]="drawerTitleTouched && (!selected.title || !selected.title.trim())"
+              class="bg-surface-container-lowest text-on-surface p-2.5 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-inner border border-outline-variant/20 transition-colors" 
+              type="text" 
+              placeholder="e.g. HyperScale KV Store">
+            <p *ngIf="drawerTitleTouched && (!selected.title || !selected.title.trim())" class="text-error text-xs flex items-center gap-1 mt-0.5">
+              <span class="material-symbols-outlined text-[14px]">error</span>
+              <span>اسم المشروع مطلوب للمتابعة (حقل إجباري).</span>
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-space-md">
+            <div class="flex flex-col gap-space-xs">
+              <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">GitHub Repo</label>
+              <input 
+                [(ngModel)]="selected.githubUrl" 
+                class="bg-surface-container-lowest text-on-surface p-2 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-secondary font-code-sm border border-outline-variant/20" 
+                type="text" 
+                placeholder="username/repo or URL">
+            </div>
+            <div class="flex flex-col gap-space-xs">
+              <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">Live Demo Endpoint</label>
+              <input 
+                [(ngModel)]="selected.liveUrl" 
+                class="bg-surface-container-lowest text-secondary p-2 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-secondary font-code-sm border border-outline-variant/20" 
+                type="text" 
+                placeholder="https://...">
+            </div>
+          </div>
+
+          <!-- Description / Case Study Summary -->
+          <div class="flex flex-col gap-space-xs">
+            <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">Technical Abstract &amp; Architecture Notes</label>
+            <textarea 
+              [(ngModel)]="selected.description" 
+              class="bg-surface-container-lowest text-on-surface p-2.5 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none shadow-inner border border-outline-variant/20" 
+              rows="4" 
+              placeholder="Architecture details, benchmarks, protocols, storage layer..."></textarea>
+          </div>
+
+          <!-- Tech Stack Selector Chips -->
+          <div class="flex flex-col gap-space-xs">
+            <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">Active Tech Stack Chips</label>
+            <div class="flex flex-wrap gap-2 p-2 bg-surface-container-lowest rounded-lg border border-outline-variant/20">
+              <span 
+                *ngFor="let tag of selected.technologies; let tagIdx = index" 
+                class="inline-flex items-center gap-1 font-label-mono text-label-mono text-secondary bg-surface-container-high px-2 py-1 rounded">
+                {{ tag }} 
+                <span (click)="removeTag(tagIdx)" class="material-symbols-outlined text-[12px] cursor-pointer hover:text-error">close</span>
+              </span>
+              <input 
+                [(ngModel)]="tagInput" 
+                (keydown.enter)="addTag()" 
+                class="bg-transparent text-on-surface font-label-mono text-label-mono placeholder:text-outline focus:outline-none px-1 w-24" 
+                placeholder="+ Add Tag" 
+                type="text">
+            </div>
+          </div>
+
+          <!-- Image / Diagram Cover Box with Drag & Drop -->
+          <div class="flex flex-col gap-2 p-3 rounded-xl bg-surface-container border border-outline-variant/20">
+            <div class="flex items-center justify-between">
+              <span class="font-label-mono text-label-mono text-on-surface-variant uppercase font-medium">Cover Image / Visual Preview</span>
+              <span class="font-label-mono text-[11px] text-tertiary">JPG, PNG, WebP, SVG</span>
+            </div>
+
+            <!-- Preview if image exists -->
+            <div *ngIf="selected.image" class="relative group rounded-lg overflow-hidden border border-outline-variant/30 bg-surface-container-lowest flex items-center justify-center">
+              <img [src]="selected.image" alt="Project Cover" class="w-full h-36 object-cover">
+              <div class="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
+                <button type="button" (click)="removeImage()" class="px-3 py-1.5 rounded-lg bg-error text-on-error text-body-sm flex items-center gap-1 shadow-md cursor-pointer">
+                  <span class="material-symbols-outlined text-[16px]">delete</span>
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <!-- Drag & Drop Zone -->
+            <div 
+              (dragover)="onImageDragOver($event)"
+              (dragleave)="onImageDragLeave($event)"
+              (drop)="onImageDrop($event)"
+              [class.border-primary]="isDraggingImage"
+              [class.bg-primary-container]="isDraggingImage"
+              class="border border-dashed border-outline-variant/40 rounded-lg p-3 flex flex-col items-center justify-center text-center gap-1 transition-all cursor-pointer hover:bg-surface-container-high/40"
+              (click)="projDrawerFileInput.click()">
+              <input #projDrawerFileInput type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" (change)="uploadProjectImage($event)" class="hidden">
+              <span class="material-symbols-outlined text-[24px] text-secondary" [class.animate-spin]="isUploadingImage">
+                {{ isUploadingImage ? 'refresh' : 'add_photo_alternate' }}
+              </span>
+              <span class="text-body-sm text-on-surface font-medium">
+                {{ isUploadingImage ? 'Uploading image...' : (selected.image ? 'Click or drop new image to replace' : 'Click to upload image or drag & drop here') }}
+              </span>
+              <span class="font-label-mono text-[11px] text-on-surface-variant">Validated on backend • Max 10 MB</span>
+            </div>
+
+            <div class="flex items-center gap-2 pt-1">
+              <span class="font-label-mono text-label-mono text-xs text-outline">URL:</span>
+              <input [(ngModel)]="selected.image" class="flex-1 p-1.5 text-xs rounded bg-surface-container-lowest text-on-surface border border-outline-variant/20 outline-none" placeholder="https://... or /uploads/...">
+            </div>
+          </div>
+
+          <!-- Visibility Status & Featured Settings -->
+          <div class="p-space-md bg-surface-container rounded-xl flex flex-col gap-space-sm border border-outline-variant/20">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-body-sm text-body-sm font-medium text-on-surface block">Feature on Frontpage Hero</span>
+                <span class="font-label-mono text-label-mono text-outline">Elevates project into high-impact top showcase section</span>
+              </div>
+              <input 
+                [(ngModel)]="selected.isFeatured" 
+                class="w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer accent-primary" 
+                type="checkbox">
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-outline-variant/20">
+              <div>
+                <span class="font-body-sm text-body-sm font-medium text-on-surface block">Public Visibility</span>
+                <span class="font-label-mono text-label-mono text-outline">Published &amp; accessible to visitors</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input 
+                  [(ngModel)]="selected.isVisible" 
+                  class="w-4 h-4 rounded text-secondary focus:ring-0 cursor-pointer accent-secondary" 
+                  type="checkbox">
+                <span 
+                  class="font-label-mono text-label-mono px-2 py-0.5 rounded"
+                  [ngClass]="selected.isVisible ? 'text-tertiary bg-tertiary/10' : 'text-outline bg-surface-container-high'">
+                  {{ selected.isVisible ? 'ACTIVE' : 'DRAFT' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Drawer Footer Actions -->
+        <div *ngIf="selected" class="p-space-md bg-surface-container flex items-center justify-between border-t border-outline-variant/20">
+          <button 
+            *ngIf="selected.id"
+            type="button" 
+            (click)="deleteProject(selected)" 
+            class="px-space-md py-2 rounded-lg bg-surface-container-high hover:bg-surface-bright text-error font-body-sm text-body-sm transition-colors flex items-center gap-1 cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">delete</span>
+            <span>Delete Project</span>
+          </button>
+          <div *ngIf="!selected.id"></div>
+
+          <div class="flex items-center gap-space-sm">
+            <button 
+              type="button" 
+              (click)="closeDrawer()" 
+              class="px-space-md py-2 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm transition-colors cursor-pointer" 
+              id="cancelDrawerBtn">
+              Cancel
+            </button>
+
+            <button 
+              type="button" 
+              (click)="saveProject()" 
+              [disabled]="saving || isUploadingImage" 
+              class="px-space-md py-2 rounded-lg bg-primary-container text-on-primary-container font-body-sm text-body-sm font-medium hover:bg-primary hover:text-on-primary transition-all shadow-md cursor-pointer flex items-center gap-1.5">
+              <span *ngIf="saving" class="material-symbols-outlined text-[16px] animate-spin">sync</span>
+              <span>{{ saving ? 'Saving...' : 'Save & Hot-Reload' }}</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Background overlay backdrop for drawer -->
+      <div 
+        (click)="closeDrawer()" 
+        class="fixed inset-0 bg-background/70 backdrop-blur-sm z-40 transition-opacity" 
+        [class.hidden]="!drawerOpen" 
+        id="drawerOverlay">
+      </div>
+
+    </div>
+  </main>
+</div>

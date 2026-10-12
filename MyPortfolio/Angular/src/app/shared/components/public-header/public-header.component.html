@@ -1,0 +1,69 @@
+<header class="fixed top-0 left-0 w-full z-50 bg-surface-dim/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+  <div class="h-16 w-full px-space-md lg:px-space-xl flex items-center justify-between gap-space-md">
+    <!-- Logo & Persona -->
+    <div class="flex items-center gap-space-md shrink-0">
+      <a routerLink="/portfolio" class="flex items-center gap-space-sm group">
+        <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center shadow-[0_0_12px_rgba(76,215,246,0.15)] group-hover:bg-surface-container-highest transition-colors">
+          <span class="font-code-md text-code-md font-semibold text-secondary">AR</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none group-hover:text-primary transition-colors">
+            Alex Rivera
+          </span>
+          <span class="font-code-sm text-code-sm text-on-surface-variant leading-tight">
+            Systems &amp; Platform Architect
+          </span>
+        </div>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-lowest">
+        <span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.6)] animate-pulse"></span>
+        <span class="font-label-mono text-label-mono text-tertiary uppercase tracking-wider">
+          Available for Staff / Lead Roles
+        </span>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="hidden lg:flex items-center gap-space-xs px-space-xs py-1 rounded-full bg-surface-container-lowest/60 backdrop-blur-md">
+      <a href="#featured-systems" class="px-space-sm py-1 font-body-sm transition-colors text-primary bg-surface-container-high rounded-lg">
+        Projects
+      </a>
+      <a href="#architecture" class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors">
+        Architecture
+      </a>
+      <a href="#experience" class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors">
+        Experience
+      </a>
+      <a href="#stack" class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors">
+        Stack
+      </a>
+      <a href="#writing" class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors">
+        Writing
+      </a>
+      <a href="#contact" class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors">
+        Contact
+      </a>
+    </nav>
+
+    <!-- CTAs -->
+    <div class="flex items-center gap-space-sm shrink-0">
+      <a 
+        href="#contact" 
+        class="hidden sm:flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors font-code-sm text-code-sm">
+        <span class="material-symbols-outlined text-[16px] text-secondary">download</span>
+        <span>Download CV</span>
+      </a>
+
+      <a 
+        href="#contact" 
+        class="flex items-center gap-space-xs px-space-md py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-[0_0_16px_rgba(208,188,255,0.25)] transition-all font-body-sm text-body-sm font-medium">
+        <span>Get in Touch</span>
+      </a>
+
+      <a routerLink="/dashboard" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 hover:ring-2 hover:ring-primary/50 transition-all" title="Open Studio Dashboard">
+        <span class="material-symbols-outlined text-on-primary text-[18px]">dashboard</span>
+      </a>
+    </div>
+  </div>
+</header>

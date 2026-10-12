@@ -1,0 +1,4 @@
+/* Page Switcher scoped styles */
+:host {
+  display: block;
+}

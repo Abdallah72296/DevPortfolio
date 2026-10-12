@@ -1,0 +1,25 @@
+<app-dashboard-header></app-dashboard-header>
+<app-dashboard-sidebar></app-dashboard-sidebar>
+<div class="pl-64">
+  <main class="min-h-screen bg-background pt-16 px-gutter-desktop py-space-lg text-on-surface">
+    <div class="mx-auto max-w-5xl space-y-6">
+    <header class="flex flex-wrap items-start justify-between gap-4"><div><h1 class="text-3xl font-semibold">Portfolio themes</h1><p class="mt-2 text-on-surface-variant">Choose a complete visual style for your public portfolio.</p></div><div class="flex gap-2"><a routerLink="/portfolio" class="rounded bg-surface-container-high px-4 py-2">Preview portfolio</a><a routerLink="/dashboard" class="rounded bg-surface-container-high px-4 py-2">Back to dashboard</a></div></header>
+    <p *ngIf="error" role="alert" class="rounded-lg bg-error/10 p-3 text-error">{{ error }}</p>
+    <p *ngIf="notice" role="status" class="rounded-lg bg-tertiary/10 p-3 text-tertiary">{{ notice }}</p>
+
+    <section class="space-y-4 rounded-xl bg-surface-container-low p-5">
+      <div class="flex flex-wrap items-center justify-between gap-3"><div><h2 class="text-xl font-semibold">Choose a portfolio theme</h2><p class="text-sm text-on-surface-variant">Choose a theme and preview it. Save your choice to keep it.</p></div></div>
+      <p *ngIf="loading" class="text-on-surface-variant">Loading settings…</p>
+      <form *ngIf="!loading" (ngSubmit)="saveSettings()" class="grid gap-4">
+        <div class="grid gap-3 md:col-span-2 sm:grid-cols-2 lg:grid-cols-3">
+          <button *ngFor="let theme of themes" type="button" (click)="selectTheme(theme.key)" [attr.aria-pressed]="settings.themeKey === theme.key" class="rounded-xl border p-4 text-left transition hover:-translate-y-0.5" [ngClass]="settings.themeKey === theme.key ? 'border-primary ring-2 ring-primary/40 bg-surface-container-high' : 'border-outline-variant bg-surface-container-lowest'">
+            <div class="mb-3 flex h-12 overflow-hidden rounded-lg"><span *ngFor="let swatch of theme.swatches" class="flex-1" [style.backgroundColor]="swatch"></span></div><strong>{{ theme.name }}</strong><p class="mt-1 text-sm text-on-surface-variant">{{ theme.description }}</p><span *ngIf="settings.themeKey === theme.key" class="mt-2 inline-block text-xs text-primary">Selected</span>
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-3"><button type="submit" [disabled]="savingSettings" class="rounded bg-primary px-4 py-2 text-on-primary disabled:opacity-50">{{ savingSettings ? 'Saving…' : 'Save theme' }}</button><a routerLink="/portfolio" class="rounded bg-surface-container-high px-4 py-2">Preview portfolio</a></div>
+      </form>
+    </section>
+
+  </div>
+</main>
+</div>

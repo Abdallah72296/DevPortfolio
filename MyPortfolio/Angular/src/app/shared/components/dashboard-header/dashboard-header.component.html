@@ -1,0 +1,105 @@
+<header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-outline-variant/30">
+  <div class="w-full h-full px-gutter-desktop flex items-center justify-between">
+    <div class="flex items-center gap-space-lg">
+      <!-- Logo & Brand -->
+      <a routerLink="/dashboard" class="flex items-center gap-space-sm group">
+        <img 
+          alt="DevFolio Studio Logo" 
+          class="h-8 w-auto object-contain" 
+          src="https://lh3.googleusercontent.com/aida/AEtjO1Wcvtnd2z1m_7xjzvtlsVkIru3-9ZtgEQwrtTGkgLu9thumgpYkH08_2dQpq7l5AzUgpMMYauXA3MUMbp9YNZgkZuZRADRLv7cru6pPlXLZVOmzN413r0I9FkfIHP0BDjakU5IAbdwA13IvQXFVGgf2PRTiP1S0x9KIingXI23PQEkjDHz5eeVuRuAIUs3Nppjr-AgtyeBHBkwXbW-Cqm3itTypXCeGvj5UEaD-uGV_VyLIQzMDaQSXkzen"
+        />
+        <span class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">
+          DevFolio<span class="text-primary">.Studio</span>
+        </span>
+      </a>
+
+      <!-- Telemetry Badges -->
+      <div class="hidden xl:flex items-center gap-space-sm px-space-sm py-1 rounded bg-surface-container-low border border-outline-variant/20">
+        <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+        <span class="font-code-sm text-code-sm text-on-surface-variant">Production API • ASP.NET Core v8.0 Connected</span>
+      </div>
+
+      <a 
+        routerLink="/portfolio"
+        target="_blank"
+        class="hidden md:flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container border border-outline-variant/30 hover:border-secondary/50 transition-colors">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+        </span>
+        <span class="font-code-sm text-code-sm text-secondary font-medium">alexrivera.devfolio.io</span>
+        <span class="material-symbols-outlined text-[14px] text-on-surface-variant">open_in_new</span>
+        <span class="ml-1 font-label-mono text-label-mono text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded">LIVE</span>
+      </a>
+    </div>
+
+    <!-- Action Items & User Menu -->
+    <div class="flex items-center gap-space-md">
+      <div class="flex items-center gap-space-sm">
+        <a 
+          routerLink="/portfolio"
+          target="_blank"
+          class="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm font-body-sm font-medium transition-colors">
+          <span class="material-symbols-outlined text-[16px] text-secondary">visibility</span>
+          <span>Preview Live</span>
+        </a>
+
+        <button 
+          type="button" 
+          (click)="onPublish()"
+          [disabled]="isPublishing"
+          class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded bg-primary-container text-on-primary-container text-body-sm font-body-sm font-medium shadow-[0_0_16px_rgba(160,120,255,0.35)] hover:bg-primary hover:text-on-primary transition-all active:scale-95 disabled:opacity-75">
+          <span class="material-symbols-outlined text-[16px]" [class.animate-spin]="isPublishing">
+            {{ isPublishing ? 'refresh' : 'rocket_launch' }}
+          </span>
+          <span>{{ isPublishing ? 'Deploying...' : 'Publish Changes' }}</span>
+        </button>
+      </div>
+
+      <div class="h-6 w-px bg-outline-variant/30"></div>
+
+      <!-- User Menu -->
+      <div class="flex items-center gap-space-sm cursor-pointer group relative" (click)="toggleUserMenu($event)">
+        <img 
+          alt="Profile" 
+          class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/50 group-hover:ring-primary transition-all" 
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWSo5yr7tiYXoynZzxuNe6cGNb-TLNBFKhXvf05WwITb8juScmdL4YOfK6SS0UXQ5WX_myc6KmicYA_FiPzxrW11I6Sq2dAaeycfsmxnVDrHL6bIg3rnNhtNATOFlrWqm8ZttqSQrC2GUZa4fskfVbWGc5kjEHHhSMdNtEGe26Xoe2NVOmQn9C01ge36PUv8VGhXhAWR733uDWvX2puaN1cL1YYW_cmopDduxP-U46dseYcAOMRFX_vQ"
+        />
+        <div class="hidden lg:flex flex-col text-left">
+          <span class="font-body-sm text-body-sm text-on-surface font-medium leading-none">{{ auth.getUserEmail() || 'alex.rivera@devfolio.io' }}</span>
+          <span class="font-label-mono text-label-mono text-on-surface-variant uppercase">{{ auth.isAdmin() ? 'Admin' : 'User' }}</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface text-[18px]">expand_more</span>
+
+        <!-- Dropdown -->
+        <div *ngIf="userMenuOpen" (click)="$event.stopPropagation()" class="absolute right-0 top-12 w-52 rounded-xl bg-surface-container-high border border-outline-variant/30 shadow-2xl p-1.5 z-50">
+          <a routerLink="/profile-editor" (click)="userMenuOpen = false" class="flex items-center gap-2 px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[16px] text-secondary">person</span>
+            <span>Profile Settings</span>
+          </a>
+          <a routerLink="/access-control" (click)="userMenuOpen = false" class="flex items-center gap-2 px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[16px] text-primary">admin_panel_settings</span>
+            <span>Access Control</span>
+          </a>
+          <a routerLink="/integrations" (click)="userMenuOpen = false" class="flex items-center gap-2 px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[16px] text-tertiary">settings</span>
+            <span>System Settings</span>
+          </a>
+          <div class="h-px bg-outline-variant/30 my-1"></div>
+          <button type="button" (click)="logout(); userMenuOpen = false" class="w-full flex items-center gap-2 px-3 py-2 rounded text-body-sm text-error hover:bg-error-container/20 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">logout</span>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Notification Toast for Publish Action -->
+<div 
+  *ngIf="showToast" 
+  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-surface-container-highest text-on-surface border border-outline-variant/40 shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+  <span class="material-symbols-outlined text-tertiary text-[18px]">cloud_done</span>
+  <span class="font-body-sm text-body-sm">Published to Edge CDN successfully (SignalR Sync: OK).</span>
+</div>

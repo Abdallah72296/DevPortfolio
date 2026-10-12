@@ -1,0 +1,4 @@
+/* public-portfolio-mobile scoped styles */
+:host {
+  display: block;
+}

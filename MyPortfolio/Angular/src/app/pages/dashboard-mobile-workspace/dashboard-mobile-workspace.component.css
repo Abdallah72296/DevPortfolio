@@ -1,0 +1,4 @@
+/* dashboard-mobile-workspace scoped styles */
+:host {
+  display: block;
+}

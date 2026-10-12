@@ -1,0 +1,971 @@
+<app-dashboard-header></app-dashboard-header>
+<app-dashboard-sidebar></app-dashboard-sidebar>
+<div class="pl-64">
+  <main class="relative pt-16 w-full min-h-screen bg-background text-on-surface">
+    <div class="flex flex-col w-full">
+      <!-- Top Telemetry & Parse Status Ribbon -->
+      <div class="px-gutter-desktop py-space-sm bg-surface-container-lowest flex flex-wrap items-center justify-between gap-space-sm border-b border-outline-variant/20">
+        <div class="flex items-center gap-space-sm">
+          <div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-xl bg-surface-container-high">
+            <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+            <span class="font-label-mono text-label-mono text-secondary uppercase">PIPELINE: ASP.NET CORE v8.0</span>
+          </div>
+          <span class="font-label-mono text-label-mono text-on-surface-variant hidden md:inline">API_STATUS: CONNECTED</span>
+          <span class="font-label-mono text-label-mono text-outline">•</span>
+          <span class="font-code-sm text-code-sm text-tertiary flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">sync</span>
+            SignalR Live Sync Active
+          </span>
+        </div>
+        <div class="flex items-center gap-space-sm">
+          <span class="font-label-mono text-label-mono text-on-surface-variant">CV_AUTO_COMPLETE:</span>
+          <span class="px-space-xs py-0.5 rounded-lg bg-tertiary-container/30 text-tertiary font-label-mono text-label-mono">GEMINI MULTIMODAL READY</span>
+        </div>
+      </div>
+
+      <div class="p-gutter-desktop max-w-[1560px] mx-auto w-full flex flex-col gap-space-xl pb-32">
+        <!-- Toast & Error Banners -->
+        <div *ngIf="errorMsg" role="alert" class="p-space-md rounded-xl bg-error/10 border border-error/30 text-error flex items-center justify-between gap-2 shadow-sm animate-in fade-in">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">error</span>
+            <span class="font-body-sm">{{ errorMsg }}</span>
+          </div>
+          <button type="button" (click)="errorMsg = ''" class="text-error hover:opacity-75">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+
+        <div *ngIf="toastMsg" role="status" class="p-space-md rounded-xl bg-tertiary/10 border border-tertiary/30 text-tertiary flex items-center justify-between gap-2 shadow-sm animate-in fade-in">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+            <span class="font-body-sm font-medium">{{ toastMsg }}</span>
+          </div>
+          <button type="button" (click)="toastMsg = ''" class="text-tertiary hover:opacity-75">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+
+        <!-- Header Section with Breadcrumbs & Context -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+          <div class="flex flex-col gap-space-xs">
+            <div class="flex items-center gap-space-xs font-label-mono text-label-mono text-outline uppercase tracking-wider">
+              <span>PORTFOLIO_ENGINE</span>
+              <span>/</span>
+              <span>COMPONENTS</span>
+              <span>/</span>
+              <span class="text-secondary">PROFILE_EDITOR &amp; CV_AUTOCOMPLETE</span>
+            </div>
+            <h1 class="font-display-hero text-display-hero text-on-surface tracking-tight">Staff Systems Profile</h1>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+              Granular schema editor for high-throughput engineering portfolios. Review, edit, add, prune, and patch CV-extracted nodes prior to hot deployment.
+            </p>
+          </div>
+          <!-- Quick Status Node Card -->
+          <div class="flex items-center gap-space-md p-space-sm rounded-xl bg-surface-container-low shadow-sm">
+            <div class="flex flex-col text-right">
+              <span class="font-label-mono text-label-mono text-on-surface uppercase">Live Production Node</span>
+              <span class="font-code-sm text-code-sm text-secondary">alexrivera.devfolio.io</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-secondary">
+              <span class="material-symbols-outlined text-[22px]">dns</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CV PARSE & AUTOCOMPLETE SECTION -->
+        <div class="rounded-xl bg-surface-container-low p-space-lg shadow-md flex flex-col gap-space-md relative overflow-hidden border border-outline-variant/20">
+          <div class="absolute -right-20 -top-20 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-sm">
+            <div class="flex items-center gap-space-sm">
+              <span class="material-symbols-outlined text-secondary text-[22px]">document_scanner</span>
+              <span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Import &amp; AutoComplete Profile from CV</span>
+            </div>
+            <div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-xl bg-surface-container-high">
+              <span class="material-symbols-outlined text-tertiary text-[16px]">verified</span>
+              <span class="font-label-mono text-label-mono text-tertiary uppercase">AI Multi-Modal Parser Ready</span>
+            </div>
+          </div>
+
+          <!-- Single Unified CV Upload & AutoComplete Card -->
+          <div 
+            (dragover)="onCvDragOver($event)"
+            (dragleave)="onCvDragLeave($event)"
+            (drop)="onCvDrop($event)"
+            [ngClass]="{'border-primary': isDraggingCv, 'bg-primary/10': isDraggingCv}"
+            class="w-full rounded-xl bg-surface-container p-space-md sm:p-space-lg shadow-sm border border-outline-variant/30 flex flex-col gap-space-md transition-all">
+            
+            <!-- State 1: When NO file is selected or uploaded yet -->
+            <div *ngIf="!selectedCv && !formData.cvUrl" 
+                 (click)="cvDropHiddenInput.click()" 
+                 class="flex flex-col items-center justify-center text-center p-space-lg sm:p-space-xl rounded-xl border-2 border-dashed border-outline-variant/40 hover:border-secondary hover:bg-surface-container-high/40 transition-all cursor-pointer group">
+              <input #cvDropHiddenInput type="file" accept="application/pdf,.pdf" (change)="selectCv($event)" class="hidden">
+              <div class="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center text-secondary group-hover:scale-110 transition-transform mb-3 shadow-inner">
+                <span class="material-symbols-outlined text-[32px] text-primary" [class.animate-bounce]="isDraggingCv">
+                  {{ isDraggingCv ? 'download' : 'cloud_upload' }}
+                </span>
+              </div>
+              <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-1">
+                {{ isDraggingCv ? 'أفلت ملف السيرة الذاتية الآن!' : 'اسحب وأفلت ملف الـ CV (PDF) هنا، أو اضغط للاختيار' }}
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant max-w-md mb-2">
+                يدعم ملفات PDF حتى 10 ميجابايت • محرك استخراج ذكي يملأ البيانات والمهارات والخبرات والمشاريع تلقائياً
+              </p>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/10 text-secondary font-label-mono text-label-mono uppercase tracking-wider">
+                <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                <span>AI Multi-Modal Parser Active</span>
+              </div>
+            </div>
+
+            <!-- State 2: When a file IS selected or already attached -->
+            <div *ngIf="selectedCv || formData.cvUrl" class="flex flex-col gap-space-md">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md p-space-md rounded-xl bg-surface-container-lowest border border-outline-variant/20">
+                <div class="flex items-center gap-space-md min-w-0">
+                  <div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary shrink-0 shadow-sm">
+                    <span class="material-symbols-outlined text-[28px]">description</span>
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-headline-sm text-headline-sm text-on-surface truncate font-semibold">
+                      {{ selectedCv?.name || 'CV Document Attached to Profile' }}
+                    </span>
+                    <div class="flex flex-wrap items-center gap-space-xs font-code-sm text-code-sm text-on-surface-variant">
+                      <span>{{ selectedCv ? (selectedCv.size / 1048576 | number:'1.1-2') + ' MB' : 'Hosted on Edge CDN' }}</span>
+                      <span>•</span>
+                      <span class="text-tertiary font-medium">Ready for AI AutoComplete</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-space-sm shrink-0">
+                  <span class="px-space-sm py-1 rounded-lg font-label-mono text-label-mono font-medium"
+                        [ngClass]="isParsing ? 'bg-secondary/15 text-secondary animate-pulse' : 'bg-tertiary/15 text-tertiary'">
+                    {{ isParsing ? 'EXTRACTING DATA...' : 'STATUS: LOADED' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Action Buttons Row -->
+              <div class="flex flex-wrap items-center justify-between gap-space-sm pt-1">
+                <div class="flex flex-wrap items-center gap-space-sm">
+                  <button 
+                    type="button" 
+                    (click)="triggerParse()" 
+                    [disabled]="isParsing || !selectedCv" 
+                    class="px-space-md py-2 rounded-xl bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container font-body-sm text-body-sm font-semibold flex items-center gap-2 transition-all disabled:opacity-50 shadow-md cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]" [class.animate-spin]="isParsing">
+                      {{ isParsing ? 'sync' : 'auto_fix_high' }}
+                    </span>
+                    <span>{{ isParsing ? 'جاري استخراج البيانات...' : 'Auto-Complete Profile' }}</span>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    (click)="uploadCv()" 
+                    [disabled]="isUploadingCv || !selectedCv" 
+                    class="px-space-sm py-2 rounded-xl bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">upload</span>
+                    <span>{{ isUploadingCv ? 'جاري الرفع...' : 'Upload CV File' }}</span>
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-space-sm">
+                  <input #cvReplaceFileInput type="file" accept="application/pdf,.pdf" (change)="selectCv($event)" class="hidden">
+                  <button 
+                    type="button" 
+                    (click)="cvReplaceFileInput.click()" 
+                    class="px-space-sm py-2 rounded-xl bg-surface-container-high hover:bg-surface-bright text-secondary font-body-sm text-body-sm flex items-center gap-1 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">swap_horiz</span>
+                    <span>Replace CV</span>
+                  </button>
+                  <button 
+                    *ngIf="selectedCv"
+                    type="button" 
+                    (click)="selectedCv = undefined" 
+                    class="px-space-sm py-2 rounded-xl text-error hover:bg-surface-container-high font-body-sm text-body-sm flex items-center gap-1 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">close</span>
+                    <span>Remove</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Auto-Process on Drop Option -->
+            <label class="flex items-center gap-2 text-body-sm text-on-surface cursor-pointer pt-2 border-t border-outline-variant/20">
+              <input type="checkbox" [(ngModel)]="autoProcessOnDrop" name="autoProcess" class="rounded accent-primary w-4 h-4 cursor-pointer">
+              <span class="text-secondary font-medium">Auto-Extract &amp; Auto-Fill immediately upon dropping or choosing file (استخراج تلقائي بدون الحاجة للضغط)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- MAIN FORM BODY: 2-COLUMN WORKBENCH -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl">
+          <!-- LEFT COLUMN: PRIMARY INPUT MODULES (8 Cols) -->
+          <div class="lg:col-span-8 flex flex-col gap-space-xl min-w-0">
+            <!-- SECTION 1: PERSONAL INFORMATION -->
+            <section class="rounded-xl bg-surface-container-low p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/20">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="font-label-mono text-label-mono text-secondary font-bold">01</span>
+                  <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Personal Information</h2>
+                </div>
+                <span class="px-space-xs py-0.5 rounded-lg bg-surface-container font-label-mono text-label-mono text-on-surface-variant">SYS_ID: USER_CORE</span>
+              </div>
+
+              <!-- Avatar & Identity Strip -->
+              <div class="p-space-md rounded-xl bg-surface-container flex flex-col sm:flex-row items-center gap-space-md border border-outline-variant/20">
+                <!-- Avatar with Drag & Drop / Upload -->
+                <div 
+                  (dragover)="onAvatarDragOver($event)"
+                  (dragleave)="onAvatarDragLeave($event)"
+                  (drop)="onAvatarDrop($event)"
+                  [class.border-primary]="isDraggingAvatar"
+                  class="relative group shrink-0 cursor-pointer"
+                  (click)="avatarFileInput.click()">
+                  <img 
+                    class="w-20 h-20 rounded-xl object-cover bg-surface-container-highest shadow-inner border border-outline-variant/30" 
+                    alt="Profile Avatar" 
+                    [src]="resolveMediaUrl(formData.avatarUrl) || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCWSo5yr7tiYXoynZzxuNe6cGNb-TLNBFKhXvf05WwITb8juScmdL4YOfK6SS0UXQ5WX_myc6KmicYA_FiPzxrW11I6Sq2dAaeycfsmxnVDrHL6bIg3rnNhtNATOFlrWqm8ZttqSQrC2GUZa4fskfVbWGc5kjEHHhSMdNtEGe26Xoe2NVOmQn9C01ge36PUv8VGhXhAWR733uDWvX2puaN1cL1YYW_cmopDduxP-U46dseYcAOMRFX_vQ'"
+                  />
+                  <div class="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center rounded-xl transition-all text-xs text-on-surface font-medium">
+                    <span class="material-symbols-outlined text-[20px]" [class.animate-spin]="isUploadingAvatar">
+                      {{ isUploadingAvatar ? 'refresh' : 'photo_camera' }}
+                    </span>
+                    <span>Upload</span>
+                  </div>
+                  <input #avatarFileInput type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" (change)="uploadAvatar($event)" class="hidden">
+                </div>
+
+                <div class="flex flex-col gap-space-xs text-center sm:text-left flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="font-headline-sm text-headline-sm text-on-surface font-medium">Profile Avatar</span>
+                    <button type="button" (click)="avatarFileInput.click()" class="text-xs px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-secondary flex items-center gap-1 font-body-sm">
+                      <span class="material-symbols-outlined text-[15px]">upload</span>
+                      <span>Change Photo</span>
+                    </button>
+                  </div>
+                  <input 
+                    class="w-full px-space-sm py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-code-sm text-code-sm outline-none border border-outline-variant/30 focus:border-primary" 
+                    type="text" 
+                    placeholder="https://... or /uploads/... (Avatar URL)"
+                    name="avatarUrl" 
+                    [(ngModel)]="formData.avatarUrl"
+                  />
+                  <div class="flex items-center gap-2 mt-1">
+                    <label class="flex items-center gap-1.5 text-body-sm text-on-surface cursor-pointer">
+                      <input type="checkbox" [(ngModel)]="formData.availableForHire" name="availableForHire" class="rounded accent-primary">
+                      <span>Available for Opportunities</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Field Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+                <div class="flex flex-col gap-space-xs">
+                  <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Full Name</label>
+                  <input class="w-full px-space-sm py-2 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:border-primary outline-none" type="text" name="fullName" [(ngModel)]="formData.name"/>
+                </div>
+                <div class="flex flex-col gap-space-xs">
+                  <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Professional Title</label>
+                  <input class="w-full px-space-sm py-2 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:border-primary outline-none" type="text" name="title" [(ngModel)]="formData.title"/>
+                </div>
+                <div class="flex flex-col gap-space-xs">
+                  <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Location &amp; Remote Mobility</label>
+                  <input class="w-full px-space-sm py-2 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:border-primary outline-none" type="text" name="location" [(ngModel)]="formData.location"/>
+                </div>
+                <div class="flex flex-col gap-space-xs">
+                  <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Contact Email</label>
+                  <input class="w-full px-space-sm py-2 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:border-primary outline-none" type="email" name="email" [(ngModel)]="formData.email"/>
+                </div>
+                <div class="flex flex-col gap-space-xs md:col-span-2">
+                  <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Direct Telephony</label>
+                  <input class="w-full px-space-sm py-2 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:border-primary outline-none" type="tel" name="phone" [(ngModel)]="formData.phone"/>
+                </div>
+                <div class="flex flex-col gap-space-xs md:col-span-2">
+                  <div class="flex items-center justify-between">
+                    <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Executive Summary / Technical Bio</label>
+                  </div>
+                  <textarea name="bio" [(ngModel)]="formData.bio" class="w-full p-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:border-primary outline-none resize-y" rows="3"></textarea>
+                </div>
+              </div>
+            </section>
+
+            <!-- SECTION 2: TECHNICAL STACK & SKILLS (REAL CRUD) -->
+            <section class="rounded-xl bg-surface-container-low p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/20">
+              <div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="font-label-mono text-label-mono text-secondary font-bold">02</span>
+                  <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Technical Stack &amp; Skills</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="newCategoryName" 
+                    placeholder="New category..." 
+                    class="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-code-sm text-code-sm outline-none border border-outline-variant/30">
+                  <button 
+                    type="button" 
+                    (click)="addCategory()" 
+                    class="px-3 py-1 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm transition-colors">
+                    + Add Category
+                  </button>
+                </div>
+              </div>
+
+              <!-- Add Skill Inline Composer with Autocomplete & Custom Icon Upload -->
+              <div class="p-space-md rounded-xl bg-surface-container-lowest flex flex-col md:flex-row items-stretch md:items-center gap-space-sm border border-outline-variant/30">
+                <div class="relative flex-1 w-full">
+                  <div class="flex items-center gap-2 px-space-sm py-1.5 rounded-lg bg-surface-container border border-outline-variant/20 focus-within:border-primary">
+                    <!-- Icon Preview & Upload Button -->
+                    <div class="relative shrink-0 cursor-pointer group"
+                         (click)="cvSkillIconInput.click()"
+                         title="أيقونة المهارة (اضغط لرفع صورة أيقونة خاصة إذا لم تكن متوفرة)">
+                      <div class="w-7 h-7 rounded-md bg-surface-container-high flex items-center justify-center text-secondary border border-outline-variant/30 shadow-xs">
+                        <img *ngIf="detectedSkillIconDisplay.type === 'image'" [src]="detectedSkillIconDisplay.value" class="w-5 h-5 object-contain rounded" alt="Icon">
+                        <i *ngIf="detectedSkillIconDisplay.type === 'devicon'" [class]="detectedSkillIconDisplay.value + ' text-[16px]'"></i>
+                        <span *ngIf="detectedSkillIconDisplay.type === 'material'" class="material-symbols-outlined text-[16px]">{{ detectedSkillIconDisplay.value }}</span>
+                      </div>
+                      <input #cvSkillIconInput type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp,image/x-icon" (change)="uploadCustomSkillIcon($event)" class="hidden">
+                    </div>
+
+                    <!-- Input with Autocomplete -->
+                    <input 
+                      class="flex-1 bg-transparent text-on-surface font-code-sm text-code-sm outline-none placeholder:text-outline" 
+                      placeholder="اكتب المهارة (مثل: C#, React, Docker, Python)..." 
+                      type="text"
+                      [(ngModel)]="newSkillName"
+                      (input)="onSkillNameInput()"
+                      (focus)="onSkillNameInput()"
+                      (blur)="hideSkillSuggestionsWithDelay()"
+                      (keyup.enter)="addSkill()"
+                    />
+
+                    <button *ngIf="customSkillIcon" type="button" (click)="clearCustomSkillIcon()" class="text-xs text-outline hover:text-error px-1" title="إلغاء الأيقونة المخصصة">
+                      <span class="material-symbols-outlined text-[14px]">close</span>
+                    </button>
+                  </div>
+
+                  <!-- Autocomplete Suggestions Dropdown -->
+                  <div *ngIf="showSkillSuggestions && skillSuggestions.length" 
+                       class="absolute top-full left-0 mt-1 w-full max-h-60 overflow-y-auto rounded-xl bg-surface-container-highest border border-outline-variant/40 shadow-2xl z-50 p-1 flex flex-col gap-0.5">
+                    <div class="px-2 py-1 text-[11px] font-label-mono text-outline uppercase flex items-center justify-between border-b border-outline-variant/20">
+                      <span>مهارات مقترحة وأيقوناتها</span>
+                      <span class="text-secondary">{{ skillSuggestions.length }} نتيجة</span>
+                    </div>
+                    <button 
+                      *ngFor="let suggestion of skillSuggestions"
+                      type="button"
+                      (mousedown)="selectSkillSuggestion(suggestion)"
+                      class="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg hover:bg-surface-container text-left transition-colors cursor-pointer group">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-6 h-6 rounded flex items-center justify-center bg-surface-container-low shrink-0 group-hover:scale-110 transition-transform">
+                          <img *ngIf="suggestion.iconType === 'image'" [src]="suggestion.icon" class="w-4 h-4 object-contain">
+                          <i *ngIf="suggestion.iconType === 'devicon'" [class]="suggestion.icon + ' text-[16px]'"></i>
+                          <span *ngIf="suggestion.iconType === 'material'" class="material-symbols-outlined text-[16px] text-secondary">{{ suggestion.icon }}</span>
+                        </div>
+                        <span class="font-code-sm text-code-sm text-on-surface font-medium truncate">{{ suggestion.name }}</span>
+                      </div>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-container font-label-mono text-outline shrink-0">{{ suggestion.category }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="w-full md:w-56">
+                  <select 
+                    class="w-full px-space-sm py-2 rounded-lg bg-surface-container text-on-surface font-code-sm text-code-sm outline-none border border-outline-variant/20"
+                    [(ngModel)]="selectedCategoryId">
+                    <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+                  </select>
+                </div>
+                <button 
+                  type="button"
+                  (click)="addSkill()"
+                  class="w-full md:w-auto px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary hover:text-on-primary-container font-body-sm text-body-sm font-medium flex items-center justify-center gap-1 transition-all shrink-0 cursor-pointer">
+                  <span class="material-symbols-outlined text-[16px]">add</span>
+                  <span>إضافة مهارة</span>
+                </button>
+              </div>
+
+              <!-- Real Categories & Skills Grid -->
+              <div class="flex flex-col gap-space-md">
+                <div *ngFor="let cat of categories" class="p-space-md rounded-xl bg-surface-container flex flex-col gap-space-xs border border-outline-variant/20">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="font-label-mono text-label-mono text-secondary uppercase tracking-wider font-semibold">{{ cat.name }}</span>
+                      <span class="font-code-sm text-code-sm text-outline">({{ cat.skills?.length || 0 }} Tokens)</span>
+                    </div>
+                    <button 
+                      type="button" 
+                      (click)="deleteCategory(cat)" 
+                      title="Delete category"
+                      class="text-outline hover:text-error text-xs flex items-center gap-0.5 transition-colors">
+                      <span class="material-symbols-outlined text-[14px]">delete</span>
+                      <span>Remove category</span>
+                    </button>
+                  </div>
+
+                  <div class="flex flex-wrap gap-space-xs pt-space-xs">
+                    <div 
+                      *ngFor="let skill of cat.skills" 
+                      class="flex items-center gap-1.5 px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface font-code-sm text-code-sm shadow-xs group hover:bg-surface-container-high transition-colors border border-outline-variant/20">
+                      <div class="w-4 h-4 flex items-center justify-center shrink-0">
+                        <img *ngIf="getSkillDisplay(skill).type === 'image'" [src]="getSkillDisplay(skill).value" class="w-4 h-4 object-contain rounded" alt="">
+                        <i *ngIf="getSkillDisplay(skill).type === 'devicon'" [class]="getSkillDisplay(skill).value + ' text-[15px]'"></i>
+                        <span *ngIf="getSkillDisplay(skill).type === 'material'" class="material-symbols-outlined text-[15px] text-secondary">{{ getSkillDisplay(skill).value }}</span>
+                      </div>
+                      <span>{{ skill.name }}</span>
+                      <button 
+                        type="button" 
+                        (click)="renameSkill(cat, skill.id, skill.name)" 
+                        class="text-outline hover:text-on-surface ml-1 transition-colors cursor-pointer" 
+                        title="Edit skill">
+                        <span class="material-symbols-outlined text-[13px]">edit</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        (click)="removeSkill(cat, skill.id)" 
+                        class="text-outline hover:text-error transition-colors cursor-pointer" 
+                        title="Delete skill">
+                        <span class="material-symbols-outlined text-[13px]">close</span>
+                      </button>
+                    </div>
+
+                    <p *ngIf="!cat.skills?.length" class="text-on-surface-variant font-code-sm text-code-sm py-1">
+                      No skills added to this category yet. Use the composer above to add skills.
+                    </p>
+                  </div>
+                </div>
+
+                <p *ngIf="!categories.length" class="text-on-surface-variant font-code-sm p-4 text-center">
+                  No skill categories yet. Upload your CV to auto-fill or click "+ Add Category" above.
+                </p>
+              </div>
+            </section>
+
+            <!-- SECTION 3: WORK EXPERIENCE (REAL CRUD) -->
+            <section class="rounded-xl bg-surface-container-low p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/20">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="font-label-mono text-label-mono text-secondary font-bold">03</span>
+                  <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Work Experience</h2>
+                </div>
+                <button 
+                  type="button" 
+                  (click)="openAddExperience()" 
+                  class="px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 transition-all shadow-sm">
+                  <span class="material-symbols-outlined text-[16px] text-primary">add_circle</span>
+                  <span>Add Experience</span>
+                </button>
+              </div>
+
+              <div class="flex flex-col gap-space-md">
+                <div *ngFor="let exp of experiences" class="p-space-md rounded-xl bg-surface-container flex flex-col gap-space-sm shadow-xs border border-outline-variant/20">
+                  <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-xs">
+                    <div class="flex items-center gap-space-sm">
+                      <div class="w-9 h-9 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary font-label-mono text-label-mono font-bold">
+                        {{ (exp.companyName || 'CO').slice(0, 2).toUpperCase() }}
+                      </div>
+                      <div class="flex flex-col">
+                        <span class="font-headline-sm text-headline-sm text-on-surface font-semibold">{{ exp.jobTitle }}</span>
+                        <span class="font-code-sm text-code-sm text-secondary">{{ exp.companyName }}</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-space-sm">
+                      <span class="px-space-sm py-0.5 rounded-lg bg-surface-container-high font-label-mono text-label-mono text-tertiary">
+                        {{ exp.startDate | date:'yyyy' }} – {{ exp.isCurrent ? 'PRESENT' : (exp.endDate | date:'yyyy') }}
+                      </span>
+                      <button 
+                        type="button" 
+                        (click)="editExperience(exp)" 
+                        class="p-1 text-on-surface-variant hover:text-on-surface transition-colors" 
+                        title="Edit experience">
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        (click)="deleteExperience(exp)" 
+                        class="p-1 text-outline hover:text-error transition-colors" 
+                        title="Delete experience">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                  <p *ngIf="exp.description" class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                    {{ exp.description }}
+                  </p>
+                </div>
+
+                <p *ngIf="!experiences.length" class="text-on-surface-variant font-code-sm p-4 text-center">
+                  No work experience entries yet. Click "Add Experience" above or auto-complete via CV.
+                </p>
+              </div>
+            </section>
+
+            <!-- SECTION 4: PRODUCTION PROJECTS (REAL CRUD) -->
+            <section class="rounded-xl bg-surface-container-low p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/20">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="font-label-mono text-label-mono text-secondary font-bold">04</span>
+                  <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Production Projects</h2>
+                </div>
+                <button 
+                  type="button" 
+                  (click)="openAddProject()" 
+                  class="px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 transition-all shadow-sm">
+                  <span class="material-symbols-outlined text-[16px] text-primary">add_circle</span>
+                  <span>Add Project</span>
+                </button>
+              </div>
+
+              <div class="flex flex-col gap-space-md">
+                <div *ngFor="let proj of projects" class="p-space-md rounded-xl bg-surface-container flex flex-col gap-space-sm shadow-xs border border-outline-variant/20">
+                  <div class="flex flex-wrap items-center justify-between gap-space-xs">
+                    <div class="flex items-center gap-space-xs">
+                      <span class="font-headline-sm text-headline-sm text-on-surface font-semibold">{{ proj.title }}</span>
+                      <span *ngIf="proj.isFeatured" class="px-space-xs py-0.5 rounded-lg bg-primary/20 text-primary font-label-mono text-label-mono">FEATURED</span>
+                    </div>
+                    <div class="flex items-center gap-space-sm">
+                      <a *ngIf="proj.liveUrl" [href]="proj.liveUrl" target="_blank" rel="noopener" class="font-code-sm text-code-sm text-secondary hover:underline flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">link</span>
+                        <span>Live Demo</span>
+                      </a>
+                      <a *ngIf="proj.githubUrl" [href]="proj.githubUrl" target="_blank" rel="noopener" class="font-code-sm text-code-sm text-on-surface-variant hover:text-on-surface flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">code</span>
+                        <span>Source</span>
+                      </a>
+                      <button 
+                        type="button" 
+                        (click)="editProject(proj)" 
+                        class="p-1 text-on-surface-variant hover:text-on-surface transition-colors" 
+                        title="Edit project">
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        (click)="deleteProject(proj)" 
+                        class="p-1 text-outline hover:text-error transition-colors" 
+                        title="Delete project">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                  <p *ngIf="proj.description" class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                    {{ proj.description }}
+                  </p>
+                  <div *ngIf="proj.technologies?.length" class="flex flex-wrap gap-1 pt-1">
+                    <span *ngFor="let tech of proj.technologies" class="px-2 py-0.5 rounded bg-surface-container-lowest text-primary font-code-sm text-code-sm">
+                      {{ tech }}
+                    </span>
+                  </div>
+                </div>
+
+                <p *ngIf="!projects.length" class="text-on-surface-variant font-code-sm p-4 text-center">
+                  No projects added yet. Click "Add Project" above or auto-complete via CV.
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <!-- RIGHT COLUMN: CREDENTIALS & SOCIALS (4 Cols) -->
+          <div class="lg:col-span-4 flex flex-col gap-space-xl">
+            <!-- SECTION 5: EDUCATION & CERTIFICATIONS (REAL CRUD) -->
+            <section class="rounded-xl bg-surface-container-low p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/20">
+              <div class="flex items-center justify-between pb-space-xs">
+                <div class="flex items-center gap-space-sm">
+                  <span class="font-label-mono text-label-mono text-secondary font-bold">05</span>
+                  <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Credentials</h2>
+                </div>
+                <button 
+                  type="button" 
+                  (click)="openAddCredential()" 
+                  class="text-primary hover:text-on-surface p-1 transition-colors" 
+                  title="Add Education or Certification">
+                  <span class="material-symbols-outlined text-[20px]">add_circle</span>
+                </button>
+              </div>
+
+              <!-- Education List -->
+              <div class="flex flex-col gap-space-sm">
+                <span class="font-label-mono text-label-mono text-outline uppercase tracking-wider">Education</span>
+                <div *ngFor="let edu of educations" class="p-space-sm rounded-xl bg-surface-container flex flex-col gap-1 border border-outline-variant/20">
+                  <div class="flex items-center justify-between">
+                    <span class="font-headline-sm text-headline-sm text-on-surface font-medium">{{ edu.institutionName }}</span>
+                    <div class="flex items-center gap-1">
+                      <button type="button" (click)="editEducation(edu)" class="p-0.5 text-on-surface-variant hover:text-on-surface">
+                        <span class="material-symbols-outlined text-[15px]">edit</span>
+                      </button>
+                      <button type="button" (click)="deleteEducation(edu)" class="p-0.5 text-outline hover:text-error">
+                        <span class="material-symbols-outlined text-[15px]">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                  <span class="font-body-sm text-body-sm text-secondary">{{ edu.degree }} {{ edu.fieldOfStudy ? '• ' + edu.fieldOfStudy : '' }}</span>
+                  <span class="font-code-sm text-code-sm text-outline">{{ edu.startDate | date:'yyyy' }} – {{ edu.isCurrent ? 'Present' : (edu.endDate | date:'yyyy') }}</span>
+                </div>
+                <p *ngIf="!educations.length" class="text-on-surface-variant text-xs">No education records yet.</p>
+
+                <!-- Certifications List -->
+                <span class="font-label-mono text-label-mono text-outline uppercase tracking-wider mt-2">Certifications</span>
+                <div *ngFor="let cert of certifications" class="p-space-sm rounded-xl bg-surface-container flex items-start justify-between gap-space-sm border border-outline-variant/20">
+                  <div class="flex flex-col min-w-0 flex-1">
+                    <span class="font-body-md text-body-md text-on-surface font-semibold truncate">{{ cert.name }}</span>
+                    <span class="font-code-sm text-code-sm text-on-surface-variant">{{ cert.issuingOrganization }}</span>
+                    <span class="font-label-mono text-label-mono text-tertiary mt-0.5">{{ cert.issueDate | date:'mediumDate' }}</span>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" (click)="editCertification(cert)" class="p-0.5 text-on-surface-variant hover:text-on-surface">
+                      <span class="material-symbols-outlined text-[15px]">edit</span>
+                    </button>
+                    <button type="button" (click)="deleteCertification(cert)" class="p-0.5 text-outline hover:text-error">
+                      <span class="material-symbols-outlined text-[15px]">delete</span>
+                    </button>
+                  </div>
+                </div>
+                <p *ngIf="!certifications.length" class="text-on-surface-variant text-xs">No certifications yet.</p>
+
+                <button 
+                  type="button" 
+                  (click)="openAddCredential()" 
+                  class="w-full mt-2 py-space-xs rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm flex items-center justify-center gap-1 transition-all">
+                  <span class="material-symbols-outlined text-[16px]">add</span>
+                  <span>Add Education / Certification</span>
+                </button>
+              </div>
+            </section>
+
+            <!-- SECTION 6: SOCIAL NETWORKS (REAL CRUD) -->
+            <section class="rounded-xl bg-surface-container-low p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/20">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-space-sm">
+                  <span class="font-label-mono text-label-mono text-secondary font-bold">06</span>
+                  <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Social Links</h2>
+                </div>
+                <span class="font-label-mono text-label-mono text-outline">API MANAGED</span>
+              </div>
+
+              <div *ngFor="let link of socialLinks" class="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-surface-container p-2.5 border border-outline-variant/20 hover:border-secondary/40 transition-colors">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary shrink-0 shadow-inner">
+                    <svg *ngIf="getSocialSvg(link)" viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+                      <path [attr.d]="getSocialSvg(link)"/>
+                    </svg>
+                    <span *ngIf="!getSocialSvg(link)" class="material-symbols-outlined text-[18px]">{{ getSocialIcon(link) }}</span>
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <strong class="text-on-surface font-medium text-body-sm">{{ link.platform }}</strong>
+                    <a class="text-secondary break-all font-code-sm text-xs hover:underline" [href]="link.url" target="_blank" rel="noopener">{{ link.url }}</a>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" (click)="editSocialLink(link)" class="p-1 text-on-surface-variant hover:text-on-surface cursor-pointer" title="Edit">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                  <button type="button" (click)="deleteSocialLink(link)" class="p-1 text-outline hover:text-error cursor-pointer" title="Delete">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                  </button>
+                </div>
+              </div>
+
+              <form class="flex flex-col gap-2 pt-2 border-t border-outline-variant/20" (ngSubmit)="saveSocialLink()">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <!-- Preset Platform Selector -->
+                  <select 
+                    [(ngModel)]="selectedPresetPlatform" 
+                    (ngModelChange)="onPresetPlatformChange($event)"
+                    name="presetSelect" 
+                    class="rounded-lg bg-surface-container-lowest px-3 py-1.5 text-on-surface font-code-sm text-code-sm border border-outline-variant/30 outline-none cursor-pointer">
+                    <option value="">-- اختر منصة أو اكتب بالأسفل --</option>
+                    <option *ngFor="let p of presetPlatforms" [value]="p.id">{{ p.name }}</option>
+                  </select>
+
+                  <div class="flex items-center gap-2">
+                    <input 
+                      name="platform" 
+                      [(ngModel)]="socialForm.platform" 
+                      (input)="onSocialInput()"
+                      required 
+                      placeholder="اسم المنصة (مثال: GitHub)" 
+                      class="flex-1 rounded-lg bg-surface-container-lowest px-3 py-1.5 text-on-surface font-code-sm text-code-sm border border-outline-variant/30 outline-none">
+                    <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary shrink-0 border border-outline-variant/20 shadow-sm" title="أيقونة المنصة التلقائية">
+                      <svg *ngIf="getSocialSvg(socialForm)" viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+                        <path [attr.d]="getSocialSvg(socialForm)"/>
+                      </svg>
+                      <span *ngIf="!getSocialSvg(socialForm)" class="material-symbols-outlined text-[18px]">{{ detectedIconPreview }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <input 
+                  name="url" 
+                  [(ngModel)]="socialForm.url" 
+                  (input)="onSocialInput()"
+                  required 
+                  type="url" 
+                  placeholder="رابط الحساب (https://...)" 
+                  class="rounded-lg bg-surface-container-lowest px-3 py-1.5 text-on-surface font-code-sm text-code-sm border border-outline-variant/30 outline-none">
+
+                <div class="flex items-center justify-between pt-1">
+                  <span class="text-xs text-outline font-code-sm flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px] text-tertiary">auto_fix_high</span>
+                    <span>الأيقونة تتحدد تلقائياً حسب نوع الرابط المدخل</span>
+                  </span>
+                  <div class="flex items-center gap-2">
+                    <button 
+                      *ngIf="editingSocialId" 
+                      type="button" 
+                      (click)="editingSocialId = null; socialForm = { platform: '', url: '', icon: '' }"
+                      class="rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface px-3 py-1.5 font-body-sm text-body-sm transition-colors cursor-pointer">
+                      إلغاء
+                    </button>
+                    <button 
+                      type="submit" 
+                      class="rounded-lg bg-primary hover:bg-primary-container text-on-primary hover:text-on-primary-container px-3 py-1.5 font-body-sm text-body-sm font-medium transition-colors cursor-pointer">
+                      {{ editingSocialId ? 'تحديث الرابط' : '+ إضافة الرابط' }}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- STICKY BOTTOM ACTION BAR -->
+      <aside class="fixed bottom-0 left-64 right-0 bg-surface-container-lowest/95 backdrop-blur-xl z-30 shadow-[0_-4px_24px_rgba(0,0,0,0.4)] border-t border-outline-variant/30">
+        <div class="max-w-[1560px] mx-auto px-gutter-desktop py-space-sm flex flex-wrap items-center justify-between gap-space-md">
+          <div class="flex items-center gap-space-md">
+            <div class="flex items-center gap-space-xs">
+              <span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+              <span class="font-code-sm text-code-sm text-on-surface">Auto-Sync with ASP.NET Core API</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-space-sm">
+            <a 
+              routerLink="/portfolio" 
+              target="_blank" 
+              class="px-space-sm py-space-xs rounded-xl bg-surface-container hover:bg-surface-container-high text-secondary font-body-sm text-body-sm flex items-center gap-1 transition-all">
+              <span>Preview Portfolio</span>
+              <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+            </a>
+            <button 
+              type="button" 
+              (click)="saveAndDeploy()" 
+              [disabled]="isSaving" 
+              class="px-space-md py-space-xs rounded-xl bg-primary hover:bg-primary-container text-on-primary hover:text-on-primary-container font-headline-sm text-body-sm font-semibold flex items-center gap-1.5 shadow-[0_0_16px_rgba(208,188,255,0.3)] transition-all disabled:opacity-50">
+              <span class="material-symbols-outlined text-[18px]">save</span>
+              <span>{{ isSaving ? 'Saving...' : 'Save Profile Changes' }}</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: ADD / EDIT EXPERIENCE -->
+<div *ngIf="experienceModalOpen" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="w-full max-w-lg p-space-lg rounded-2xl bg-surface-container-high border border-outline-variant/40 shadow-2xl flex flex-col gap-space-md animate-in fade-in">
+    <div class="flex items-center justify-between">
+      <h3 class="font-headline-sm text-on-surface font-semibold">{{ editingExperience ? 'Edit Work Experience' : 'Add Work Experience' }}</h3>
+      <button type="button" (click)="experienceModalOpen = false" class="text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+    <form (ngSubmit)="saveExperience()" class="flex flex-col gap-space-sm">
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Job Title</label>
+        <input [(ngModel)]="experienceForm.jobTitle" name="expJobTitle" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="e.g. Senior Distributed Systems Engineer">
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Company Name</label>
+        <input [(ngModel)]="experienceForm.companyName" name="expCompany" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="e.g. Stripe">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col gap-1">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Start Date</label>
+          <input [(ngModel)]="experienceForm.startDate" name="expStart" type="date" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">End Date</label>
+          <input [(ngModel)]="experienceForm.endDate" name="expEnd" type="date" [disabled]="experienceForm.isCurrent" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none disabled:opacity-50">
+        </div>
+      </div>
+      <label class="flex items-center gap-2 text-body-sm text-on-surface cursor-pointer">
+        <input type="checkbox" [(ngModel)]="experienceForm.isCurrent" name="expCurrent" class="rounded accent-primary">
+        <span>Current Role (Present)</span>
+      </label>
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Description &amp; Key Achievements</label>
+        <textarea [(ngModel)]="experienceForm.description" name="expDesc" rows="3" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="Detail your impact, technologies used, and metrics..."></textarea>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" (click)="experienceModalOpen = false" class="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-sm">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-body-sm font-medium">Save Experience</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: ADD / EDIT PROJECT -->
+<div *ngIf="projectModalOpen" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="w-full max-w-lg p-space-lg rounded-2xl bg-surface-container-high border border-outline-variant/40 shadow-2xl flex flex-col gap-space-md animate-in fade-in">
+    <div class="flex items-center justify-between">
+      <h3 class="font-headline-sm text-on-surface font-semibold">{{ editingProject ? 'Edit Project' : 'Add Project' }}</h3>
+      <button type="button" (click)="projectModalOpen = false" class="text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+    <form (ngSubmit)="saveProject()" class="flex flex-col gap-space-sm">
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Project Title</label>
+        <input [(ngModel)]="projectForm.title" name="projTitle" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="e.g. HyperScale KV Store">
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Description</label>
+        <textarea [(ngModel)]="projectForm.description" name="projDesc" rows="3" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="Architecture, key capabilities, benchmarks..."></textarea>
+      </div>
+      <!-- Project Cover Image -->
+      <div class="flex flex-col gap-2 p-3 rounded-xl bg-surface-container-low border border-outline-variant/30">
+        <div class="flex items-center justify-between">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase font-medium">Cover Image</label>
+          <span class="font-label-mono text-[11px] text-tertiary">Images Only (.jpg, .png, .webp, .svg, .gif)</span>
+        </div>
+
+        <div *ngIf="projectForm.image" class="relative group rounded-lg overflow-hidden border border-outline-variant/30 bg-surface-container-lowest flex items-center justify-center">
+          <img [src]="projectForm.image" alt="Project Preview" class="w-full h-32 object-cover">
+          <div class="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all">
+            <button type="button" (click)="removeProjectImage()" class="px-3 py-1 rounded-lg bg-error text-on-error text-body-sm flex items-center gap-1 shadow-md">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+              Remove
+            </button>
+          </div>
+        </div>
+
+        <div 
+          (dragover)="onProjectImageDragOver($event)"
+          (dragleave)="onProjectImageDragLeave($event)"
+          (drop)="onProjectImageDrop($event)"
+          [class.border-primary]="isDraggingProjectImage"
+          [class.bg-primary-container]="isDraggingProjectImage"
+          class="border border-dashed border-outline-variant/40 rounded-lg p-3 flex flex-col items-center justify-center text-center gap-1 transition-all cursor-pointer hover:bg-surface-container-high/40"
+          (click)="cvProjFileInput.click()">
+          <input #cvProjFileInput type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" (change)="uploadProjectImage($event)" class="hidden">
+          <span class="material-symbols-outlined text-[24px] text-secondary" [class.animate-spin]="isUploadingProjectImage">
+            {{ isUploadingProjectImage ? 'refresh' : 'add_photo_alternate' }}
+          </span>
+          <span class="text-body-sm text-on-surface font-medium">
+            {{ isUploadingProjectImage ? 'Uploading image...' : (projectForm.image ? 'Click or drop new image to replace' : 'Click to upload image or drag & drop here') }}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <span class="font-label-mono text-label-mono text-xs text-outline">URL:</span>
+          <input [(ngModel)]="projectForm.image" name="projImage" class="flex-1 p-1.5 text-xs rounded bg-surface-container-lowest text-on-surface border border-outline-variant/20 outline-none" placeholder="https://... or /uploads/...">
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Technologies (comma-separated)</label>
+        <input [(ngModel)]="projectTechInput" name="projTechs" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="Rust, Raft, gRPC, Docker">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col gap-1">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Live Demo URL</label>
+          <input [(ngModel)]="projectForm.liveUrl" name="projLive" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="https://...">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">GitHub URL</label>
+          <input [(ngModel)]="projectForm.githubUrl" name="projGit" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="https://github.com/...">
+        </div>
+      </div>
+      <label class="flex items-center gap-2 text-body-sm text-on-surface cursor-pointer">
+        <input type="checkbox" [(ngModel)]="projectForm.isFeatured" name="projFeatured" class="rounded accent-primary">
+        <span>Featured on Main Showcase</span>
+      </label>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" (click)="projectModalOpen = false" class="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-sm">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-body-sm font-medium">Save Project</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: ADD / EDIT CREDENTIAL (EDUCATION / CERTIFICATION) -->
+<div *ngIf="credentialModalOpen" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="w-full max-w-lg p-space-lg rounded-2xl bg-surface-container-high border border-outline-variant/40 shadow-2xl flex flex-col gap-space-md animate-in fade-in">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button 
+          type="button" 
+          (click)="credentialType = 'education'" 
+          [class]="credentialType === 'education' ? 'px-3 py-1 rounded-lg bg-primary text-on-primary font-body-sm font-medium' : 'px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant font-body-sm'">
+          Education
+        </button>
+        <button 
+          type="button" 
+          (click)="credentialType = 'certification'" 
+          [class]="credentialType === 'certification' ? 'px-3 py-1 rounded-lg bg-primary text-on-primary font-body-sm font-medium' : 'px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant font-body-sm'">
+          Certification
+        </button>
+      </div>
+      <button type="button" (click)="credentialModalOpen = false" class="text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+
+    <!-- Education Form -->
+    <form *ngIf="credentialType === 'education'" (ngSubmit)="saveEducation()" class="flex flex-col gap-space-sm">
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Degree</label>
+        <input [(ngModel)]="educationForm.degree" name="eduDegree" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="e.g. B.S. in Computer Science">
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Institution Name</label>
+        <input [(ngModel)]="educationForm.institutionName" name="eduInst" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="e.g. UC Berkeley">
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Field of Study</label>
+        <input [(ngModel)]="educationForm.fieldOfStudy" name="eduField" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="e.g. Distributed Systems">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col gap-1">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Start Date</label>
+          <input [(ngModel)]="educationForm.startDate" name="eduStart" type="date" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">End Date</label>
+          <input [(ngModel)]="educationForm.endDate" name="eduEnd" type="date" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none">
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" (click)="credentialModalOpen = false" class="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-sm">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-body-sm font-medium">Save Education</button>
+      </div>
+    </form>
+
+    <!-- Certification Form -->
+    <form *ngIf="credentialType === 'certification'" (ngSubmit)="saveCertification()" class="flex flex-col gap-space-sm">
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Certification Name</label>
+        <input [(ngModel)]="certificationForm.name" name="certName" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="e.g. Certified Kubernetes Administrator (CKA)">
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Issuing Organization</label>
+        <input [(ngModel)]="certificationForm.issuingOrganization" name="certIssuer" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="e.g. Linux Foundation / CNCF">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col gap-1">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Issue Date</label>
+          <input [(ngModel)]="certificationForm.issueDate" name="certDate" type="date" required class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="font-label-mono text-label-mono text-on-surface-variant uppercase">Credential URL</label>
+          <input [(ngModel)]="certificationForm.credentialUrl" name="certUrl" class="p-2 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 outline-none" placeholder="https://...">
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" (click)="credentialModalOpen = false" class="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-sm">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-body-sm font-medium">Save Certification</button>
+      </div>
+    </form>
+  </div>
+</div>

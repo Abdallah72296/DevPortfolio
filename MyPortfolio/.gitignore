@@ -1,0 +1,61 @@
+# =====================================================================
+# Git Ignore for MyPortfolio Solution (Angular 20+ & .NET 10 Web API)
+# =====================================================================
+
+# --------------------------------------------------
+# Secrets & Sensitive Configuration (CRITICAL)
+# --------------------------------------------------
+**/appsettings.json
+**/appsettings.Production.json
+**/appsettings.Development.json
+!**/appsettings.template.json
+secrets.json
+
+# --------------------------------------------------
+# .NET Build, Publish, & Runtime Artifacts
+# --------------------------------------------------
+**/bin/
+**/obj/
+**/publish/
+**/out/
+*.deps.json
+*.runtimeconfig.json
+
+# Visual Studio & IDE Artifacts
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.DotSettings.user
+
+# Serilog & Application Logs
+**/logs/
+*.log
+
+# --------------------------------------------------
+# Uploaded User Files & Documents
+# --------------------------------------------------
+**/wwwroot/uploads/**
+!**/wwwroot/uploads/.gitkeep
+!**/wwwroot/uploads/cv/.gitkeep
+
+# --------------------------------------------------
+# Angular & Node.js Artifacts
+# --------------------------------------------------
+**/node_modules/
+**/.angular/
+**/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# --------------------------------------------------
+# OS & Temporary Files
+# --------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/

@@ -1,0 +1,4 @@
+/* Admin Header scoped styles */
+:host {
+  display: block;
+}

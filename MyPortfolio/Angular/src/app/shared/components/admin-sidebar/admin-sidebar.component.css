@@ -1,0 +1,4 @@
+/* Admin Sidebar scoped styles */
+:host {
+  display: block;
+}

@@ -1,0 +1,4 @@
+/* projects-repositories scoped styles */
+:host {
+  display: block;
+}

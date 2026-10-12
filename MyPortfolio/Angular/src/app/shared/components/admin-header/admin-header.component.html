@@ -1,0 +1,49 @@
+<header class="fixed top-0 left-64 right-0 h-16 bg-surface/80 backdrop-blur-xl z-30 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+  <div class="w-full h-16 px-space-md flex items-center justify-between">
+    <div class="flex items-center gap-space-md">
+      <div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-xl bg-surface-container">
+        <span class="material-symbols-outlined text-outline text-[18px]">search</span>
+        <span class="font-code-sm text-code-sm text-on-surface-variant">Quick search modules (⌘K)</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-space-sm">
+        <a routerLink="/dashboard" routerLinkActive="bg-surface-container text-on-surface font-semibold rounded-lg" [routerLinkActiveOptions]="{ exact: true }" class="px-space-sm py-space-xs text-on-surface-variant hover:text-on-surface transition-colors font-body-sm text-body-sm">
+          Dashboard
+        </a>
+        <a routerLink="/profile-editor" routerLinkActive="bg-surface-container text-on-surface font-semibold rounded-lg" class="px-space-sm py-space-xs text-on-surface-variant hover:text-on-surface transition-colors font-body-sm text-body-sm">
+          Editor
+        </a>
+        <a routerLink="/projects" routerLinkActive="bg-surface-container text-on-surface font-semibold rounded-lg" class="px-space-sm py-space-xs text-on-surface-variant hover:text-on-surface transition-colors font-body-sm text-body-sm">
+          Releases
+        </a>
+        <a *ngIf="auth.isAdmin()" routerLink="/access-control" routerLinkActive="bg-surface-container text-on-surface font-semibold rounded-lg" class="px-space-sm py-space-xs text-on-surface-variant hover:text-on-surface transition-colors font-body-sm text-body-sm">
+          Security
+        </a>
+      </nav>
+    </div>
+
+    <div class="flex items-center gap-space-md">
+      <div class="hidden sm:flex items-center gap-space-xs px-space-sm py-space-xs rounded-xl bg-surface-container">
+        <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+        <span class="font-label-mono text-label-mono text-on-surface">GATEWAY: HEALTHY</span>
+      </div>
+
+      <button class="flex items-center justify-center p-space-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-xl transition-all" title="Notifications">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+      </button>
+
+      <button class="flex items-center justify-center p-space-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-xl transition-all" title="Terminal">
+        <span class="material-symbols-outlined text-[20px]">terminal</span>
+      </button>
+
+      <div class="flex items-center gap-space-sm pl-space-sm">
+        <div class="flex flex-col text-right">
+          <span class="font-label-mono text-label-mono text-on-surface font-semibold">{{ auth.getUserEmail() || 'alex.chen@arch' }}</span>
+          <span class="font-code-sm text-code-sm text-outline">{{ auth.isAdmin() ? 'Administrator' : 'Staff Engineer' }}</span>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(208,188,255,0.25)]">
+          <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

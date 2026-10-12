@@ -1,0 +1,314 @@
+<main class="w-full"><div class="flex flex-col w-full">
+<div class="relative w-full overflow-hidden px-margin sm:px-margin-desktop py-space-xl flex justify-center items-center">
+<!-- Ambient Telemetry Grid and Gradients (Pure inline styling & layer depth, no generic borders) -->
+<div class="absolute inset-0 pointer-events-none opacity-40">
+<svg class="w-full h-full text-surface-container-highest" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="32" id="matrix-grid" patternunits="userSpaceOnUse" width="32">
+<path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" stroke-opacity="0.25" stroke-width="0.75"></path>
+<circle cx="0" cy="0" fill="#4cd7f6" fill-opacity="0.3" r="1"></circle>
+</pattern>
+</defs>
+<rect fill="url(#matrix-grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- Soft chromatic background blooms -->
+<div class="absolute -top-40 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-32 -right-20 w-[30rem] h-[30rem] bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/2 left-1/3 -translate-y-1/2 w-80 h-80 bg-tertiary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Main Workspace Container -->
+<div class="relative z-10 w-full max-w-6xl shadow-2xl rounded-xl bg-surface-container-low overflow-hidden">
+<div class="grid grid-cols-1 lg:grid-cols-12 min-h-[720px]">
+<!-- Left / Brand Showcase Column (5 cols on lg) -->
+<div class="lg:col-span-5 bg-surface-container-lowest p-space-lg lg:p-space-xl flex flex-col justify-between relative overflow-hidden">
+<!-- Subtle Glow Ring Inside Showcase -->
+<div class="absolute -top-24 -left-24 w-64 h-64 bg-primary/20 rounded-full blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col gap-space-lg">
+<!-- Brand Identity -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-headline-sm" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md tracking-tight text-on-surface">DevFolio</span>
+<span class="font-label-mono text-label-mono text-secondary px-space-xs py-0.5 rounded bg-surface-container-high">STUDIO</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mt-1">
+                Developer Portfolio Engine for Engineering Leaders & Systems Architects.
+              </p>
+</div>
+<!-- Architectural Status Telemetry Pill -->
+<div class="flex items-center gap-2 px-space-sm py-1 rounded-full bg-surface-container-high w-fit">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant">NODE CLUSTER: GLOBAL EDGE LIVE</span>
+</div>
+<!-- Features Showcase List -->
+<div class="flex flex-col gap-space-md pt-space-xs">
+<!-- Feature 1 -->
+<div class="flex items-start gap-space-sm group">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0 shadow-sm mt-0.5 group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-body-lg">auto_awesome</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-md text-on-surface font-medium">AI & ATS-Optimized CV Importer</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                    Parse structured resumes into an interactive, multi-view production artifact in seconds.
+                  </p>
+</div>
+</div>
+<!-- Feature 2 -->
+<div class="flex items-start gap-space-sm group">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0 shadow-sm mt-0.5 group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-body-lg">bolt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-md text-on-surface font-medium">Custom Subdomains & Edge SSL</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                    Instant sub-second deploys routed via Cloudflare edge workers with zero-config TLS.
+                  </p>
+</div>
+</div>
+<!-- Feature 3 -->
+<div class="flex items-start gap-space-sm group">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-tertiary shrink-0 shadow-sm mt-0.5 group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-body-lg">schema</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-md text-on-surface font-medium">Architecture & Telemetry Showcases</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                    Live system diagrams, benchmark metrics, and verified production commit proof.
+                  </p>
+</div>
+</div>
+</div>
+<!-- Mini Sparkline / Metrics Card -->
+<div class="bg-surface-container p-space-md rounded-xl flex flex-col gap-space-xs shadow-sm">
+<div class="flex justify-between items-center">
+<span class="font-label-mono text-code-sm text-on-surface-variant uppercase">Portfolio Latency Distribution</span>
+<span class="font-label-mono text-code-sm text-tertiary">P99 18ms</span>
+</div>
+<div class="w-full h-8 flex items-end gap-1 pt-1">
+<div class="w-1/12 bg-surface-container-highest rounded-t h-2"></div>
+<div class="w-1/12 bg-surface-container-highest rounded-t h-3"></div>
+<div class="w-1/12 bg-secondary/50 rounded-t h-5"></div>
+<div class="w-1/12 bg-secondary/70 rounded-t h-7"></div>
+<div class="w-1/12 bg-secondary rounded-t h-6"></div>
+<div class="w-1/12 bg-primary/70 rounded-t h-8"></div>
+<div class="w-1/12 bg-primary rounded-t h-5"></div>
+<div class="w-1/12 bg-tertiary rounded-t h-4"></div>
+<div class="w-1/12 bg-surface-container-highest rounded-t h-3"></div>
+<div class="w-1/12 bg-surface-container-highest rounded-t h-2"></div>
+<div class="w-1/12 bg-surface-container-highest rounded-t h-1"></div>
+<div class="w-1/12 bg-surface-container-highest rounded-t h-2"></div>
+</div>
+</div>
+</div>
+<!-- Proof Quote / Social Verification -->
+<div class="relative z-10 pt-space-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<div class="flex -space-x-1.5">
+<div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-primary-fixed-dim text-code-sm font-label-mono">S</div>
+<div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-secondary text-code-sm font-label-mono">D</div>
+<div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-tertiary text-code-sm font-label-mono">C</div>
+<div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface text-code-sm font-label-mono">G</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">14,000+ top engineering leaders</span>
+</div>
+<p class="font-label-mono text-code-sm text-outline">
+              Stripe • Datadog • Cloudflare • Google • Meta
+            </p>
+</div>
+</div>
+<!-- Right / Authentication Interactive Container (7 cols on lg) -->
+<div class="lg:col-span-7 bg-surface-container p-space-md sm:p-space-lg lg:p-space-xl flex flex-col justify-center">
+<!-- Mode Switcher Tabs -->
+<div class="w-full flex items-center justify-between mb-space-md">
+<div class="inline-flex p-1 rounded-lg bg-surface-container-lowest shadow-inner" id="authTabs" role="tablist">
+<button type="button" (click)="switchTab('login')" [attr.aria-selected]="activeTab === 'login'" [ngClass]="activeTab === 'login' ? 'bg-surface-container text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'" class="px-space-md py-1.5 rounded-md font-body-sm text-body-sm transition-all duration-200 font-medium flex items-center gap-1.5" id="tabBtnLogin" role="tab">
+<span class="material-symbols-outlined text-body-md text-primary">login</span>
+                Sign In
+              </button>
+<button type="button" (click)="switchTab('register')" [attr.aria-selected]="activeTab === 'register'" [ngClass]="activeTab === 'register' ? 'bg-surface-container text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'" class="px-space-md py-1.5 rounded-md font-body-sm text-body-sm transition-all duration-200 font-medium flex items-center gap-1.5" id="tabBtnRegister" role="tab">
+<span class="material-symbols-outlined text-body-md text-secondary">person_add</span>
+                Create Account
+              </button>
+</div>
+<div class="hidden sm:flex items-center gap-1 text-on-surface-variant font-label-mono text-code-sm">
+<span class="material-symbols-outlined text-code-lg text-tertiary">lock</span>
+<span>TLS 1.3 / E2EE</span>
+</div>
+</div>
+<!-- ================= TAB 1: SIGN IN (LOGIN FORM) ================= -->
+<div [class.hidden]="activeTab !== 'login'" class="flex flex-col gap-space-md transition-opacity duration-200" id="loginView">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Welcome back, Architect</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Authenticate to synchronize your deployments and telemetry.</p>
+</div>
+<!-- Error Feedback Alert Demo (Collapsible / Closable) -->
+<div *ngIf="authError" class="p-space-sm px-space-md rounded-lg bg-error-container text-on-error-container flex items-start gap-space-sm shadow-sm" id="loginAlertBox">
+<span class="material-symbols-outlined text-headline-sm shrink-0 mt-0.5 text-error">error</span>
+<div class="flex-1">
+<span class="font-headline-sm text-body-sm font-medium block">Authentication failed</span>
+<p class="font-body-sm text-body-sm text-on-error-container/90">{{ authError }}</p>
+</div>
+<button aria-label="Dismiss" class="text-on-error-container/70 hover:text-on-error-container p-0.5">
+<span class="material-symbols-outlined text-body-lg">close</span>
+</button>
+</div>
+<!-- Sign In Form -->
+<form class="flex flex-col gap-space-md" (ngSubmit)="handleLoginSubmit()">
+<!-- Email Input -->
+<div class="flex flex-col gap-1">
+<label class="font-label-mono text-label-mono text-on-surface-variant uppercase flex justify-between" for="loginEmail">
+<span>Email Address</span>
+<span class="text-outline lowercase">work or personal</span>
+</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-body-lg text-outline pointer-events-none">alternate_email</span>
+<input class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline/70 font-body-md text-body-md pl-10 pr-4 py-2.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary shadow-inner" id="loginEmail" name="loginEmail" [(ngModel)]="loginEmail" placeholder="name&#64;example.com" required type="email" autocomplete="username"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="flex flex-col gap-1">
+<label class="font-label-mono text-label-mono text-on-surface-variant uppercase flex justify-between" for="loginPassword">
+<span>Password</span>
+<span class="text-outline">encrypted</span>
+</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-body-lg text-outline pointer-events-none">lock</span>
+<input class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline/70 font-body-md text-body-md pl-10 pr-10 py-2.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary shadow-inner" id="loginPassword" name="loginPassword" [(ngModel)]="loginPassword" placeholder="Enter your password" required [type]="showLoginPass ? 'text' : 'password'" autocomplete="current-password"/>
+<button aria-label="Toggle password visibility" class="absolute right-3 text-outline hover:text-on-surface focus:outline-none" type="button" (click)="showLoginPass = !showLoginPass">
+<span class="material-symbols-outlined text-body-lg" id="loginEyeIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember & Forgot Password Links -->
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant hover:text-on-surface">
+<input checked="" class="w-4 h-4 rounded bg-surface-container-lowest text-primary accent-primary focus:ring-0 cursor-pointer" type="checkbox"/>
+<span>Remember this device (30 days)</span>
+</label>
+<span class="text-outline">Password reset via support</span>
+</div>
+<!-- Primary Submit Button -->
+<button [disabled]="isLoggingIn" class="w-full mt-1 bg-primary text-on-primary font-headline-sm text-body-md font-medium py-2.5 px-space-md rounded-lg shadow-md hover:bg-primary-container hover:text-on-primary-container active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60" id="loginSubmitBtn" type="submit">
+<span id="loginBtnText">{{ loginBtnText }}</span>
+<span class="hidden animate-spin material-symbols-outlined text-body-lg" id="loginSpinner">progress_activity</span>
+<span class="material-symbols-outlined text-body-lg group-hover:translate-x-0.5 transition-transform" id="loginBtnArrow">arrow_forward</span>
+</button>
+</form>
+<!-- Footer helper -->
+<div class="text-center mt-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Don't have an account? </span>
+<button type="button" (click)="switchTab('register')" class="font-body-sm text-body-sm text-secondary hover:text-secondary-fixed font-medium focus:outline-none">
+                Create DevFolio profile →
+              </button>
+</div>
+</div>
+<!-- ================= TAB 2: CREATE ACCOUNT (REGISTER FORM) ================= -->
+<div [class.hidden]="activeTab !== 'register'" class="flex flex-col gap-space-md transition-opacity duration-200" id="registerView">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Initialize Dev Profile</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Claim your engineer namespace and configure telemetry nodes.</p>
+</div>
+<form class="flex flex-col gap-space-sm" (ngSubmit)="handleRegisterSubmit()">
+<!-- Name & Email Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<!-- Full Name -->
+<div class="flex flex-col gap-1">
+<label class="font-label-mono text-label-mono text-on-surface-variant uppercase" for="regName">Full Name</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-body-lg text-outline pointer-events-none">badge</span>
+<input class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline/70 font-body-md text-body-md pl-10 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary shadow-inner" id="regName" name="regName" [(ngModel)]="regName" placeholder="Your name" required type="text" autocomplete="name"/>
+</div>
+</div>
+<!-- Dev Email -->
+<div class="flex flex-col gap-1">
+<label class="font-label-mono text-label-mono text-on-surface-variant uppercase" for="regEmail">Developer Email</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-body-lg text-outline pointer-events-none">mail</span>
+<input class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline/70 font-body-md text-body-md pl-10 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary shadow-inner" id="regEmail" name="regEmail" [(ngModel)]="regEmail" placeholder="you&#64;example.com" required type="email" autocomplete="email"/>
+</div>
+</div>
+</div>
+<!-- Password with Strength Evaluator -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<label class="font-label-mono text-label-mono text-on-surface-variant uppercase" for="regPassword">Create Password</label>
+<span class="font-label-mono text-code-sm" [ngClass]="strengthClass" id="strengthLabel">{{ strengthLabel }}</span>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-body-lg text-outline pointer-events-none">key</span>
+<input class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline/70 font-body-md text-body-md pl-10 pr-10 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary shadow-inner" id="regPassword" name="regPassword" [(ngModel)]="regPassword" (input)="onPasswordInput(regPassword)" placeholder="Min 8 characters" required [type]="showRegPass ? 'text' : 'password'" autocomplete="new-password"/>
+<button aria-label="Toggle password visibility" class="absolute right-3 text-outline hover:text-on-surface focus:outline-none" type="button" (click)="showRegPass = !showRegPass">
+<span class="material-symbols-outlined text-body-lg" id="regEyeIcon">visibility</span>
+</button>
+</div>
+<!-- Password Strength Visual Indicator -->
+<div class="flex items-center gap-1.5 mt-1">
+<div class="h-1 flex-1 rounded transition-all" [ngClass]="barClass(1)" id="bar1"></div>
+<div class="h-1 flex-1 rounded transition-all" [ngClass]="barClass(2)" id="bar2"></div>
+<div class="h-1 flex-1 rounded transition-all" [ngClass]="barClass(3)" id="bar3"></div>
+<div class="h-1 flex-1 rounded transition-all" [ngClass]="barClass(4)" id="bar4"></div>
+</div>
+<span class="font-label-mono text-code-sm text-on-surface-variant" id="strengthHelp">{{ strengthHelp }}</span>
+</div>
+<!-- Confirm Password Field with Live Match Validation -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<label class="font-label-mono text-label-mono text-on-surface-variant uppercase" for="regConfirmPassword">Confirm Passphrase</label>
+<span class="font-label-mono text-code-sm flex items-center gap-1" [ngClass]="passwordsMatch ? 'text-tertiary' : 'text-error'" id="matchStatusText">
+<span class="material-symbols-outlined text-code-lg">{{ passwordsMatch ? 'check_circle' : 'error' }}</span> {{ passwordsMatch ? 'Passwords match' : 'Passwords do not match' }}
+                  </span>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-body-lg text-outline pointer-events-none">verified_user</span>
+<input class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline/70 font-body-md text-body-md pl-10 pr-10 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary shadow-inner" id="regConfirmPassword" name="regConfirmPassword" [(ngModel)]="regConfirmPassword" placeholder="Re-enter password" required type="password" autocomplete="new-password"/>
+<span class="material-symbols-outlined absolute right-3 text-body-lg" [ngClass]="passwordsMatch ? 'text-tertiary' : 'text-error'" id="matchIcon">{{ passwordsMatch ? 'done_all' : 'close' }}</span>
+</div>
+</div>
+<!-- Subdomain Reservation Preview Component -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2 overflow-hidden">
+<span class="material-symbols-outlined text-secondary text-body-lg shrink-0">public</span>
+<span class="font-label-mono text-code-sm text-on-surface-variant truncate">
+                    https://<span class="text-secondary font-semibold">{{ regSubdomain }}</span>.devfolio.studio
+                  </span>
+</div>
+<span class="font-label-mono text-code-sm text-tertiary bg-surface-container-high px-2 py-0.5 rounded shrink-0">Available</span>
+</div>
+<!-- Terms & Agreement Checkbox -->
+<div class="flex items-start gap-2 pt-1">
+<input class="mt-1 w-4 h-4 rounded bg-surface-container-lowest text-secondary accent-secondary focus:ring-0 cursor-pointer" id="termsCheck" name="termsCheck" [(ngModel)]="agreeTerms" required type="checkbox"/>
+<label class="font-body-sm text-body-sm text-on-surface-variant leading-snug cursor-pointer select-none" for="termsCheck">
+                  I agree to the <a class="text-secondary hover:underline" href="javascript:void(0)">Terms of Service</a>, 
+                  <a class="text-secondary hover:underline" href="javascript:void(0)">Privacy Policy</a>, and cloud edge telemetry processing.
+                </label>
+</div>
+<!-- Primary Submit Register Button -->
+<p *ngIf="authError" class="rounded-lg bg-error-container px-3 py-2 text-body-sm text-on-error-container">{{ authError }}</p>
+<button [disabled]="isRegistering || !passwordsMatch || !agreeTerms" class="w-full mt-2 bg-secondary text-on-secondary font-headline-sm text-body-md font-medium py-2.5 px-space-md rounded-lg shadow-md hover:bg-secondary-container hover:text-on-secondary-container active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60" id="registerSubmitBtn" type="submit">
+<span id="regBtnText">{{ regBtnText }}</span>
+<span class="hidden animate-spin material-symbols-outlined text-body-lg" id="regSpinner">progress_activity</span>
+<span class="material-symbols-outlined text-body-lg group-hover:translate-x-0.5 transition-transform" id="regBtnArrow">rocket_launch</span>
+</button>
+</form>
+<!-- Bottom helper link -->
+<div class="text-center mt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Already registered? </span>
+<button type="button" (click)="switchTab('login')" class="font-body-sm text-body-sm text-primary hover:text-primary-fixed-dim font-medium focus:outline-none">
+                Sign in to existing workspace →
+              </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>

@@ -1,0 +1,438 @@
+<app-dashboard-header></app-dashboard-header>
+<app-dashboard-sidebar></app-dashboard-sidebar>
+<div class="pl-64">
+  <main class="w-full pt-16 min-h-screen bg-background text-on-surface px-gutter-desktop py-space-lg">
+    <div class="flex flex-col w-full gap-space-lg">
+<!-- Production Telemetry Status Banner -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container-low shadow-xl p-space-lg">
+<div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-secondary/5 blur-3xl pointer-events-none"></div>
+<div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-primary/5 blur-3xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-space-lg">
+<div class="flex flex-col gap-space-xs max-w-2xl">
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary font-label-mono text-label-mono">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping"></span>
+            {{ apiState === 'online' ? 'API ONLINE' : apiState === 'offline' ? 'API OFFLINE' : 'CHECKING API' }}
+          </div>
+<span class="font-code-sm text-code-sm text-outline-variant">•</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">cloud_done</span>
+            {{ databaseState === 'connected' ? 'Database connected' : databaseState === 'offline' ? 'Database unavailable' : 'Checking database…' }}
+          </span>
+</div>
+<div class="flex flex-wrap items-baseline gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">MyPortfolio API</h1>
+<span class="font-label-mono text-label-mono text-secondary px-2 py-0.5 rounded bg-surface-container-high">BACKEND STATUS</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          API and portfolio content status reported by the backend.
+        </p>
+</div>
+<!-- Health Readiness Breakdown -->
+<div class="flex items-center gap-space-lg rounded-xl bg-surface-container p-space-md shadow-md">
+<!-- SVG Radial Gauge -->
+<div class="relative flex items-center justify-center w-20 h-20 shrink-0">
+<svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+<path class="text-surface-bright" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-tertiary transition-all duration-1000 ease-out" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="98, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute flex flex-col items-center justify-center">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface leading-none">{{ apiState === 'online' && databaseState === 'connected' ? '100%' : apiState === 'offline' || databaseState === 'offline' ? '0%' : '…' }}</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant">SCORE</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5 min-w-[200px]">
+<span class="font-label-mono text-label-mono text-outline uppercase">Readiness Checklist</span>
+<div class="grid grid-cols-2 gap-x-space-md gap-y-1">
+<div class="flex items-center gap-1.5 font-code-sm text-code-sm text-on-surface">
+<span class="material-symbols-outlined text-tertiary text-[14px]">check_circle</span>
+              {{ portfolioSummary?.profileName ? 'Profile loaded' : portfolioDataAvailable ? 'Profile missing' : 'Portfolio data unavailable' }}
+            </div>
+<div class="flex items-center gap-1.5 font-code-sm text-code-sm text-on-surface">
+<span class="material-symbols-outlined text-tertiary text-[14px]">check_circle</span>
+              API: {{ apiState === 'online' ? 'Online' : apiState === 'offline' ? 'Offline' : 'Checking' }}
+            </div>
+<div class="flex items-center gap-1.5 font-code-sm text-code-sm text-on-surface">
+<span class="material-symbols-outlined text-tertiary text-[14px]">check_circle</span>
+              Database: {{ databaseState === 'connected' ? 'Connected' : databaseState === 'offline' ? 'Offline' : 'Checking' }}
+            </div>
+<div class="flex items-center gap-1.5 font-code-sm text-code-sm text-secondary">
+<span class="material-symbols-outlined text-secondary text-[14px]">check_circle</span>
+              {{ portfolioSummary ? portfolioSummary.projectCount + ' projects' : 'Projects unavailable' }}
+            </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Analytics Spark Metrics -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Metric 1: Views -->
+<div class="flex flex-col justify-between p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase">Monthly Portfolio Views</span>
+<span class="inline-flex items-center gap-0.5 font-label-mono text-label-mono text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px]">visibility</span>{{ isAuthenticated ? 'THIS MONTH' : 'SIGN IN' }}
+        </span>
+</div>
+<div class="flex items-baseline justify-between mt-space-sm">
+<span class="font-headline-lg text-headline-lg font-semibold text-on-surface">{{ analyticsSummary?.monthlyPortfolioViews ?? '—' }}</span>
+<span class="font-code-sm text-code-sm text-secondary font-medium">Views</span>
+</div>
+<!-- Mini Sparkline SVG -->
+<div class="w-full h-8 mt-space-xs">
+<svg class="w-full h-full text-secondary" fill="none" preserveAspectRatio="none" viewBox="0 0 120 30">
+<path d="M0,25 Q15,22 30,18 T60,12 T90,8 T120,3 L120,30 L0,30 Z" fill="currentColor" fill-opacity="0.1"></path>
+<path d="M0,25 Q15,22 30,18 T60,12 T90,8 T120,3" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Metric 2: Experience -->
+<div class="flex flex-col justify-between p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase">CV Downloads</span>
+<span class="material-symbols-outlined text-[18px] text-primary">download</span>
+</div>
+<div class="flex items-baseline justify-between mt-space-sm">
+<span class="font-headline-lg text-headline-lg font-semibold text-on-surface">{{ analyticsSummary?.monthlyCvDownloads ?? '—' }}</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">This month</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full mt-space-md overflow-hidden">
+<div class="bg-primary h-full rounded-full" [style.width.%]="analyticsSummary ? (analyticsSummary.monthlyCvDownloads > 0 ? 100 : 0) : 0"></div>
+</div>
+</div>
+<!-- Metric 3: Recruiter Pings -->
+<div class="flex flex-col justify-between p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase">Inbound Leads</span>
+<span class="inline-flex items-center gap-1 font-label-mono text-label-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>{{ analyticsSummary?.unreadContactMessages ?? '—' }} UNREAD
+        </span>
+</div>
+<div class="flex items-baseline justify-between mt-space-sm">
+<span class="font-headline-lg text-headline-lg font-semibold text-on-surface">{{ analyticsSummary?.monthlyContactMessages ?? '—' }}</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">This month</span>
+</div>
+<div class="flex items-center gap-1 text-code-sm font-code-sm text-tertiary mt-space-xs">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+        Total messages: {{ analyticsSummary?.totalContactMessages ?? '—' }}
+      </div>
+</div>
+<!-- Metric 4: Education &amp; Certifications Rate -->
+<div class="flex flex-col justify-between p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase">Portfolio Content</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">forward_to_inbox</span>
+</div>
+<div class="flex items-baseline justify-between mt-space-sm">
+<span class="font-headline-lg text-headline-lg font-semibold text-on-surface">{{ portfolioSummary?.projectCount ?? '—' }}</span>
+<span class="font-code-sm text-code-sm text-tertiary font-medium">Projects</span>
+</div>
+<div class="flex items-center justify-between font-label-mono text-label-mono text-on-surface-variant mt-space-xs">
+<span>Portfolio content</span>
+<span class="text-tertiary">{{ portfolioDataAvailable ? 'Loaded' : 'Unavailable' }}</span>
+</div>
+</div>
+</section>
+<!-- Main Asymmetric Workspace Split -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Left Column (Wider: 7 Cols) -->
+<div class="xl:col-span-7 flex flex-col gap-space-lg">
+<!-- Section: Health & Fast Editor -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-mono text-label-mono text-secondary px-2 py-0.5 rounded bg-surface-container">01</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Portfolio Sections Health &amp; Fast Editor</h2>
+</div>
+<button class="font-code-sm text-code-sm text-primary hover:text-primary-fixed flex items-center gap-1 transition-colors" type="button" routerLink="/workspace">
+<span>Re-order Components</span>
+<span class="material-symbols-outlined text-[14px]">tune</span>
+</button>
+</div>
+<!-- 5 Interactive Content Blocks -->
+<div class="grid grid-cols-1 gap-space-sm">
+<!-- Block 1: Bio & Hero -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-all group">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center shrink-0 text-primary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Bio &amp; Hero Headline</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-tertiary bg-tertiary/10 font-label-mono text-label-mono">COMPLETE</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">
+                  “{{ portfolioSummary?.profileTitle ?? 'Profile data loads from the API' }}”
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm mt-space-sm sm:mt-0">
+<button class="px-space-sm py-1.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm transition-colors flex items-center gap-1" type="button" routerLink="/profile-editor">
+<span class="material-symbols-outlined text-[14px]">edit</span>Edit
+              </button>
+</div>
+</div>
+<!-- Block 2: Featured Projects -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-all group">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center shrink-0 text-secondary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Featured Projects</span>
+<span class="font-label-mono text-label-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded">{{ portfolioSummary?.projectCount ?? '—' }} PUBLIC</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">
+                  Project count is loaded from the public portfolio API
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm mt-space-sm sm:mt-0">
+<button class="px-space-sm py-1.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm transition-colors flex items-center gap-1" type="button" routerLink="/projects">
+<span class="material-symbols-outlined text-[14px]">sync</span>Manage Repos
+              </button>
+</div>
+</div>
+<!-- Block 3: Work History -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-all group">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center shrink-0 text-tertiary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Work History &amp; Experience</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-tertiary bg-tertiary/10 font-label-mono text-label-mono">{{ portfolioSummary?.experienceCount ?? '—' }} ROLES</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">
+                  {{ portfolioSummary?.currentExperience ?? 'Experience data loads from the API' }}
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm mt-space-sm sm:mt-0">
+<button class="px-space-sm py-1.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm transition-colors flex items-center gap-1" type="button" routerLink="/skills-experience">
+<span class="material-symbols-outlined text-[14px]">history_edu</span>Timeline
+              </button>
+</div>
+</div>
+<!-- Block 4: Skills & Tech Cloud -->
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-all">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center shrink-0 text-primary-fixed">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Skills &amp; Tech Stack Cloud</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant bg-surface-container-high px-1.5 py-0.5 rounded">{{ portfolioSummary?.skillCount ?? '—' }} PUBLIC</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">
+                    Categorized by Systems Architecture, Distributed Runtime, &amp; Cloud Infra
+                  </p>
+</div>
+</div>
+<button class="self-start sm:self-auto px-space-sm py-1.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm transition-colors flex items-center gap-1" type="button" routerLink="/skills-experience">
+<span class="material-symbols-outlined text-[14px]">add</span>Add Tag
+              </button>
+</div>
+<!-- Tech Stack Tags Row -->
+<div class="flex flex-wrap gap-1.5 mt-space-md pt-space-sm bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-secondary">RUST / TOKIO</span>
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-secondary">GO / GOROUTINES</span>
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-secondary">ASP.NET CORE 8.0</span>
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-primary">KUBERNETES RAFT</span>
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-primary">POSTGRESQL HA</span>
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-primary">KAFKA PIPELINES</span>
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-tertiary">ANGULAR 17</span>
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-tertiary">GRPC &amp; PROTOBUF</span>
+<span class="font-label-mono text-label-mono px-2 py-0.5 rounded bg-surface-container-high text-outline">+16 MORE</span>
+</div>
+</div>
+<!-- Block 5: Active Theme -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container shadow-sm hover:shadow-md transition-all group">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center shrink-0 text-primary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">palette</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Custom Layout Theme</span>
+<span class="font-label-mono text-label-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">Theme backend unavailable</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">
+                  High contrast dark theme with JetBrains Mono monospace headings &amp; neon telemetry
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm mt-space-sm sm:mt-0">
+<button class="px-space-sm py-1.5 rounded bg-surface-container-high text-on-surface/60 font-body-sm text-body-sm transition-colors flex items-center gap-1 opacity-60 cursor-not-allowed" type="button" disabled title="Theme management is not implemented in the backend">
+<span class="material-symbols-outlined text-[14px]">brush</span>Switch Theme
+              </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Recent Inbound Opportunities & Contact Inquiries -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-mono text-label-mono text-secondary px-2 py-0.5 rounded bg-surface-container">02</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Inbound Opportunities &amp; Recruiter Messages</h2>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant">3 NEW UNREAD</span>
+</div>
+<div class="overflow-hidden rounded-xl bg-surface-container shadow-md">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high text-on-surface-variant font-label-mono text-label-mono uppercase tracking-wider">
+<th class="py-space-sm px-space-md">Sender &amp; Org</th>
+<th class="py-space-sm px-space-md">Subject / Role</th>
+<th class="py-space-sm px-space-md">Date</th>
+<th class="py-space-sm px-space-md">Status</th>
+<th class="py-space-sm px-space-md text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+  <tr *ngIf="!isAuthenticated"><td colspan="5" class="p-space-lg text-center text-on-surface-variant">Sign in with an admin account to load contact messages. <a routerLink="/auth" class="text-secondary hover:underline">Sign in</a></td></tr>
+  <tr *ngIf="isAuthenticated && contactMessagesLoading"><td colspan="5" class="p-space-lg text-center text-on-surface-variant">Loading messages from the API…</td></tr>
+  <tr *ngIf="isAuthenticated && !contactMessagesLoading && contactMessageError"><td colspan="5" class="p-space-lg text-center text-error">{{ contactMessageError }}</td></tr>
+  <tr *ngIf="isAuthenticated && !contactMessagesLoading && !contactMessageError && contactMessages.length === 0"><td colspan="5" class="p-space-lg text-center text-on-surface-variant">No contact messages found.</td></tr>
+  <tr *ngFor="let message of contactMessages" class="hover:bg-surface-container-high/60 transition-colors">
+    <td class="py-space-md px-space-md"><div class="flex flex-col"><span class="font-medium text-on-surface">{{ message.name }}</span><a class="font-code-sm text-code-sm text-secondary hover:underline" [href]="'mailto:' + message.email">{{ message.email }}</a></div></td>
+    <td class="py-space-md px-space-md max-w-xs"><span class="text-on-surface font-medium truncate block">{{ message.subject }}</span><span class="text-on-surface-variant font-code-sm text-code-sm truncate block">{{ message.message }}</span></td>
+    <td class="py-space-md px-space-md whitespace-nowrap font-code-sm text-code-sm text-on-surface-variant">{{ message.createdAt | date:'mediumDate' }}</td>
+    <td class="py-space-md px-space-md whitespace-nowrap"><span class="inline-flex items-center gap-1 font-label-mono text-label-mono px-2 py-0.5 rounded" [ngClass]="message.isRead ? 'text-outline bg-surface-container-highest' : 'text-tertiary bg-tertiary/10'"><span class="w-1.5 h-1.5 rounded-full" [ngClass]="message.isRead ? 'bg-outline' : 'bg-tertiary'"></span>{{ message.isRead ? 'READ' : 'NEW' }}</span></td>
+    <td class="py-space-md px-space-md text-right whitespace-nowrap"><div class="flex items-center justify-end gap-space-xs"><button type="button" (click)="toggleContactMessageRead(message)" class="px-space-sm py-1 rounded bg-surface-container-high text-on-surface font-code-sm text-code-sm hover:bg-surface-bright transition-all">Mark {{ message.isRead ? 'unread' : 'read' }}</button><a class="px-space-sm py-1 rounded bg-primary-container text-on-primary-container font-code-sm text-code-sm hover:bg-primary transition-all" [href]="'mailto:' + message.email + '?subject=' + message.subject">Reply</a><button type="button" (click)="deleteContactMessage(message)" class="px-space-sm py-1 rounded bg-surface-container-high text-error font-code-sm text-code-sm">Delete</button></div></td>
+  </tr>
+</tbody>
+</table>
+</div>
+<div class="p-space-sm bg-surface-container-low flex items-center justify-between font-label-mono text-label-mono text-on-surface-variant px-space-md">
+<span>{{ contactMessagesAvailable ? (contactMessages.length + ' CONTACT MESSAGES • ' + unreadContactMessageCount + ' UNREAD') : 'CONTACT MESSAGES REQUIRE ADMIN ACCESS' }}</span>
+<a class="text-secondary hover:underline flex items-center gap-1" routerLink="/admin">View Full Recruiter CRM <span class="material-symbols-outlined text-[12px]">arrow_forward</span></a>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (Inspector / Live Simulator: 5 Cols) -->
+<div class="xl:col-span-5 flex flex-col gap-space-lg">
+<!-- Live Simulator Device Frame Card -->
+<section class="flex flex-col rounded-xl bg-surface-container shadow-xl overflow-hidden">
+<!-- Workbench Controls Header -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-high">
+<div class="flex items-center gap-1">
+<span class="w-3 h-3 rounded-full bg-error-container/60"></span>
+<span class="w-3 h-3 rounded-full bg-secondary-container/60"></span>
+<span class="w-3 h-3 rounded-full bg-tertiary-container/60"></span>
+<span class="font-label-mono text-label-mono text-on-surface-variant ml-2">PREVIEW ENGINE • DEMO DATA</span>
+</div>
+<!-- Segmented Viewport Toggles -->
+<div class="flex items-center p-0.5 rounded bg-surface-container-lowest" id="viewport-switcher">
+<button class="viewport-btn px-2 py-1 rounded font-code-sm text-code-sm flex items-center gap-1" [ngClass]="viewportMode === 'desktop' ? 'text-on-surface bg-surface-container' : 'text-on-surface-variant hover:text-on-surface'" (click)="setViewport('desktop')" type="button">
+<span class="material-symbols-outlined text-[14px]">desktop_windows</span>
+</button>
+<button class="viewport-btn px-2 py-1 rounded font-code-sm text-code-sm flex items-center gap-1" [ngClass]="viewportMode === 'tablet' ? 'text-on-surface bg-surface-container' : 'text-on-surface-variant hover:text-on-surface'" (click)="setViewport('tablet')" type="button">
+<span class="material-symbols-outlined text-[14px]">tablet</span>
+</button>
+<button class="viewport-btn px-2 py-1 rounded font-code-sm text-code-sm flex items-center gap-1" [ngClass]="viewportMode === 'mobile' ? 'text-on-surface bg-surface-container' : 'text-on-surface-variant hover:text-on-surface'" (click)="setViewport('mobile')" type="button">
+<span class="material-symbols-outlined text-[14px]">smartphone</span>
+</button>
+</div>
+<a class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-bright text-on-surface font-code-sm text-code-sm hover:text-secondary transition-colors" routerLink="/portfolio">
+<span>Fullsite</span>
+<span class="material-symbols-outlined text-[12px]">open_in_new</span>
+</a>
+</div>
+<!-- Miniaturized Live Render Container -->
+<div class="p-space-md bg-surface-container-lowest flex justify-center items-center min-h-[380px] overflow-hidden transition-all duration-300" id="preview-canvas-wrapper">
+<div class="w-full rounded-lg bg-surface p-space-md shadow-2xl flex flex-col gap-space-md transition-all duration-300" [ngClass]="viewportMode === 'mobile' ? 'max-w-[320px]' : viewportMode === 'tablet' ? 'max-w-[640px]' : 'max-w-full'" id="preview-frame">
+<!-- Simulated Sub-header -->
+<div class="flex items-center justify-between pb-2 border-b border-surface-container-highest">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-code-sm text-code-sm font-semibold text-on-surface">{{ portfolioSummary?.profileName ?? 'Portfolio preview' }}</span>
+</div>
+<div class="flex items-center gap-2 font-code-sm text-code-sm text-on-surface-variant">
+<span>Projects</span>
+<span>Writing</span>
+<span>Contact</span>
+</div>
+</div>
+<!-- Simulated Hero Persona -->
+<div class="flex flex-col gap-space-xs mt-space-xs">
+<div class="inline-flex items-center gap-1 font-label-mono text-label-mono text-secondary">
+<span class="material-symbols-outlined text-[12px]">terminal</span>
+                DISTRIBUTED SYSTEMS • EX-STRIPE
+              </div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">
+                Architecting high-throughput distributed state engines.
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Designing resilient primitives, consensus algorithms, and ultra-low latency transaction layers for modern web-scale clouds.
+              </p>
+</div>
+<!-- Simulated Architecture Graphic Card -->
+<div class="p-space-sm rounded bg-surface-container-low flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
+<span>ACTIVE CLUSTER TELEMETRY</span>
+<span class="text-tertiary font-code-sm">99.999% UPTIME</span>
+</div>
+<div class="h-12 w-full rounded bg-surface-container flex items-center justify-around px-2">
+<div class="flex flex-col items-center">
+<span class="font-code-sm text-code-sm text-secondary font-bold">14.2ms</span>
+<span class="font-label-mono text-[9px] text-on-surface-variant">P99 LATENCY</span>
+</div>
+<div class="h-6 w-px bg-surface-container-highest"></div>
+<div class="flex flex-col items-center">
+<span class="font-code-sm text-code-sm text-tertiary font-bold">48.5K</span>
+<span class="font-label-mono text-[9px] text-on-surface-variant">REQ / SEC</span>
+</div>
+<div class="h-6 w-px bg-surface-container-highest"></div>
+<div class="flex flex-col items-center">
+<span class="font-code-sm text-code-sm text-primary font-bold">0 ERROR</span>
+<span class="font-label-mono text-[9px] text-on-surface-variant">RAFT CONSENSUS</span>
+</div>
+</div>
+</div>
+<!-- Simulated Primary Project Card Snippet -->
+<div class="p-space-sm rounded bg-surface-container flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">nebula-raft-kv</span>
+<span class="font-label-mono text-label-mono text-outline">Rust • RocksDB • Tokio</span>
+</div>
+<span class="font-label-mono text-label-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded">★ 1.8k</span>
+</div>
+</div>
+</div>
+<!-- Footer preview telemetry -->
+<div class="p-space-sm bg-surface-container-high flex items-center justify-between font-label-mono text-label-mono text-on-surface-variant px-space-md">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">memory</span>
+            SSR Bundle: 41.2 KB (Gzip)
+          </span>
+<span class="text-tertiary">STATIC DEMO • NOT LIVE DATA</span>
+</div>
+</section>
+<!-- Live Backend Diagnostics -->
+<section class="flex flex-col rounded-xl bg-surface-container shadow-md p-space-md">
+  <div class="flex items-center justify-between pb-space-sm mb-space-sm border-b border-surface-container-high">
+    <div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[20px]">dns</span><h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Backend Diagnostics</h3></div>
+    <span class="font-label-mono text-label-mono px-2 py-0.5 rounded" [ngClass]="apiState === 'online' && databaseState === 'connected' ? 'text-tertiary bg-tertiary/10' : apiState === 'offline' || databaseState === 'offline' ? 'text-error bg-error/10' : 'text-secondary bg-secondary/10'">{{ apiState === 'online' && databaseState === 'connected' ? 'API + DB ONLINE' : apiState === 'offline' || databaseState === 'offline' ? 'CONNECTION ISSUE' : 'CHECKING' }}</span>
+  </div>
+  <div class="flex flex-col gap-space-sm">
+    <div class="flex items-center justify-between p-space-sm rounded bg-surface-container-low"><span class="font-code-sm text-code-sm text-on-surface">ASP.NET API</span><span class="font-label-mono text-label-mono" [ngClass]="apiState === 'online' ? 'text-tertiary' : apiState === 'offline' ? 'text-error' : 'text-secondary'">{{ apiState | uppercase }}</span></div>
+    <div class="flex items-center justify-between p-space-sm rounded bg-surface-container-low"><span class="font-code-sm text-code-sm text-on-surface">Database</span><span class="font-label-mono text-label-mono" [ngClass]="databaseState === 'connected' ? 'text-tertiary' : databaseState === 'offline' ? 'text-error' : 'text-secondary'">{{ databaseState === 'connected' ? 'CONNECTED' : databaseState === 'offline' ? 'UNAVAILABLE' : 'CHECKING' }}</span></div>
+    <div class="flex items-center justify-between p-space-sm rounded bg-surface-container-low"><span class="font-code-sm text-code-sm text-on-surface">Admin session</span><span class="font-label-mono text-label-mono" [ngClass]="isAuthenticated ? 'text-tertiary' : 'text-outline'">{{ isAuthenticated ? 'SIGNED IN' : 'SIGN IN REQUIRED FOR MESSAGES' }}</span></div>
+    <div class="flex items-center justify-between p-space-sm rounded bg-surface-container-low"><span class="font-code-sm text-code-sm text-on-surface">Public portfolio data</span><span class="font-label-mono text-label-mono" [ngClass]="portfolioDataAvailable ? 'text-tertiary' : 'text-outline'">{{ portfolioDataAvailable ? 'LOADED' : 'UNAVAILABLE' }}</span></div>
+  </div>
+  <div class="mt-space-md pt-space-sm border-t border-surface-container-high flex items-center justify-between"><span class="font-code-sm text-code-sm text-outline">{{ apiState === 'online' ? 'Health endpoint reachable' : apiState === 'offline' ? 'Cannot reach health endpoint' : 'Checking API…' }}</span><button class="font-code-sm text-code-sm text-secondary hover:underline flex items-center gap-1" type="button" (click)="runHealthcheck()" [disabled]="checkingHealth"><span class="material-symbols-outlined text-[14px]">refresh</span>{{ checkingHealth ? 'Checking…' : 'Run Healthcheck' }}</button></div>
+</section>
+</div>
+</div>
+
+</div></main></div>

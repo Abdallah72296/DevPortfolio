@@ -1,0 +1,4 @@
+/* Dashboard Header scoped styles */
+:host {
+  display: block;
+}

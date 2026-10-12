@@ -1,0 +1,774 @@
+<!-- Public Portfolio Desktop - DevFolio Studio Template -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface-dim/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+  <div class="h-16 max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-space-md">
+    <div class="flex items-center gap-space-md shrink-0">
+      <div class="relative" (click)="$event.stopPropagation()">
+        <button type="button" 
+                (click)="toggleProfileMenu($event)"
+                class="flex items-center gap-3 group cursor-pointer select-none rounded-xl p-1 -m-1 hover:bg-surface-container/60 transition-colors"
+                title="Profile & Dashboard Options">
+          <!-- Profile Avatar on Left -->
+          <div class="relative w-9 h-9 rounded-xl bg-surface-container-high flex items-center justify-center shadow-[0_0_12px_rgba(76,215,246,0.15)] group-hover:ring-2 group-hover:ring-primary/40 transition-all overflow-hidden shrink-0 border border-surface-container-highest">
+            <img *ngIf="portfolio?.profile?.avatarUrl && !avatarImageFailed" 
+                 [src]="resolveMediaUrl(portfolio.profile.avatarUrl)" 
+                 class="w-full h-full object-cover" 
+                 [alt]="portfolio?.profile?.fullName || 'Profile'" 
+                 (error)="onAvatarError()">
+            <span *ngIf="!portfolio?.profile?.avatarUrl || avatarImageFailed" 
+                  class="font-code-md text-code-md font-semibold text-secondary">
+              {{ (portfolio?.profile?.fullName || 'AR').slice(0, 2).toUpperCase() }}
+            </span>
+          </div>
+          <div class="flex flex-col text-left">
+            <div class="flex items-center gap-1">
+              <span class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none group-hover:text-primary transition-colors">
+                {{ portfolio?.profile?.fullName || 'Engineering Portfolio' }}
+              </span>
+              <span class="material-symbols-outlined text-[15px] text-on-surface-variant group-hover:text-primary transition-transform duration-200" [class.rotate-180]="profileMenuOpen">expand_more</span>
+            </div>
+            <span class="font-code-sm text-code-sm text-on-surface-variant leading-tight truncate max-w-[220px]">
+              {{ portfolio?.profile?.headlineRole || portfolio?.profile?.title || 'Systems & Platform Architect' }}
+            </span>
+          </div>
+        </button>
+
+        <!-- Dropdown Menu on Avatar Click -->
+        <div *ngIf="profileMenuOpen" 
+             class="absolute top-full left-0 mt-2.5 w-64 rounded-2xl bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/30 shadow-[0_16px_36px_rgba(0,0,0,0.5)] p-2 z-50 flex flex-col gap-1">
+          
+          <div class="px-3 py-2.5 rounded-xl bg-surface-container-lowest/80 border border-outline-variant/15 flex flex-col gap-0.5">
+            <span class="text-xs font-semibold text-on-surface truncate">{{ portfolio?.profile?.fullName || 'Portfolio Owner' }}</span>
+            <span class="text-[11px] font-code-sm text-on-surface-variant truncate">{{ portfolio?.profile?.email || 'Developer Portfolio' }}</span>
+            <div class="flex items-center gap-1.5 mt-1">
+              <span class="w-1.5 h-1.5 rounded-full" [ngClass]="authService.isAuthenticated() ? 'bg-tertiary animate-pulse' : 'bg-outline'"></span>
+              <span class="text-[10px] font-label-mono text-outline uppercase">
+                {{ authService.isAuthenticated() ? 'Studio Owner' : 'Public Viewer' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="h-px bg-outline-variant/20 my-1"></div>
+
+          <!-- Studio Dashboard Action -->
+          <a [routerLink]="authService.isAuthenticated() ? '/dashboard' : '/auth'" 
+             (click)="profileMenuOpen = false"
+             class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container-highest text-on-surface hover:text-primary transition-colors cursor-pointer group text-xs font-medium">
+            <div class="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+              <span class="material-symbols-outlined text-[16px]">dashboard</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="leading-none font-semibold">Studio Dashboard</span>
+              <span class="text-[10px] text-on-surface-variant">Manage content & settings</span>
+            </div>
+          </a>
+
+          <!-- Download CV (if available) -->
+          <a *ngIf="hasCv" 
+             [href]="adminApi.getCvDownloadUrl(route.snapshot.paramMap.get('username') ?? undefined)" 
+             (click)="profileMenuOpen = false"
+             class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container-highest text-on-surface hover:text-secondary transition-colors cursor-pointer group text-xs font-medium">
+            <div class="w-7 h-7 rounded-lg bg-secondary/15 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors">
+              <span class="material-symbols-outlined text-[16px]">download</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="leading-none font-semibold">Download CV (PDF)</span>
+              <span class="text-[10px] text-on-surface-variant">Verified Engineering Dossier</span>
+            </div>
+          </a>
+
+          <!-- Copy Link Action -->
+          <button type="button" 
+                  (click)="copyPortfolioLink()" 
+                  class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container-highest text-on-surface hover:text-primary transition-colors cursor-pointer group text-xs font-medium w-full text-left">
+            <div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+              <span class="material-symbols-outlined text-[16px]">{{ linkCopied ? 'check' : 'content_copy' }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="leading-none font-semibold">{{ linkCopied ? 'Link Copied!' : 'Copy Portfolio Link' }}</span>
+              <span class="text-[10px] text-on-surface-variant">Share public URL</span>
+            </div>
+          </button>
+
+          <!-- Sign Out (if logged in) -->
+          <button *ngIf="authService.isAuthenticated()" 
+                  type="button" 
+                  (click)="signOut()" 
+                  class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors cursor-pointer group text-xs font-medium w-full text-left border-t border-outline-variant/15 mt-1 pt-2">
+            <div class="w-7 h-7 rounded-lg bg-error/15 flex items-center justify-center text-error">
+              <span class="material-symbols-outlined text-[16px]">logout</span>
+            </div>
+            <span class="leading-none font-semibold">Sign Out</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hidden xl:flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-lowest border border-outline-variant/15">
+        <span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.6)] animate-pulse"></span>
+        <span class="font-label-mono text-label-mono text-tertiary uppercase tracking-wider">
+          {{ (portfolio?.profile?.availableForHire ?? false) ? 'Available for Staff / Lead Roles' : 'Currently Engaged' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Center Navigation with dynamic order & instant hover-active / scroll-active state -->
+    <nav class="hidden lg:flex items-center gap-1 p-1 rounded-xl bg-surface-container-lowest/70 backdrop-blur-md border border-outline-variant/20 shadow-inner">
+      <button *ngFor="let item of navItems" 
+              type="button" 
+              (click)="scrollToSection(item.id, item.key, $event)" 
+              class="nav-link-btn"
+              [class.is-active]="activeNav === item.key">
+        {{ item.label }}
+      </button>
+    </nav>
+
+    <div class="flex items-center gap-space-sm shrink-0">
+      <!-- Get in Touch Button -->
+      <button type="button" (click)="scrollToSection('contact', 'contact', $event)" class="flex items-center gap-space-xs px-space-md py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-[0_0_16px_rgba(208,188,255,0.25)] transition-all font-body-sm text-body-sm font-medium cursor-pointer">
+        <span>Get in Touch</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full pt-16 bg-surface min-h-[calc(100vh-16rem)]">
+  <div class="flex flex-col w-full">
+    <!-- Top Ambient Telemetry Strip -->
+    <div class="w-full bg-surface-container-lowest border-b border-outline-variant/10">
+      <div class="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-12 py-space-xs flex flex-wrap items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+        <div class="flex items-center gap-space-md">
+          <span class="flex items-center gap-space-xs text-tertiary">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.8)]"></span>
+            LIVE PRODUCTION NODE
+          </span>
+          <span class="hidden md:inline text-outline-variant">|</span>
+          <span class="hidden md:inline text-on-surface-variant">SIGNALR ACTIVE</span>
+          <span class="hidden lg:inline text-outline-variant">|</span>
+          <span class="hidden lg:inline text-secondary">ZERO-LATENCY SYNC</span>
+        </div>
+        <div class="flex items-center gap-space-sm font-label-mono text-label-mono text-outline">
+          <span>SYS_STATUS: VERIFIED</span>
+          <span class="px-space-xs py-0.5 rounded bg-surface-container-high text-primary">v2.4.0-PROD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Editorial Section -->
+    <section class="w-full px-4 sm:px-6 lg:px-12 py-space-xl relative overflow-hidden bg-gradient-to-b from-surface via-surface-container-lowest to-surface">
+      <!-- Ambient Chromatic Glow Field -->
+      <div class="absolute -top-32 -left-32 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute top-20 right-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-[1560px] mx-auto flex flex-col gap-space-xl relative z-10">
+        <!-- Editorial Header Block -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+          <div class="lg:col-span-7 flex flex-col gap-space-md">
+            <div class="flex flex-wrap items-center gap-space-sm">
+              <span class="px-space-sm py-1 rounded bg-surface-container-high text-secondary font-label-mono text-label-mono tracking-widest uppercase shadow-sm">
+                {{ portfolio?.profile?.badge || portfolio?.profile?.headlineRole || portfolio?.profile?.title || 'STAFF DISTRIBUTED SYSTEMS ARCHITECT' }}
+              </span>
+              <div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-tertiary-container/20 text-tertiary font-code-sm text-code-sm">
+                <span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
+                <span>{{ (portfolio?.profile?.availableForHire ?? false) ? 'Available for Advisory & Opportunities' : 'Currently Engaged' }}</span>
+              </div>
+            </div>
+
+            <h1 class="font-display-hero text-display-hero text-on-surface tracking-tight leading-tight">
+              {{ portfolio?.profile?.summary || 'Architecting ultra-low latency distributed state engines & real-time telemetry pipelines.' }}
+            </h1>
+
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
+              {{ portfolio?.profile?.longBio || 'Specialized in high-throughput network runtimes, consensus implementations, and zero-allocation memory architectures with provable data invariants.' }}
+            </p>
+
+            <div class="flex flex-wrap items-center gap-space-md pt-space-sm">
+              <button type="button" (click)="scrollToSection('featured-systems', 'projects', $event)" class="px-space-lg py-space-sm rounded-lg bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container font-headline-sm text-headline-sm font-medium shadow-[0_0_24px_rgba(208,188,255,0.3)] transition-all flex items-center gap-space-xs cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">account_tree</span>
+                <span>Review Featured Architecture</span>
+              </button>
+              <a class="px-space-lg py-space-sm rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-code-md text-code-md flex items-center gap-space-xs shadow-sm" [href]="adminApi.getCvDownloadUrl(route.snapshot.paramMap.get('username') ?? undefined)">
+                <span class="material-symbols-outlined text-[18px] text-secondary">file_download</span>
+                <span>Download Verified CV (PDF)</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Profile Hero Portrait Card -->
+          <div class="lg:col-span-5 flex flex-col gap-space-md">
+            <div class="relative p-space-md rounded-xl bg-surface-container shadow-xl flex flex-col gap-space-md group overflow-hidden">
+              <div class="absolute -inset-1 rounded-xl bg-gradient-to-tr from-primary/20 via-secondary/15 to-transparent blur-xl pointer-events-none"></div>
+
+              <div class="relative w-full aspect-[4/5] max-h-[460px] rounded-xl overflow-hidden bg-surface-container-lowest flex items-center justify-center">
+                <div class="absolute -inset-1 bg-gradient-to-tr from-primary to-secondary opacity-70 group-hover:opacity-100 blur-sm transition duration-500"></div>
+
+                <img *ngIf="portfolio?.profile?.avatarUrl && !avatarImageFailed" 
+                     class="relative w-full h-full object-cover rounded-xl shadow-lg transition-transform duration-500 group-hover:scale-105" 
+                     [src]="resolveMediaUrl(portfolio.profile.avatarUrl)" 
+                     [alt]="portfolio?.profile?.fullName || 'Portrait'"
+                     (error)="onAvatarError()">
+
+                <div *ngIf="!portfolio?.profile?.avatarUrl || avatarImageFailed" class="relative w-full h-full flex items-center justify-center bg-surface-container-high text-primary font-display-hero text-6xl font-bold">
+                  {{ (portfolio?.profile?.fullName || 'AR').slice(0, 2).toUpperCase() }}
+                </div>
+
+                <div class="absolute top-space-sm right-space-sm flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-dim/90 backdrop-blur-md font-code-sm text-code-sm text-tertiary border border-surface-container-highest/50 shadow-sm">
+                  <span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                  <span>VERIFIED-NODE</span>
+                </div>
+              </div>
+
+              <div class="relative flex flex-col gap-space-xs">
+                <div class="flex items-center justify-between gap-space-sm">
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-headline-md text-headline-md font-semibold text-on-surface truncate">
+                      {{ portfolio?.profile?.fullName || 'Alex Rivera' }}
+                    </span>
+                    <span class="font-code-sm text-code-sm text-secondary truncate">
+                      {{ portfolio?.profile?.headlineRole || portfolio?.profile?.title || 'Staff Distributed Systems Engineer' }}
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-1 font-code-sm text-code-sm text-outline shrink-0">
+                    <span class="material-symbols-outlined text-[16px]">location_on</span>
+                    <span>{{ portfolio?.profile?.location || 'Worldwide • Remote' }}</span>
+                  </div>
+                </div>
+
+                <div class="p-space-xs rounded bg-surface-container-lowest font-code-sm text-code-sm flex justify-between items-center text-outline">
+                  <span class="text-[10px] uppercase font-label-mono">IDENTITY / NODE TARGET</span>
+                  <span class="text-on-surface-variant font-mono text-[10px] truncate max-w-[200px]">
+                    {{ portfolio?.profile?.customDomain || (portfolio?.profile?.fullName ? (portfolio.profile.fullName.toLowerCase().replace(' ', '') + '.devfolio.io') : 'live.devfolio.io') }}
+                  </span>
+                </div>
+
+                <!-- Dynamic Social Nodes Row with Official SVGs -->
+                <div class="flex flex-wrap gap-space-xs pt-space-xs">
+                  <a *ngFor="let social of portfolio?.socialLinks" [href]="social.url" [title]="social.platform" target="_blank" rel="noopener" class="flex-1 min-w-[70px] p-space-xs rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-secondary transition-all flex flex-col items-center justify-center gap-1 group shadow-xs">
+                    <svg *ngIf="getSocialSvg(social)" viewBox="0 0 24 24" class="w-4 h-4 fill-current text-secondary group-hover:scale-110 transition-transform shrink-0">
+                      <path [attr.d]="getSocialSvg(social)"/>
+                    </svg>
+                    <span *ngIf="!getSocialSvg(social)" class="material-symbols-outlined text-[18px] text-secondary group-hover:scale-110 transition-transform shrink-0">
+                      {{ getSocialIcon(social) }}
+                    </span>
+                    <span class="text-[10px] font-code-sm truncate">{{ social.platform }}</span>
+                  </a>
+                  <a (click)="scrollToSection('contact', 'contact', $event)" class="flex-1 min-w-[70px] p-space-xs rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-primary transition-all flex flex-col items-center justify-center gap-1 group shadow-xs cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px] text-primary group-hover:scale-110 transition-transform shrink-0">mail</span>
+                    <span class="text-[10px] font-code-sm truncate">Email</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetry Strip: Production Metrics -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md pt-space-md" [ngClass]="hasCredentials ? 'lg:grid-cols-4' : 'lg:grid-cols-3'">
+          <!-- Metric 1: Featured Projects -->
+          <div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+            <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
+              <span>FEATURED_PROJECTS</span>
+              <span class="material-symbols-outlined text-secondary text-[16px]">folder_code</span>
+            </div>
+            <div class="font-display-hero text-headline-lg font-bold text-on-surface tracking-tight">
+              {{ portfolio?.projects?.length || 0 }} Systems
+            </div>
+            <div class="font-body-sm text-body-sm text-on-surface-variant">Verified Production Runtimes &amp; RFCs</div>
+            <div class="w-full bg-surface-container-highest h-1 rounded-full overflow-hidden mt-1">
+              <div class="bg-secondary h-full w-[100%]"></div>
+            </div>
+          </div>
+
+          <!-- Metric 2: Core Skills & Stack -->
+          <div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+            <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
+              <span>CORE_SKILLS</span>
+              <span class="material-symbols-outlined text-primary text-[16px]">terminal</span>
+            </div>
+            <div class="font-display-hero text-headline-lg font-bold text-on-surface tracking-tight">
+              {{ totalSkillsCount }} Technologies
+            </div>
+            <div class="font-body-sm text-body-sm text-on-surface-variant">Across {{ portfolio?.skills?.length || 0 }} Verified Clusters</div>
+            <div class="w-full bg-surface-container-highest h-1 rounded-full overflow-hidden mt-1">
+              <div class="bg-primary h-full w-[100%]"></div>
+            </div>
+          </div>
+
+          <!-- Metric 3: Career Track -->
+          <div class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+            <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
+              <span>CAREER_TRACK</span>
+              <span class="material-symbols-outlined text-tertiary text-[16px]">work_history</span>
+            </div>
+            <div class="font-display-hero text-headline-lg font-bold text-on-surface tracking-tight">
+              {{ portfolio?.experiences?.length || 0 }} Roles
+            </div>
+            <div class="font-body-sm text-body-sm text-on-surface-variant">Staff &amp; Senior Engineering Track Record</div>
+            <div class="w-full bg-surface-container-highest h-1 rounded-full overflow-hidden mt-1">
+              <div class="bg-tertiary h-full w-[100%]"></div>
+            </div>
+          </div>
+
+          <!-- Metric 4: Credentials / Education -->
+          <div *ngIf="hasCredentials" class="p-space-md rounded-xl bg-surface-container-low shadow-lg flex flex-col gap-space-xs hover:bg-surface-container transition-colors">
+            <div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
+              <span>{{ hasCertifications ? 'CREDENTIALS' : 'EDUCATION' }}</span>
+              <span class="material-symbols-outlined text-tertiary text-[16px]">{{ hasCertifications ? 'verified' : 'school' }}</span>
+            </div>
+            <div class="font-display-hero text-headline-lg font-bold text-on-surface tracking-tight">
+              <ng-container *ngIf="hasCertifications && hasEducation">
+                {{ (portfolio?.education?.length || 0) + (portfolio?.certifications?.length || 0) }} Verified
+              </ng-container>
+              <ng-container *ngIf="!hasCertifications && hasEducation">
+                {{ portfolio?.education?.length || 0 }} {{ (portfolio?.education?.length || 0) === 1 ? 'Degree' : 'Degrees' }}
+              </ng-container>
+              <ng-container *ngIf="hasCertifications && !hasEducation">
+                {{ portfolio?.certifications?.length || 0 }} {{ (portfolio?.certifications?.length || 0) === 1 ? 'Certificate' : 'Certificates' }}
+              </ng-container>
+            </div>
+            <div class="font-body-sm text-body-sm text-on-surface-variant">
+              {{ hasCertifications ? 'Formal Degrees & Industry Certifications' : 'Academic Degrees & Specialized Education' }}
+            </div>
+            <div class="w-full bg-surface-container-highest h-1 rounded-full overflow-hidden mt-1">
+              <div class="bg-tertiary h-full w-[100%]"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Featured Engineering Systems -->
+    <section class="w-full px-4 sm:px-6 lg:px-12 py-space-xl bg-surface" id="featured-systems" [style.order]="getSectionOrder('projects')">
+      <div class="max-w-[1560px] mx-auto flex flex-col gap-space-lg">
+        <!-- Section Header & Filter Tabs -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+          <div class="flex flex-col gap-space-xs">
+            <div class="flex items-center gap-space-xs font-label-mono text-label-mono text-primary uppercase">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+              <span>{{ getSectionNumber('projects') }} / System Architecture &amp; Artifacts</span>
+            </div>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Featured Engineering Systems</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+              Production-grade distributed storage runtimes, asynchronous network primitives, and fault-tolerant cloud engines.
+            </p>
+          </div>
+
+          <!-- Interactive Category Switcher -->
+          <div class="flex items-center gap-1 p-1 rounded-lg bg-surface-container-low shadow-inner text-on-surface-variant font-code-sm text-code-sm">
+            <button type="button" (click)="setFilter('all')" [class]="filterCategory === 'all' ? 'px-space-sm py-1.5 rounded bg-surface-container-high text-primary font-medium shadow-sm' : 'px-space-sm py-1.5 rounded hover:text-on-surface transition-colors'">
+              All ({{ portfolio?.projects?.length || 0 }})
+            </button>
+            <button type="button" (click)="setFilter('distributed')" [class]="filterCategory === 'distributed' ? 'px-space-sm py-1.5 rounded bg-surface-container-high text-primary font-medium shadow-sm' : 'px-space-sm py-1.5 rounded hover:text-on-surface transition-colors'">
+              Distributed Systems
+            </button>
+            <button type="button" (click)="setFilter('cloud')" [class]="filterCategory === 'cloud' ? 'px-space-sm py-1.5 rounded bg-surface-container-high text-primary font-medium shadow-sm' : 'px-space-sm py-1.5 rounded hover:text-on-surface transition-colors'">
+              Cloud &amp; Infra
+            </button>
+            <button type="button" (click)="setFilter('core')" [class]="filterCategory === 'core' ? 'px-space-sm py-1.5 rounded bg-surface-container-high text-primary font-medium shadow-sm' : 'px-space-sm py-1.5 rounded hover:text-on-surface transition-colors'">
+              Core Runtimes
+            </button>
+          </div>
+        </div>
+
+        <!-- Systems Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+          <article *ngFor="let project of filteredProjects" class="p-space-lg rounded-xl bg-surface-container-low shadow-xl hover:bg-surface-container transition-all flex flex-col justify-between gap-space-md group">
+            <div class="flex flex-col gap-space-md">
+              <!-- Visual Architectural Thumbnail if available -->
+              <div *ngIf="project.image" class="w-full h-48 rounded-lg overflow-hidden relative bg-surface-container-lowest">
+                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" [src]="resolveMediaUrl(project.image)" [alt]="project.title">
+                <div class="absolute top-space-xs right-space-xs flex items-center gap-space-xs px-space-xs py-0.5 rounded bg-surface-dim/90 font-code-sm text-code-sm text-tertiary">
+                  <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+                  <span>Active Production</span>
+                </div>
+              </div>
+
+              <!-- Title & Metadata Header -->
+              <div class="flex items-start justify-between gap-space-sm">
+                <div class="flex flex-col">
+                  <span class="font-code-sm text-code-sm text-secondary uppercase font-semibold">
+                    {{ project.technologies?.[0] || 'ENGINEERING SYSTEM' }}
+                  </span>
+                  <h3 class="font-headline-md text-headline-md text-on-surface font-semibold group-hover:text-primary transition-colors">
+                    {{ project.title }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-high font-code-sm text-code-sm text-on-surface-variant">
+                  <span class="material-symbols-outlined text-[16px] text-primary">star</span>
+                  <span>Core Node</span>
+                </div>
+              </div>
+
+              <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                {{ project.description }}
+              </p>
+
+              <!-- Stack Badges -->
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                <span *ngFor="let tech of project.technologies" class="project-tech-badge">
+                  {{ tech }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Action Links Strip -->
+            <div class="flex items-center justify-between pt-space-sm border-t border-surface-container-highest/50 gap-2 flex-wrap">
+              <!-- GitHub Repo Link / Internal Repo Indicator -->
+              <div class="flex items-center">
+                <a *ngIf="getProjectGithubUrl(project)" 
+                   [href]="getProjectGithubUrl(project)" 
+                   target="_blank" 
+                   rel="noopener"
+                   class="group/btn inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary border border-surface-container-highest/60 hover:border-primary/40 font-code-sm text-xs font-medium transition-all shadow-xs"
+                   title="View Source on GitHub">
+                  <svg *ngIf="getSocialSvg('github')" viewBox="0 0 24 24" class="w-4 h-4 fill-current text-on-surface group-hover/btn:text-primary transition-colors shrink-0">
+                    <path [attr.d]="getSocialSvg('github')"/>
+                  </svg>
+                  <span *ngIf="!getSocialSvg('github')" class="material-symbols-outlined text-[16px]">code</span>
+                  <span>GitHub</span>
+                  <span class="material-symbols-outlined text-[12px] opacity-60 group-hover/btn:opacity-100 group-hover/btn:translate-x-0.5 transition-transform">arrow_outward</span>
+                </a>
+
+                <div *ngIf="!getProjectGithubUrl(project)" 
+                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-lowest/70 text-outline font-code-sm text-xs border border-surface-container-highest/30">
+                  <span class="material-symbols-outlined text-[14px] text-outline">lock</span>
+                  <span>Internal Production Repo</span>
+                </div>
+              </div>
+
+              <!-- Live Demo Link (only shown when available) -->
+              <a *ngIf="getProjectDemoUrl(project)" 
+                 [href]="getProjectDemoUrl(project)" 
+                 target="_blank" 
+                 rel="noopener" 
+                 class="group/btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-secondary/15 hover:bg-secondary text-secondary hover:text-on-secondary border border-secondary/35 hover:border-secondary font-code-sm text-xs font-semibold transition-all shadow-xs ml-auto"
+                 title="Open Live Demonstration">
+                <span class="material-symbols-outlined text-[15px] group-hover/btn:animate-pulse">rocket_launch</span>
+                <span>Live Demo</span>
+                <span class="material-symbols-outlined text-[13px] group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform">north_east</span>
+              </a>
+            </div>
+          </article>
+
+          <div *ngIf="portfolio && (!filteredProjects || !filteredProjects.length)" class="col-span-full p-space-lg rounded-xl bg-surface-container-low text-center text-on-surface-variant font-body-md">
+            No projects found in this category.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Technical Competency & Taxonomy Matrix -->
+    <section class="w-full px-4 sm:px-6 lg:px-12 py-space-xl bg-surface-container-lowest" id="stack" [style.order]="getSectionOrder('stack')">
+      <div class="max-w-[1560px] mx-auto flex flex-col gap-space-lg">
+        <div class="flex flex-col gap-space-xs">
+          <div class="flex items-center gap-space-xs font-label-mono text-label-mono text-secondary uppercase">
+            <span class="w-2 h-2 rounded-full bg-secondary"></span>
+            <span>{{ getSectionNumber('stack') }} / Technical Skills &amp; Depth Matrix</span>
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Verified Engineering Competency</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+            Core technical primitives, runtime proficiencies, and architectural capabilities across modern engineering disciplines.
+          </p>
+        </div>
+
+        <!-- Editorial Clusters with high-contrast sharp logos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-space-md">
+          <div *ngFor="let category of portfolio?.skills" class="p-space-md rounded-xl bg-surface-container shadow-md flex flex-col gap-space-md border border-surface-container-highest/40 hover:border-primary/30 transition-colors">
+            <div class="flex items-center justify-between pb-space-xs border-b border-surface-container-highest/50">
+              <div class="flex items-center gap-space-xs font-headline-sm text-headline-sm text-on-surface font-semibold">
+                <span class="material-symbols-outlined text-primary text-[22px]">{{ getCategoryIcon(category.name) }}</span>
+                <span>{{ category.name }}</span>
+              </div>
+              <span class="text-[11px] font-label-mono text-outline px-2 py-0.5 rounded bg-surface-container-high">{{ category.skills?.length || 0 }}</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let skill of category.skills" class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-surface-container-high/90 hover:bg-surface-container-highest text-on-surface hover:text-primary transition-all font-code-sm text-code-sm border border-surface-container-highest/70 hover:border-primary/40 shadow-xs group/skill">
+                <img *ngIf="getSkillDisplay(skill).type === 'image'" [src]="resolveMediaUrl(getSkillDisplay(skill).value)" class="w-5 h-5 object-contain rounded shrink-0" alt="">
+                <i *ngIf="getSkillDisplay(skill).type === 'devicon'" [class]="getSkillDisplay(skill).value + ' text-[18px] shrink-0 leading-none group-hover/skill:scale-110 transition-transform'"></i>
+                <span *ngIf="getSkillDisplay(skill).type === 'material'" class="material-symbols-outlined text-[18px] text-secondary shrink-0 leading-none group-hover/skill:scale-110 transition-transform">{{ getSkillDisplay(skill).value }}</span>
+                <span class="font-medium text-xs">{{ skill.name }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="portfolio && (!portfolio.skills || !portfolio.skills.length)" class="col-span-full p-space-md rounded-xl bg-surface-container text-on-surface-variant font-body-sm text-center">
+            No technical skills configured yet.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Career Trajectory & Impact Timeline -->
+    <section class="w-full px-4 sm:px-6 lg:px-12 py-space-xl bg-surface" id="experience" [style.order]="getSectionOrder('experience')">
+      <div class="max-w-[1560px] mx-auto flex flex-col gap-space-lg">
+        <div class="flex flex-col gap-space-xs">
+          <div class="flex items-center gap-space-xs font-label-mono text-label-mono text-tertiary uppercase">
+            <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+            <span>{{ getSectionNumber('experience') }} / Career Trajectory &amp; Impact</span>
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Verified Engineering Leadership</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+            Track record of architecting distributed infrastructure that scales seamlessly through multiple orders of magnitude.
+          </p>
+        </div>
+
+        <!-- Timeline Entries -->
+        <div class="flex flex-col gap-space-lg">
+          <div *ngFor="let experience of portfolio?.experiences" class="p-space-lg rounded-xl bg-surface-container-low shadow-xl flex flex-col md:flex-row gap-space-lg relative group">
+            <!-- Left Column: Dates & Company Badge -->
+            <div class="md:w-64 shrink-0 flex flex-col gap-space-xs">
+              <span class="px-space-sm py-1 rounded bg-tertiary-container/20 text-tertiary font-code-sm text-code-sm inline-block w-fit">
+                {{ experience.startDate | date:'yyyy' }} — {{ experience.isCurrent ? 'PRESENT' : (experience.endDate | date:'yyyy') }}
+              </span>
+              <span class="font-headline-md text-headline-md text-on-surface font-bold">{{ experience.companyName }}</span>
+              <span class="font-code-sm text-code-sm text-outline">{{ experience.location || 'Remote' }}</span>
+              <div class="font-label-mono text-label-mono text-secondary mt-space-sm uppercase">
+                {{ experience.jobTitle }}
+              </div>
+            </div>
+
+            <!-- Right Column: Accomplishments & Highlights -->
+            <div class="flex-1 flex flex-col gap-space-md">
+              <ul class="flex flex-col gap-space-sm text-on-surface-variant font-body-md text-body-md">
+                <li *ngFor="let bullet of getBullets(experience.description)" class="flex items-start gap-space-xs">
+                  <span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">check_circle</span>
+                  <span class="leading-relaxed">{{ bullet }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div *ngIf="portfolio && (!portfolio.experiences || !portfolio.experiences.length)" class="p-space-lg rounded-xl bg-surface-container-low text-center text-on-surface-variant font-body-md">
+            No work experience recorded yet.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Education & Accreditations (Adaptive) -->
+    <section *ngIf="hasCredentials" class="w-full px-4 sm:px-6 lg:px-12 py-space-xl bg-surface-container-lowest" id="credentials" [style.order]="getSectionOrder('credentials')">
+      <div class="max-w-[1560px] mx-auto flex flex-col gap-space-lg">
+        <div class="flex flex-col gap-space-xs">
+          <div class="flex items-center gap-space-xs font-label-mono text-label-mono text-primary uppercase">
+            <span class="w-2 h-2 rounded-full bg-primary"></span>
+            <span>{{ getSectionNumber('credentials') }} / {{ credentialsSubtitle }}</span>
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ credentialsTitle }}</h2>
+        </div>
+
+        <div class="grid gap-space-md" [ngClass]="hasCertifications ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : (portfolio?.education?.length === 1 ? 'grid-cols-1 max-w-2xl' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3')">
+          <!-- Academic Education -->
+          <div *ngFor="let item of portfolio?.education" class="p-space-md rounded-xl bg-surface-container shadow-md flex flex-col justify-between gap-space-md border border-surface-container-highest/60 hover:border-primary/40 transition-colors">
+            <div class="flex flex-col gap-space-xs">
+              <span class="material-symbols-outlined text-primary text-[28px]">school</span>
+              <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">{{ item.institutionName }}</h3>
+              <span class="font-body-md text-body-md text-on-surface-variant">{{ item.degree }} ({{ item.fieldOfStudy }})</span>
+            </div>
+            <div class="font-code-sm text-code-sm text-secondary font-medium">{{ (item.endDate | date:'yyyy') || 'Graduated' }}</div>
+          </div>
+
+          <!-- Industry Certifications (Only shown if certifications exist) -->
+          <ng-container *ngIf="hasCertifications">
+            <div *ngFor="let item of portfolio?.certifications" class="p-space-md rounded-xl bg-surface-container shadow-md flex flex-col justify-between gap-space-md border border-surface-container-highest/60 hover:border-tertiary/40 transition-colors">
+              <div class="flex flex-col gap-space-xs">
+                <span class="material-symbols-outlined text-tertiary text-[28px]">verified</span>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">{{ item.name }}</h3>
+                <span class="font-body-md text-body-md text-on-surface-variant">{{ item.issuingOrganization }}</span>
+              </div>
+              <div class="font-code-sm text-code-sm text-tertiary font-medium">Credential Active &bull; Verified</div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Editorial Contact & Inbound Inquiries -->
+    <section class="w-full px-4 sm:px-6 lg:px-12 py-space-xl bg-surface" id="contact" [style.order]="getSectionOrder('contact')">
+      <div class="max-w-[1560px] mx-auto flex flex-col gap-space-lg">
+        <div class="flex flex-col gap-space-xs">
+          <div class="flex items-center gap-space-xs font-label-mono text-label-mono text-primary uppercase">
+            <span class="w-2 h-2 rounded-full bg-primary"></span>
+            <span>{{ getSectionNumber('contact') }} / Get in Touch &amp; Consult</span>
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Initiate an Engineering Consultation</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+            Direct channel for technical leadership opportunities, advisory contracts, or distributed system design reviews.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+          <!-- Direct Editorial Channel Card -->
+          <div class="lg:col-span-5 p-space-lg rounded-xl bg-surface-container-low shadow-xl flex flex-col justify-between gap-space-lg">
+            <div class="flex flex-col gap-space-md">
+              <h3 class="font-headline-md text-headline-md text-on-surface font-semibold">
+                Let’s talk architecture, systems, or team leadership.
+              </h3>
+              <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Reach out directly for technical advisory contracts, high-throughput system design reviews, or leadership inquiries.
+              </p>
+
+              <div class="flex flex-col gap-space-sm pt-space-sm font-code-sm text-code-sm">
+                <!-- Dynamic 3 to 4 Contact Rows based on user profile & links -->
+                <div *ngFor="let item of contactRows" class="flex items-center gap-space-sm p-space-xs rounded bg-surface-container hover:bg-surface-container-high transition-colors group">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-container-high/60 shrink-0">
+                    <svg *ngIf="item.iconType === 'svg'" viewBox="0 0 24 24" class="w-4 h-4 fill-current shrink-0" [ngClass]="item.colorClass">
+                      <path [attr.d]="getSocialSvg(item.icon)"/>
+                    </svg>
+                    <span *ngIf="item.iconType === 'material'" class="material-symbols-outlined text-[20px] shrink-0" [ngClass]="item.colorClass">
+                      {{ item.icon }}
+                    </span>
+                  </div>
+                  <div class="flex flex-col truncate flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1">
+                      <span class="text-outline text-[10px] font-label-mono uppercase tracking-wider">{{ item.label }}</span>
+                      <span *ngIf="item.isExternal" class="text-[10px] font-code-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                        OPEN
+                        <span class="material-symbols-outlined text-[12px]">north_east</span>
+                      </span>
+                    </div>
+                    <a *ngIf="item.href" 
+                       [href]="item.href" 
+                       [target]="item.isExternal ? '_blank' : '_self'" 
+                       [rel]="item.isExternal ? 'noopener noreferrer' : ''" 
+                       class="text-on-surface font-semibold hover:text-primary hover:underline transition-colors truncate text-xs sm:text-sm">
+                      {{ item.value }}
+                    </a>
+                    <span *ngIf="!item.href" class="text-on-surface font-semibold truncate text-xs sm:text-sm">
+                      {{ item.value }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-space-sm rounded bg-surface-container-lowest text-outline font-code-sm text-code-sm flex items-center justify-between">
+              <span>LOCATION: {{ portfolio?.profile?.location || 'UTC Remote' }}</span>
+              <span class="text-tertiary flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+                ONLINE
+              </span>
+            </div>
+          </div>
+
+          <!-- Integrated Inbound Contact Form -->
+          <div class="lg:col-span-7 p-space-lg rounded-xl bg-surface-container shadow-xl">
+            <form class="flex flex-col gap-space-md" id="portfolio-contact-form" (ngSubmit)="dispatchMessage($event)">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+                <!-- Name Input -->
+                <div class="flex flex-col gap-1">
+                  <label class="font-label-mono text-label-mono text-outline uppercase" for="contact-name">Your Name</label>
+                  <input class="px-space-sm py-2 rounded bg-surface-container-lowest text-on-surface placeholder-outline font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-inner" id="contact-name" [(ngModel)]="contactForm.name" name="name" placeholder="e.g. Dr. Sarah Chen" required type="text">
+                </div>
+                <!-- Organization Input -->
+                <div class="flex flex-col gap-1">
+                  <label class="font-label-mono text-label-mono text-outline uppercase" for="contact-org">Organization / Firm</label>
+                  <input class="px-space-sm py-2 rounded bg-surface-container-lowest text-on-surface placeholder-outline font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-inner" id="contact-org" [(ngModel)]="contactForm.organization" name="organization" placeholder="e.g. Anthropic, Stripe, Scale" type="text">
+                </div>
+              </div>
+
+              <!-- Email & Inbound Type Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+                <div class="flex flex-col gap-1">
+                  <label class="font-label-mono text-label-mono text-outline uppercase" for="contact-email">Work Email</label>
+                  <input class="px-space-sm py-2 rounded bg-surface-container-lowest text-on-surface placeholder-outline font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-inner" id="contact-email" [(ngModel)]="contactForm.email" name="email" placeholder="name@company.com" required type="email">
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="font-label-mono text-label-mono text-outline uppercase" for="contact-inquiry-type">Inbound Purpose</label>
+                  <select class="px-space-sm py-2 rounded bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-inner" id="contact-inquiry-type" [(ngModel)]="contactForm.inquiryType" name="inquiryType">
+                    <option value="lead">Staff / Principal Lead Role</option>
+                    <option value="advisory">Technical Advisory / Consulting</option>
+                    <option value="speaking">Keynote / Architecture Review</option>
+                    <option value="other">General Engineering Inquiry</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Message Area -->
+              <div class="flex flex-col gap-1">
+                <label class="font-label-mono text-label-mono text-outline uppercase" for="contact-message">Project Scope / Technical Problem</label>
+                <textarea class="px-space-sm py-2 rounded bg-surface-container-lowest text-on-surface placeholder-outline font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-inner resize-y" id="contact-message" [(ngModel)]="contactForm.message" name="message" placeholder="Briefly describe the engineering challenge, scale requirements, or role specifics..." required rows="4"></textarea>
+              </div>
+
+              <!-- Submit Buttons & Feedback Note -->
+              <div class="flex flex-col gap-space-sm pt-space-xs">
+                <!-- Status Feedback -->
+                <div *ngIf="sentSuccess" class="text-tertiary font-code-sm text-code-sm flex items-center gap-1" id="form-feedback">
+                  <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                  <span>{{ isWhatsAppFeedback ? 'WhatsApp chat window opened with your inquiry.' : 'Message dispatched successfully to inbox.' }}</span>
+                </div>
+                <div *ngIf="sendError" class="text-error font-code-sm text-code-sm flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px]">error</span>
+                  <span>{{ sendError }}</span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                  <span class="text-outline font-code-sm text-xs hidden sm:inline">
+                    Dispatch Channel:
+                  </span>
+
+                  <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto ml-auto">
+                    <!-- WhatsApp Button -->
+                    <button type="button" 
+                            (click)="sendViaWhatsApp($event)" 
+                            class="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-[#25d366]/15 hover:bg-[#25d366] text-[#25d366] hover:text-white border border-[#25d366]/40 transition-all font-body-sm font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95"
+                            title="Direct WhatsApp message with your project inquiry">
+                      <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current shrink-0">
+                        <path [attr.d]="getSocialSvg('whatsapp')"/>
+                      </svg>
+                      <span>Send via WhatsApp</span>
+                    </button>
+
+                    <!-- Email Submit Button -->
+                    <button type="submit" 
+                            [disabled]="isSending" 
+                            class="flex-1 sm:flex-none px-space-lg py-2.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container font-body-sm font-semibold shadow-[0_0_16px_rgba(208,188,255,0.25)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95">
+                      <span class="material-symbols-outlined text-[18px]">send</span>
+                      <span>{{ isSending ? 'Transmitting...' : 'Send via Email' }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="w-full bg-surface-container-lowest mt-space-xl border-t border-outline-variant/10">
+  <div class="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-12 py-space-xl flex flex-col md:flex-row items-center justify-between gap-space-lg">
+    <div class="flex flex-col items-center md:items-start gap-space-xs">
+      <div class="flex items-center gap-space-sm">
+        <span class="font-code-md text-code-md text-on-surface font-medium">{{ portfolio?.profile?.fullName || 'Engineering Portfolio' }}</span>
+        <span class="text-outline-variant">&bull;</span>
+        <span class="font-code-sm text-code-sm text-on-surface-variant">&copy; DevFolio Studio &bull; All Systems Operational</span>
+      </div>
+      <div class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface-variant">
+        <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+        <span>Telemetry Signal: 99.98% Latency 14ms</span>
+      </div>
+    </div>
+
+    <!-- Footer Social Icons -->
+    <div class="flex items-center gap-space-md">
+      <a *ngFor="let social of portfolio?.socialLinks" [href]="social.url" [title]="social.platform" target="_blank" rel="noopener" class="p-space-xs rounded-lg text-on-surface-variant hover:text-secondary hover:bg-surface-container transition-colors">
+        <svg *ngIf="getSocialSvg(social)" viewBox="0 0 24 24" class="w-4 h-4 fill-current text-secondary shrink-0">
+          <path [attr.d]="getSocialSvg(social)"/>
+        </svg>
+        <span *ngIf="!getSocialSvg(social)" class="material-symbols-outlined text-[20px] text-secondary">{{ getSocialIcon(social) }}</span>
+      </a>
+      <a (click)="scrollToSection('contact', 'contact', $event)" class="p-space-xs rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors cursor-pointer" title="Direct Email">
+        <span class="material-symbols-outlined text-[20px]">mail</span>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-space-sm font-code-sm text-code-sm text-outline">
+      <a routerLink="/dashboard" class="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer" title="Manage Portfolio in Studio Dashboard">
+        <span class="material-symbols-outlined text-[16px] text-primary">dashboard</span>
+        <span>Studio Dashboard</span>
+      </a>
+      <span class="text-outline-variant">&bull;</span>
+      <span>Engineered with DevFolio Studio</span>
+    </div>
+  </div>
+</footer>
+

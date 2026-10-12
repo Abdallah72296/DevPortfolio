@@ -1,0 +1,138 @@
+<div *ngIf="shouldShow" class="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2 font-body-md select-none">
+  <!-- Expanded Menu Card -->
+  <div 
+    *ngIf="isOpen" 
+    class="w-80 rounded-xl bg-surface-container-high border border-outline-variant/40 shadow-2xl p-3 flex flex-col gap-2.5 backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+    <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+        <span class="font-label-mono text-label-mono text-on-surface uppercase tracking-wider font-semibold">DevFolio Page Inventory</span>
+      </div>
+      <button 
+        (click)="toggle()" 
+        class="w-6 h-6 rounded flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-bright transition-colors"
+        title="Close switcher">
+        <span class="material-symbols-outlined text-[16px]">close</span>
+      </button>
+    </div>
+
+    <div class="flex flex-col gap-1 max-h-96 overflow-y-auto pr-1">
+      <div class="text-[10px] font-label-mono text-outline uppercase px-2 pt-1">Dashboard & Workspace</div>
+      
+      <a routerLink="/dashboard" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-secondary">space_dashboard</span>
+          <span>Dashboard Summary</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/dashboard</span>
+      </a>
+
+      <a routerLink="/workspace" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-secondary">devices</span>
+          <span>Desktop Workspace</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/workspace</span>
+      </a>
+
+      <a routerLink="/mobile-workspace" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-secondary">smartphone</span>
+          <span>Mobile Workspace</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/mobile-workspace</span>
+      </a>
+
+      <div class="text-[10px] font-label-mono text-outline uppercase px-2 pt-2">Content Editors</div>
+
+      <a routerLink="/profile-editor" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-primary">person_outline</span>
+          <span>Profile & CV Import</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/profile-editor</span>
+      </a>
+
+      <a routerLink="/projects" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-primary">folder_code</span>
+          <span>Projects & Repos</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/projects</span>
+      </a>
+
+      <a routerLink="/skills-experience" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-primary">work_history</span>
+          <span>Skills & Experience</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/skills-experience</span>
+      </a>
+
+      <div class="text-[10px] font-label-mono text-outline uppercase px-2 pt-2">Public Portfolio</div>
+
+      <a routerLink="/portfolio" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-tertiary">public</span>
+          <span>Public Portfolio (Desktop)</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/portfolio</span>
+      </a>
+
+      <a routerLink="/portfolio-mobile" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-tertiary">phone_android</span>
+          <span>Public Portfolio (Mobile)</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/portfolio-mobile</span>
+      </a>
+
+      <div class="text-[10px] font-label-mono text-outline uppercase px-2 pt-2">Platform & Auth</div>
+
+      <a routerLink="/auth" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-secondary">lock</span>
+          <span>Authentication (Login/Register)</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/auth</span>
+      </a>
+
+      <a routerLink="/admin" (click)="isOpen = false"
+         routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
+         class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-error">admin_panel_settings</span>
+          <span>Enterprise Admin Fleet</span>
+        </span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/admin</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Trigger Button -->
+  <button 
+    (click)="toggle()"
+    class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-surface-container-highest/90 hover:bg-surface-bright text-on-surface border border-outline-variant/40 shadow-xl backdrop-blur-md transition-all active:scale-95 group">
+    <span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.8)]"></span>
+    <span class="font-label-mono text-label-mono text-on-surface group-hover:text-primary transition-colors">Pages (10)</span>
+    <span class="material-symbols-outlined text-[16px] text-outline group-hover:text-on-surface transition-transform duration-200" [class.rotate-180]="isOpen">unfold_more</span>
+  </button>
+</div>

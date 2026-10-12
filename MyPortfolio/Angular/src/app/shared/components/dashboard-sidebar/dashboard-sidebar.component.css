@@ -1,0 +1,4 @@
+/* Dashboard Sidebar scoped styles */
+:host {
+  display: block;
+}
