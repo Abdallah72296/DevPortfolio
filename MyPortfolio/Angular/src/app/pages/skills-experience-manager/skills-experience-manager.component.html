@@ -705,6 +705,85 @@
         [class.hidden]="!experienceDrawerOpen">
       </div>
 
+      <!-- ======================================================================= -->
+      <!-- IN-PAGE CONFIRMATION MODAL (كارت تأكيد الحذف التفاعلي داخل الصفحة)      -->
+      <!-- ======================================================================= -->
+      <div 
+        *ngIf="deleteModal.isOpen" 
+        class="fixed inset-0 z-[100] bg-background/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+        (keydown.escape)="closeDeleteConfirm()"
+        tabindex="0">
+        
+        <div 
+          class="w-full max-w-md rounded-2xl bg-surface-container-high border border-outline-variant/40 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
+          (click)="$event.stopPropagation()">
+          
+          <!-- Header with Red Accent Badge -->
+          <div class="p-space-lg pb-space-sm flex items-start gap-space-md">
+            <div class="w-12 h-12 rounded-2xl bg-error/15 border border-error/30 flex items-center justify-center text-error shrink-0">
+              <span class="material-symbols-outlined text-[26px]">delete_forever</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div class="flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">
+                  {{ deleteModal.title }}
+                </h3>
+                <button 
+                  type="button" 
+                  (click)="closeDeleteConfirm()" 
+                  [disabled]="deleteModal.isDeleting"
+                  class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors disabled:opacity-40 cursor-pointer">
+                  <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                {{ deleteModal.message }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Targeted Item Highlight Card -->
+          <div class="px-space-lg py-space-sm">
+            <div class="p-space-md rounded-xl bg-surface-container-lowest border border-outline-variant/30 flex items-center gap-space-sm">
+              <span class="px-2 py-0.5 rounded text-[11px] font-label-mono uppercase tracking-wider bg-error/20 text-error font-semibold">
+                {{ deleteModal.itemType }}
+              </span>
+              <span class="font-headline-sm text-on-surface font-semibold text-base truncate flex-1" [title]="deleteModal.itemName">
+                "{{ deleteModal.itemName }}"
+              </span>
+            </div>
+          </div>
+
+          <!-- Error Message If Any -->
+          <div *ngIf="deleteModal.errorMessage" class="px-space-lg py-1">
+            <div class="p-space-sm rounded-lg bg-error/10 border border-error/30 text-error text-xs flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px]">error</span>
+              <span>{{ deleteModal.errorMessage }}</span>
+            </div>
+          </div>
+
+          <!-- Modal Actions -->
+          <div class="p-space-lg pt-space-md bg-surface-container/50 border-t border-outline-variant/20 flex items-center justify-end gap-space-sm">
+            <button 
+              type="button" 
+              (click)="closeDeleteConfirm()" 
+              [disabled]="deleteModal.isDeleting"
+              class="px-4 py-2.5 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-sm font-medium transition-colors disabled:opacity-40 cursor-pointer">
+              إلغاء / Cancel
+            </button>
+            <button 
+              type="button" 
+              (click)="confirmDelete()" 
+              [disabled]="deleteModal.isDeleting"
+              class="px-5 py-2.5 rounded-xl bg-error hover:bg-error/90 text-on-error font-body-sm font-semibold flex items-center gap-2 shadow-lg shadow-error/20 transition-all cursor-pointer disabled:opacity-50">
+              <span *ngIf="deleteModal.isDeleting" class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+              <span *ngIf="!deleteModal.isDeleting" class="material-symbols-outlined text-[18px]">delete</span>
+              <span>{{ deleteModal.isDeleting ? 'جاري الحذف...' : 'تأكيد الحذف' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 </div>

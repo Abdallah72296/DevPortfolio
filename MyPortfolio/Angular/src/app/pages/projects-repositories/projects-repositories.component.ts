@@ -49,6 +49,51 @@ export class ProjectsRepositoriesComponent implements OnInit {
   isUploadingImage = false;
   isDraggingImage = false;
 
+  // Delete Confirmation Modal State (In-Page Card)
+  deleteModal = {
+    isOpen: false,
+    title: '',
+    itemName: '',
+    itemType: '',
+    message: '',
+    isDeleting: false,
+    errorMessage: '',
+    onConfirm: () => {}
+  };
+
+  openDeleteConfirm(options: {
+    title: string;
+    itemName: string;
+    itemType?: string;
+    message?: string;
+    action: () => void;
+  }): void {
+    this.deleteModal = {
+      isOpen: true,
+      title: options.title,
+      itemName: options.itemName,
+      itemType: options.itemType || 'Item',
+      message: options.message || 'Are you sure you want to delete this item? This action cannot be undone.',
+      isDeleting: false,
+      errorMessage: '',
+      onConfirm: options.action
+    };
+  }
+
+  closeDeleteConfirm(): void {
+    if (this.deleteModal.isDeleting) return;
+    this.deleteModal.isOpen = false;
+    this.deleteModal.isDeleting = false;
+    this.deleteModal.errorMessage = '';
+    this.deleteModal.onConfirm = () => {};
+  }
+
+  confirmDelete(): void {
+    if (this.deleteModal.onConfirm) {
+      this.deleteModal.onConfirm();
+    }
+  }
+
   ngOnInit(): void {
     this.loadProjects();
   }
@@ -238,16 +283,27 @@ export class ProjectsRepositoriesComponent implements OnInit {
   }
 
   deleteProject(project: ProjectDto): void {
-    if (!confirm(`هل أنت متأكد من رغبتك في حذف "${project.title}"؟`)) return;
-    this.api.deleteProject(project.id).subscribe({
-      next: () => {
-        this.projects = this.projects.filter(p => p.id !== project.id);
-        this.closeDrawer();
-        this.notice = 'تم حذف المشروع بنجاح.';
-        setTimeout(() => this.notice = '', 3000);
-      },
-      error: err => {
-        this.error = formatFriendlyError(err, 'تعذر حذف المشروع حالياً.');
+    this.openDeleteConfirm({
+      title: 'حذف المشروع / Delete Project',
+      itemName: project.title,
+      itemType: 'Project',
+      message: `هل أنت متأكد من حذف المشروع "${project.title}" نهائياً من قاعدة البيانات؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteProject(project.id).subscribe({
+          next: () => {
+            this.projects = this.projects.filter(p => p.id !== project.id);
+            this.closeDrawer();
+            this.closeDeleteConfirm();
+            this.notice = 'تم حذف المشروع بنجاح.';
+            setTimeout(() => this.notice = '', 3000);
+          },
+          error: err => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف المشروع حالياً.');
+          }
+        });
       }
     });
   }

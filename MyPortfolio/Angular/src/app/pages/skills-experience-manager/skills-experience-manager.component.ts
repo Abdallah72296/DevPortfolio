@@ -57,6 +57,51 @@ export class SkillsExperienceManagerComponent implements OnInit {
   editingCertification: CertificationDto | null = null;
   certificationForm: CreateCertificationRequest = this.emptyCertification();
 
+  // Delete Confirmation Modal State (In-Page Card)
+  deleteModal = {
+    isOpen: false,
+    title: '',
+    itemName: '',
+    itemType: '',
+    message: '',
+    isDeleting: false,
+    errorMessage: '',
+    onConfirm: () => {}
+  };
+
+  openDeleteConfirm(options: {
+    title: string;
+    itemName: string;
+    itemType?: string;
+    message?: string;
+    action: () => void;
+  }): void {
+    this.deleteModal = {
+      isOpen: true,
+      title: options.title,
+      itemName: options.itemName,
+      itemType: options.itemType || 'Item',
+      message: options.message || 'Are you sure you want to delete this item? This action cannot be undone.',
+      isDeleting: false,
+      errorMessage: '',
+      onConfirm: options.action
+    };
+  }
+
+  closeDeleteConfirm(): void {
+    if (this.deleteModal.isDeleting) return;
+    this.deleteModal.isOpen = false;
+    this.deleteModal.isDeleting = false;
+    this.deleteModal.errorMessage = '';
+    this.deleteModal.onConfirm = () => {};
+  }
+
+  confirmDelete(): void {
+    if (this.deleteModal.onConfirm) {
+      this.deleteModal.onConfirm();
+    }
+  }
+
   get totalSkillsCount(): number {
     return this.categories.reduce((acc, cat) => acc + (cat.skills?.length || 0), 0);
   }
@@ -330,15 +375,31 @@ export class SkillsExperienceManagerComponent implements OnInit {
   }
 
   deleteCategory(category: SkillCategoryDto): void {
-    if (!confirm(`Delete category "${category.name}" and all its skills?`)) return;
-    this.api.deleteSkillCategory(category.id).subscribe({
-      next: () => {
-        this.categories = this.categories.filter(item => item.id !== category.id);
-        if (this.selectedCategoryId === category.id) {
-          this.selectedCategoryId = this.categories[0]?.id ?? '';
-        }
-      },
-      error: () => this.error = 'Category could not be deleted.'
+    const skillsCount = category.skills?.length || 0;
+    this.openDeleteConfirm({
+      title: 'حذف قسم المهارات / Delete Category',
+      itemName: category.name,
+      itemType: 'Category',
+      message: `هل أنت متأكد من حذف قسم "${category.name}" وجميع المهارات التابعة له (${skillsCount} مهارة)؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteSkillCategory(category.id).subscribe({
+          next: () => {
+            this.categories = this.categories.filter(item => item.id !== category.id);
+            if (this.selectedCategoryId === category.id) {
+              this.selectedCategoryId = this.categories[0]?.id ?? '';
+            }
+            this.closeDeleteConfirm();
+            this.notice = `تم حذف قسم "${category.name}" بنجاح.`;
+            setTimeout(() => this.notice = '', 3000);
+          },
+          error: () => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = 'تعذر حذف قسم المهارات. يرجى المحاولة مرة أخرى.';
+          }
+        });
+      }
     });
   }
 
@@ -452,26 +513,52 @@ export class SkillsExperienceManagerComponent implements OnInit {
   }
 
   deleteExperience(item: ExperienceDto): void {
-    if (!confirm(`هل أنت متأكد من رغبتك في حذف "${item.jobTitle} في ${item.companyName}"؟`)) return;
-    this.api.deleteExperience(item.id).subscribe({
-      next: () => {
-        this.experiences = this.experiences.filter(value => value.id !== item.id);
-        this.notice = 'تم حذف سجل الخبرة بنجاح.';
-        setTimeout(() => this.notice = '', 3000);
-      },
-      error: err => this.error = formatFriendlyError(err, 'تعذر حذف سجل الخبرة حالياً.')
+    this.openDeleteConfirm({
+      title: 'حذف سجل الخبرة / Delete Experience',
+      itemName: `${item.jobTitle} @ ${item.companyName}`,
+      itemType: 'Experience',
+      message: `هل أنت متأكد من رغبتك في حذف خبرة "${item.jobTitle}" في "${item.companyName}"؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteExperience(item.id).subscribe({
+          next: () => {
+            this.experiences = this.experiences.filter(value => value.id !== item.id);
+            this.closeDeleteConfirm();
+            this.notice = 'تم حذف سجل الخبرة بنجاح.';
+            setTimeout(() => this.notice = '', 3000);
+          },
+          error: err => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف سجل الخبرة حالياً.');
+          }
+        });
+      }
     });
   }
 
   deleteEducation(item: EducationDto): void {
-    if (!confirm(`هل أنت متأكد من حذف "${item.degree}" في "${item.institutionName}"؟`)) return;
-    this.api.deleteEducation(item.id).subscribe({
-      next: () => {
-        this.education = this.education.filter(value => value.id !== item.id);
-        this.notice = 'تم حذف السجل الأكاديمي بنجاح.';
-        setTimeout(() => this.notice = '', 3000);
-      },
-      error: err => this.error = formatFriendlyError(err, 'تعذر حذف السجل التعليمي حالياً.')
+    this.openDeleteConfirm({
+      title: 'حذف السجل الأكاديمي / Delete Education',
+      itemName: `${item.degree} (${item.institutionName})`,
+      itemType: 'Education',
+      message: `هل أنت متأكد من حذف مؤهل "${item.degree}" في "${item.institutionName}"؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteEducation(item.id).subscribe({
+          next: () => {
+            this.education = this.education.filter(value => value.id !== item.id);
+            this.closeDeleteConfirm();
+            this.notice = 'تم حذف السجل الأكاديمي بنجاح.';
+            setTimeout(() => this.notice = '', 3000);
+          },
+          error: err => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف السجل التعليمي حالياً.');
+          }
+        });
+      }
     });
   }
 
@@ -565,14 +652,27 @@ export class SkillsExperienceManagerComponent implements OnInit {
   }
 
   deleteCertification(item: CertificationDto): void {
-    if (!confirm(`هل أنت متأكد من حذف شهادة "${item.name}"؟`)) return;
-    this.api.deleteCertification(item.id).subscribe({
-      next: () => {
-        this.certifications = this.certifications.filter(value => value.id !== item.id);
-        this.notice = 'تم حذف الشهادة المهنية بنجاح.';
-        setTimeout(() => this.notice = '', 3000);
-      },
-      error: err => this.error = formatFriendlyError(err, 'تعذر حذف الشهادة المهنية حالياً.')
+    this.openDeleteConfirm({
+      title: 'حذف الشهادة المهنية / Delete Certification',
+      itemName: `${item.name} (${item.issuingOrganization})`,
+      itemType: 'Certification',
+      message: `هل أنت متأكد من حذف شهادة "${item.name}"؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteCertification(item.id).subscribe({
+          next: () => {
+            this.certifications = this.certifications.filter(value => value.id !== item.id);
+            this.closeDeleteConfirm();
+            this.notice = 'تم حذف الشهادة المهنية بنجاح.';
+            setTimeout(() => this.notice = '', 3000);
+          },
+          error: err => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف الشهادة المهنية حالياً.');
+          }
+        });
+      }
     });
   }
 
