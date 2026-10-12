@@ -59,3 +59,5 @@ yarn-error.log*
 Thumbs.db
 desktop.ini
 $RECYCLE.BIN/
+*.zip
+
