@@ -88,8 +88,8 @@ export class SkillsExperienceManagerComponent implements OnInit {
     };
   }
 
-  closeDeleteConfirm(): void {
-    if (this.deleteModal.isDeleting) return;
+  closeDeleteConfirm(force: boolean = false): void {
+    if (this.deleteModal.isDeleting && !force) return;
     this.deleteModal.isOpen = false;
     this.deleteModal.isDeleting = false;
     this.deleteModal.errorMessage = '';
@@ -390,7 +390,7 @@ export class SkillsExperienceManagerComponent implements OnInit {
             if (this.selectedCategoryId === category.id) {
               this.selectedCategoryId = this.categories[0]?.id ?? '';
             }
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.notice = `تم حذف قسم "${category.name}" بنجاح.`;
             setTimeout(() => this.notice = '', 3000);
           },
@@ -524,7 +524,7 @@ export class SkillsExperienceManagerComponent implements OnInit {
         this.api.deleteExperience(item.id).subscribe({
           next: () => {
             this.experiences = this.experiences.filter(value => value.id !== item.id);
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.notice = 'تم حذف سجل الخبرة بنجاح.';
             setTimeout(() => this.notice = '', 3000);
           },
@@ -549,7 +549,7 @@ export class SkillsExperienceManagerComponent implements OnInit {
         this.api.deleteEducation(item.id).subscribe({
           next: () => {
             this.education = this.education.filter(value => value.id !== item.id);
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.notice = 'تم حذف السجل الأكاديمي بنجاح.';
             setTimeout(() => this.notice = '', 3000);
           },
@@ -663,7 +663,7 @@ export class SkillsExperienceManagerComponent implements OnInit {
         this.api.deleteCertification(item.id).subscribe({
           next: () => {
             this.certifications = this.certifications.filter(value => value.id !== item.id);
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.notice = 'تم حذف الشهادة المهنية بنجاح.';
             setTimeout(() => this.notice = '', 3000);
           },

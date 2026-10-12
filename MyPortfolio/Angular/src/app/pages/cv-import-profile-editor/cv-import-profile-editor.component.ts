@@ -154,8 +154,8 @@ export class CvImportProfileEditorComponent implements OnInit {
     };
   }
 
-  closeDeleteConfirm(): void {
-    if (this.deleteModal.isDeleting) return;
+  closeDeleteConfirm(force: boolean = false): void {
+    if (this.deleteModal.isDeleting && !force) return;
     this.deleteModal.isOpen = false;
     this.deleteModal.isDeleting = false;
     this.deleteModal.errorMessage = '';
@@ -814,7 +814,7 @@ export class CvImportProfileEditorComponent implements OnInit {
             if (this.selectedCategoryId === category.id) {
               this.selectedCategoryId = this.categories[0]?.id || '';
             }
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.toastMsg = `تم حذف قسم "${category.name}".`;
             setTimeout(() => this.toastMsg = '', 3000);
           },
@@ -908,7 +908,7 @@ export class CvImportProfileEditorComponent implements OnInit {
         this.api.deleteExperience(exp.id).subscribe({
           next: () => {
             this.experiences = this.experiences.filter(e => e.id !== exp.id);
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.toastMsg = 'تم حذف الخبرة الوظيفية بنجاح.';
             setTimeout(() => this.toastMsg = '', 3000);
           },
@@ -1026,7 +1026,7 @@ export class CvImportProfileEditorComponent implements OnInit {
         this.api.deleteProject(proj.id).subscribe({
           next: () => {
             this.projects = this.projects.filter(p => p.id !== proj.id);
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.toastMsg = `تم حذف المشروع "${proj.title}" بنجاح.`;
             setTimeout(() => this.toastMsg = '', 3000);
           },
@@ -1134,7 +1134,7 @@ export class CvImportProfileEditorComponent implements OnInit {
         this.api.deleteEducation(edu.id).subscribe({
           next: () => {
             this.educations = this.educations.filter(e => e.id !== edu.id);
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.toastMsg = 'تم حذف المؤهل التعليمي بنجاح.';
             setTimeout(() => this.toastMsg = '', 3000);
           },
@@ -1208,7 +1208,7 @@ export class CvImportProfileEditorComponent implements OnInit {
         this.api.deleteCertification(cert.id).subscribe({
           next: () => {
             this.certifications = this.certifications.filter(c => c.id !== cert.id);
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.toastMsg = 'تم حذف الشهادة المهنية بنجاح.';
             setTimeout(() => this.toastMsg = '', 3000);
           },
@@ -1320,7 +1320,7 @@ export class CvImportProfileEditorComponent implements OnInit {
         this.api.deleteSocialLink(link.id).subscribe({
           next: () => {
             this.socialLinks = this.socialLinks.filter(item => item.id !== link.id);
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.toastMsg = 'تم حذف الرابط بنجاح.';
             setTimeout(() => this.toastMsg = '', 3000);
           },

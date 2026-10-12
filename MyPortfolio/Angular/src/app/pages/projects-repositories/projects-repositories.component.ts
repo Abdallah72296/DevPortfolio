@@ -80,8 +80,8 @@ export class ProjectsRepositoriesComponent implements OnInit {
     };
   }
 
-  closeDeleteConfirm(): void {
-    if (this.deleteModal.isDeleting) return;
+  closeDeleteConfirm(force: boolean = false): void {
+    if (this.deleteModal.isDeleting && !force) return;
     this.deleteModal.isOpen = false;
     this.deleteModal.isDeleting = false;
     this.deleteModal.errorMessage = '';
@@ -295,7 +295,7 @@ export class ProjectsRepositoriesComponent implements OnInit {
           next: () => {
             this.projects = this.projects.filter(p => p.id !== project.id);
             this.closeDrawer();
-            this.closeDeleteConfirm();
+            this.closeDeleteConfirm(true);
             this.notice = 'تم حذف المشروع بنجاح.';
             setTimeout(() => this.notice = '', 3000);
           },
