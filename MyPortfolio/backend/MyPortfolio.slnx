@@ -5,4 +5,7 @@
     <Project Path="src/MyPortfolio.Domain/MyPortfolio.Domain.csproj" />
     <Project Path="src/MyPortfolio.Infrastructure/MyPortfolio.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MyPortfolio.IntegrationTests/MyPortfolio.IntegrationTests.csproj" />
+  </Folder>
 </Solution>
