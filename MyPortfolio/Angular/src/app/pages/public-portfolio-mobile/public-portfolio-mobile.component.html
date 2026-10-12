@@ -127,9 +127,9 @@
           <span class="px-2 py-0.5 rounded bg-surface-container-high text-secondary font-label-mono text-[10px] tracking-widest uppercase">
             {{ portfolio?.profile?.badge || portfolio?.profile?.headlineRole || portfolio?.profile?.title || 'STAFF SYSTEMS ARCHITECT' }}
           </span>
-          <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container/20 text-tertiary font-code-sm text-[11px]">
+          <div *ngIf="portfolio?.profile?.availableForHire" class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container/20 text-tertiary font-code-sm text-[11px]">
             <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping"></span>
-            <span>{{ (portfolio?.profile?.availableForHire ?? false) ? 'Available for Roles' : 'Engaged' }}</span>
+            <span>Available for Opportunities</span>
           </div>
         </div>
 

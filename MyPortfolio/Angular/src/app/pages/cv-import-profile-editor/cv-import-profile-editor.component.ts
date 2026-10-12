@@ -59,6 +59,7 @@ export class CvImportProfileEditorComponent implements OnInit {
   isSaving = false;
   toastMsg = '';
   errorMsg = '';
+  cvErrorMsg = '';
   selectedCv?: File;
   isUploadingCv = false;
   isDraggingCv = false;
@@ -235,6 +236,7 @@ export class CvImportProfileEditorComponent implements OnInit {
   handleCvFile(file: File): void {
     if (file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
       this.selectedCv = file;
+      this.cvErrorMsg = '';
       this.errorMsg = '';
       this.toastMsg = `CV "${file.name}" loaded.`;
       setTimeout(() => this.toastMsg = '', 3000);
@@ -245,19 +247,20 @@ export class CvImportProfileEditorComponent implements OnInit {
       }
     } else {
       this.selectedCv = undefined;
-      this.errorMsg = 'Please select or drop a valid PDF CV file.';
+      this.cvErrorMsg = 'Please select or drop a valid PDF CV file.';
     }
   }
 
   uploadCv(): void {
     if (!this.selectedCv) return;
     this.isUploadingCv = true;
+    this.cvErrorMsg = '';
     this.errorMsg = '';
     this.api.uploadCv(this.selectedCv).subscribe({
       next: response => {
         this.isUploadingCv = false;
         if (!response.succeeded) {
-          this.errorMsg = response.message || 'CV upload failed.';
+          this.cvErrorMsg = response.message || 'CV upload failed.';
           return;
         }
         this.formData.cvUrl = response.relativeUrl;
@@ -266,17 +269,18 @@ export class CvImportProfileEditorComponent implements OnInit {
       },
       error: error => {
         this.isUploadingCv = false;
-        this.errorMsg = error?.error?.message || 'CV upload failed.';
+        this.cvErrorMsg = error?.error?.message || 'CV upload failed.';
       }
     });
   }
 
   triggerParse(): void {
     if (!this.selectedCv) {
-      this.errorMsg = 'يرجى اختيار ملف سيرة ذاتية (PDF) أولاً.';
+      this.cvErrorMsg = 'يرجى اختيار ملف سيرة ذاتية (PDF) أولاً.';
       return;
     }
     this.isParsing = true;
+    this.cvErrorMsg = '';
     this.errorMsg = '';
     this.toastMsg = 'جاري تحليل واستخراج بيانات السيرة الذاتية عبر محرك الذكاء الاصطناعي...';
 
@@ -285,7 +289,7 @@ export class CvImportProfileEditorComponent implements OnInit {
         const draft = response.data;
         if (!response.succeeded || !draft) {
           this.isParsing = false;
-          this.errorMsg = formatFriendlyError(response.message, 'تعذر قراءة بيانات السيرة الذاتية، يرجى التأكد من محتوى الملف.');
+          this.cvErrorMsg = formatFriendlyError(response.message, 'تعذر قراءة بيانات السيرة الذاتية، يرجى التأكد من محتوى الملف.');
           return;
         }
 
@@ -431,7 +435,7 @@ export class CvImportProfileEditorComponent implements OnInit {
       },
       error: err => {
         this.isParsing = false;
-        this.errorMsg = formatFriendlyError(err, 'تعذر قراءة ملف السيرة الذاتية حالياً، يرجى المحاولة لاحقاً.');
+        this.cvErrorMsg = formatFriendlyError(err, 'تعذر قراءة ملف السيرة الذاتية حالياً، يرجى المحاولة لاحقاً.');
       }
     });
   }

@@ -24,16 +24,7 @@
       </div>
 
       <div class="p-gutter-desktop max-w-[1560px] mx-auto w-full flex flex-col gap-space-xl pb-32">
-        <!-- Toast & Error Banners -->
-        <div *ngIf="errorMsg" role="alert" class="p-space-md rounded-xl bg-error/10 border border-error/30 text-error flex items-center justify-between gap-2 shadow-sm animate-in fade-in">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px]">error</span>
-            <span class="font-body-sm">{{ errorMsg }}</span>
-          </div>
-          <button type="button" (click)="errorMsg = ''" class="text-error hover:opacity-75">
-            <span class="material-symbols-outlined text-[18px]">close</span>
-          </button>
-        </div>
+        <!-- Success Toast Notification -->
 
         <div *ngIf="toastMsg" role="status" class="p-space-md rounded-xl bg-tertiary/10 border border-tertiary/30 text-tertiary flex items-center justify-between gap-2 shadow-sm animate-in fade-in">
           <div class="flex items-center gap-2">
@@ -186,6 +177,20 @@
                   </button>
                 </div>
               </div>
+            </div>
+
+            <!-- Contextual CV Error Alert (Appears directly inside the CV section) -->
+            <div *ngIf="cvErrorMsg" role="alert" class="p-space-md rounded-xl bg-error/10 border border-error/30 text-error flex items-start justify-between gap-3 shadow-md animate-in fade-in">
+              <div class="flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-[20px] text-error mt-0.5 shrink-0">error</span>
+                <div class="flex flex-col">
+                  <span class="font-body-sm font-semibold text-error">خطأ في استخراج أو معالجة الـ CV</span>
+                  <span class="font-body-sm text-on-surface text-sm mt-0.5 leading-relaxed">{{ cvErrorMsg }}</span>
+                </div>
+              </div>
+              <button type="button" (click)="cvErrorMsg = ''" class="text-error hover:opacity-75 p-1 rounded-lg hover:bg-error/10 transition-colors shrink-0">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+              </button>
             </div>
 
             <!-- Auto-Process on Drop Option -->
@@ -739,6 +744,13 @@
             </div>
           </div>
           <div class="flex items-center gap-space-sm">
+            <div *ngIf="errorMsg" role="alert" class="flex items-center gap-2 px-space-sm py-1.5 rounded-xl bg-error/15 border border-error/30 text-error animate-in fade-in">
+              <span class="material-symbols-outlined text-[18px]">error</span>
+              <span class="font-body-sm text-sm font-medium">{{ errorMsg }}</span>
+              <button type="button" (click)="errorMsg = ''" class="hover:opacity-75 ml-1 p-0.5 text-error">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            </div>
             <a 
               routerLink="/portfolio" 
               target="_blank" 

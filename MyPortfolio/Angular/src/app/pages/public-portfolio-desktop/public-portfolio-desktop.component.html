@@ -102,10 +102,11 @@
         </div>
       </div>
 
-      <div class="hidden xl:flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-lowest border border-outline-variant/15">
+      <!-- Hiring / Availability Status Badge (Shown only if availableForHire is true) -->
+      <div *ngIf="portfolio?.profile?.availableForHire" class="hidden xl:flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-lowest border border-outline-variant/15">
         <span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.6)] animate-pulse"></span>
         <span class="font-label-mono text-label-mono text-tertiary uppercase tracking-wider">
-          {{ (portfolio?.profile?.availableForHire ?? false) ? 'Available for Staff / Lead Roles' : 'Currently Engaged' }}
+          Available for Opportunities
         </span>
       </div>
     </div>
@@ -166,9 +167,9 @@
               <span class="px-space-sm py-1 rounded bg-surface-container-high text-secondary font-label-mono text-label-mono tracking-widest uppercase shadow-sm">
                 {{ portfolio?.profile?.badge || portfolio?.profile?.headlineRole || portfolio?.profile?.title || 'STAFF DISTRIBUTED SYSTEMS ARCHITECT' }}
               </span>
-              <div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-tertiary-container/20 text-tertiary font-code-sm text-code-sm">
+              <div *ngIf="portfolio?.profile?.availableForHire" class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-tertiary-container/20 text-tertiary font-code-sm text-code-sm">
                 <span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
-                <span>{{ (portfolio?.profile?.availableForHire ?? false) ? 'Available for Advisory & Opportunities' : 'Currently Engaged' }}</span>
+                <span>Available for Opportunities</span>
               </div>
             </div>
 
