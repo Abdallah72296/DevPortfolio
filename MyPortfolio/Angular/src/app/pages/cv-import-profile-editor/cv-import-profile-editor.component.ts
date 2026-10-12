@@ -120,6 +120,51 @@ export class CvImportProfileEditorComponent implements OnInit {
   presetPlatforms = PRESET_PLATFORMS;
   selectedPresetPlatform = '';
 
+  // Delete Confirmation Modal State (In-Page Card)
+  deleteModal = {
+    isOpen: false,
+    title: '',
+    itemName: '',
+    itemType: '',
+    message: '',
+    isDeleting: false,
+    errorMessage: '',
+    onConfirm: () => {}
+  };
+
+  openDeleteConfirm(options: {
+    title: string;
+    itemName: string;
+    itemType?: string;
+    message?: string;
+    action: () => void;
+  }): void {
+    this.deleteModal = {
+      isOpen: true,
+      title: options.title,
+      itemName: options.itemName,
+      itemType: options.itemType || 'Item',
+      message: options.message || 'Are you sure you want to delete this item? This action cannot be undone.',
+      isDeleting: false,
+      errorMessage: '',
+      onConfirm: options.action
+    };
+  }
+
+  closeDeleteConfirm(): void {
+    if (this.deleteModal.isDeleting) return;
+    this.deleteModal.isOpen = false;
+    this.deleteModal.isDeleting = false;
+    this.deleteModal.errorMessage = '';
+    this.deleteModal.onConfirm = () => {};
+  }
+
+  confirmDelete(): void {
+    if (this.deleteModal.onConfirm) {
+      this.deleteModal.onConfirm();
+    }
+  }
+
   get detectedIconPreview(): string {
     return getSocialIconName(this.socialForm.platform, this.socialForm.url, this.socialForm.icon);
   }
@@ -698,12 +743,29 @@ export class CvImportProfileEditorComponent implements OnInit {
     });
   }
 
-  removeSkill(category: SkillCategoryDto, skillId: string): void {
-    this.api.deleteSkill(skillId).subscribe({
-      next: () => {
-        category.skills = (category.skills || []).filter(s => s.id !== skillId);
-      },
-      error: () => this.errorMsg = 'Could not remove skill.'
+  removeSkill(category: SkillCategoryDto, skillId: string, skillName?: string): void {
+    const name = skillName || category.skills?.find(s => s.id === skillId)?.name || 'المهارة';
+    this.openDeleteConfirm({
+      title: 'حذف مهارة / Remove Skill',
+      itemName: name,
+      itemType: 'Skill',
+      message: `هل أنت متأكد من حذف المهارة "${name}" من قسم "${category.name}"؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteSkill(skillId).subscribe({
+          next: () => {
+            category.skills = (category.skills || []).filter(s => s.id !== skillId);
+            this.closeDeleteConfirm();
+            this.toastMsg = `تم حذف المهارة "${name}".`;
+            setTimeout(() => this.toastMsg = '', 3000);
+          },
+          error: () => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = 'تعذر حذف المهارة. يرجى المحاولة مرة أخرى.';
+          }
+        });
+      }
     });
   }
 
@@ -727,15 +789,31 @@ export class CvImportProfileEditorComponent implements OnInit {
   }
 
   deleteCategory(category: SkillCategoryDto): void {
-    if (!confirm(`Delete category "${category.name}" and all its skills?`)) return;
-    this.api.deleteSkillCategory(category.id).subscribe({
-      next: () => {
-        this.categories = this.categories.filter(c => c.id !== category.id);
-        if (this.selectedCategoryId === category.id) {
-          this.selectedCategoryId = this.categories[0]?.id || '';
-        }
-      },
-      error: () => this.errorMsg = 'Could not delete category.'
+    const skillsCount = category.skills?.length || 0;
+    this.openDeleteConfirm({
+      title: 'حذف قسم المهارات / Delete Category',
+      itemName: category.name,
+      itemType: 'Category',
+      message: `هل أنت متأكد من حذف قسم "${category.name}" وجميع المهارات التابعة له (${skillsCount} مهارة)؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteSkillCategory(category.id).subscribe({
+          next: () => {
+            this.categories = this.categories.filter(c => c.id !== category.id);
+            if (this.selectedCategoryId === category.id) {
+              this.selectedCategoryId = this.categories[0]?.id || '';
+            }
+            this.closeDeleteConfirm();
+            this.toastMsg = `تم حذف قسم "${category.name}".`;
+            setTimeout(() => this.toastMsg = '', 3000);
+          },
+          error: () => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = 'تعذر حذف قسم المهارات.';
+          }
+        });
+      }
     });
   }
 
@@ -809,12 +887,27 @@ export class CvImportProfileEditorComponent implements OnInit {
   }
 
   deleteExperience(exp: ExperienceDto): void {
-    if (!confirm(`Delete experience at "${exp.companyName}"?`)) return;
-    this.api.deleteExperience(exp.id).subscribe({
-      next: () => {
-        this.experiences = this.experiences.filter(e => e.id !== exp.id);
-      },
-      error: () => this.errorMsg = 'Could not delete experience.'
+    this.openDeleteConfirm({
+      title: 'حذف خبرة وظيفية / Delete Experience',
+      itemName: `${exp.jobTitle} @ ${exp.companyName}`,
+      itemType: 'Experience',
+      message: `هل أنت متأكد من حذف دور "${exp.jobTitle}" في شركة "${exp.companyName}" من مسارك المهني؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteExperience(exp.id).subscribe({
+          next: () => {
+            this.experiences = this.experiences.filter(e => e.id !== exp.id);
+            this.closeDeleteConfirm();
+            this.toastMsg = 'تم حذف الخبرة الوظيفية بنجاح.';
+            setTimeout(() => this.toastMsg = '', 3000);
+          },
+          error: () => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = 'تعذر حذف الخبرة الوظيفية. يرجى المحاولة مرة أخرى.';
+          }
+        });
+      }
     });
   }
 
@@ -912,12 +1005,27 @@ export class CvImportProfileEditorComponent implements OnInit {
   }
 
   deleteProject(proj: ProjectDto): void {
-    if (!confirm(`Delete project "${proj.title}"?`)) return;
-    this.api.deleteProject(proj.id).subscribe({
-      next: () => {
-        this.projects = this.projects.filter(p => p.id !== proj.id);
-      },
-      error: () => this.errorMsg = 'Could not delete project.'
+    this.openDeleteConfirm({
+      title: 'حذف المشروع / Delete Project',
+      itemName: proj.title,
+      itemType: 'Project',
+      message: `هل أنت متأكد من حذف المشروع "${proj.title}" نهائياً؟ سيتم حذفه من قاعدة البيانات ومعرض أعمالك فوراً.`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteProject(proj.id).subscribe({
+          next: () => {
+            this.projects = this.projects.filter(p => p.id !== proj.id);
+            this.closeDeleteConfirm();
+            this.toastMsg = `تم حذف المشروع "${proj.title}" بنجاح.`;
+            setTimeout(() => this.toastMsg = '', 3000);
+          },
+          error: () => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = 'تعذر حذف المشروع. يرجى المحاولة مرة أخرى.';
+          }
+        });
+      }
     });
   }
 
@@ -1005,12 +1113,27 @@ export class CvImportProfileEditorComponent implements OnInit {
   }
 
   deleteEducation(edu: EducationDto): void {
-    if (!confirm(`Delete education "${edu.degree}"?`)) return;
-    this.api.deleteEducation(edu.id).subscribe({
-      next: () => {
-        this.educations = this.educations.filter(e => e.id !== edu.id);
-      },
-      error: () => this.errorMsg = 'Could not delete education.'
+    this.openDeleteConfirm({
+      title: 'حذف المؤهل التعليمي / Delete Education',
+      itemName: `${edu.degree} (${edu.institutionName})`,
+      itemType: 'Education',
+      message: `هل أنت متأكد من حذف مؤهل "${edu.degree}" في "${edu.institutionName}" من بياناتك؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteEducation(edu.id).subscribe({
+          next: () => {
+            this.educations = this.educations.filter(e => e.id !== edu.id);
+            this.closeDeleteConfirm();
+            this.toastMsg = 'تم حذف المؤهل التعليمي بنجاح.';
+            setTimeout(() => this.toastMsg = '', 3000);
+          },
+          error: () => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = 'تعذر حذف المؤهل التعليمي. يرجى المحاولة مرة أخرى.';
+          }
+        });
+      }
     });
   }
 
@@ -1064,12 +1187,27 @@ export class CvImportProfileEditorComponent implements OnInit {
   }
 
   deleteCertification(cert: CertificationDto): void {
-    if (!confirm(`Delete certification "${cert.name}"?`)) return;
-    this.api.deleteCertification(cert.id).subscribe({
-      next: () => {
-        this.certifications = this.certifications.filter(c => c.id !== cert.id);
-      },
-      error: () => this.errorMsg = 'Could not delete certification.'
+    this.openDeleteConfirm({
+      title: 'حذف الشهادة المهنية / Delete Certification',
+      itemName: `${cert.name} (${cert.issuingOrganization})`,
+      itemType: 'Certification',
+      message: `هل أنت متأكد من حذف شهادة "${cert.name}" الصادرة من "${cert.issuingOrganization}"؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteCertification(cert.id).subscribe({
+          next: () => {
+            this.certifications = this.certifications.filter(c => c.id !== cert.id);
+            this.closeDeleteConfirm();
+            this.toastMsg = 'تم حذف الشهادة المهنية بنجاح.';
+            setTimeout(() => this.toastMsg = '', 3000);
+          },
+          error: () => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = 'تعذر حذف الشهادة. يرجى المحاولة مرة أخرى.';
+          }
+        });
+      }
     });
   }
 
@@ -1161,14 +1299,27 @@ export class CvImportProfileEditorComponent implements OnInit {
   }
 
   deleteSocialLink(link: SocialLinkDto): void {
-    if (!confirm(`هل أنت متأكد من حذف رابط "${link.platform}"؟`)) return;
-    this.api.deleteSocialLink(link.id).subscribe({
-      next: () => {
-        this.socialLinks = this.socialLinks.filter(item => item.id !== link.id);
-        this.toastMsg = 'تم حذف الرابط بنجاح.';
-        setTimeout(() => this.toastMsg = '', 3000);
-      },
-      error: err => this.errorMsg = formatFriendlyError(err, 'تعذر حذف الرابط الاجتماعي.')
+    this.openDeleteConfirm({
+      title: 'حذف الرابط الاجتماعي / Delete Social Link',
+      itemName: link.platform,
+      itemType: 'Social Link',
+      message: `هل أنت متأكد من حذف رابط "${link.platform}" (${link.url})؟`,
+      action: () => {
+        this.deleteModal.isDeleting = true;
+        this.deleteModal.errorMessage = '';
+        this.api.deleteSocialLink(link.id).subscribe({
+          next: () => {
+            this.socialLinks = this.socialLinks.filter(item => item.id !== link.id);
+            this.closeDeleteConfirm();
+            this.toastMsg = 'تم حذف الرابط بنجاح.';
+            setTimeout(() => this.toastMsg = '', 3000);
+          },
+          error: err => {
+            this.deleteModal.isDeleting = false;
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف الرابط الاجتماعي.');
+          }
+        });
+      }
     });
   }
 
