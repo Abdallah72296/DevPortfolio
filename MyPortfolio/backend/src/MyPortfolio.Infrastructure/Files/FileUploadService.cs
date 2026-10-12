@@ -13,7 +13,7 @@ public class FileUploadService : IFileUploadService
 
     private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif"
+        ".jpg", ".jpeg", ".png", ".webp", ".gif"
     };
 
     public FileUploadService(
@@ -42,7 +42,7 @@ public class FileUploadService : IFileUploadService
         var ext = Path.GetExtension(fileName);
         if (string.IsNullOrWhiteSpace(ext) || !AllowedImageExtensions.Contains(ext))
         {
-            return new UploadFileResult(false, Message: $"Unsupported file extension '{ext}'. Allowed: .jpg, .png, .webp, .svg, .gif");
+            return new UploadFileResult(false, Message: $"Unsupported file extension '{ext}'. Allowed: .jpg, .jpeg, .png, .webp, .gif");
         }
 
         if (string.IsNullOrWhiteSpace(contentType) || !contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
@@ -191,16 +191,6 @@ public class FileUploadService : IFileUploadService
                     return bytesRead >= 12 &&
                            header[0] == 'R' && header[1] == 'I' && header[2] == 'F' && header[3] == 'F' &&
                            header[8] == 'W' && header[9] == 'E' && header[10] == 'B' && header[11] == 'P';
-
-                case ".svg":
-                    if (stream.CanSeek) stream.Position = 0;
-                    using (var reader = new StreamReader(stream, leaveOpen: true))
-                    {
-                        var content = await reader.ReadToEndAsync(cancellationToken);
-                        if (string.IsNullOrWhiteSpace(content)) return false;
-                        if (content.Contains("<script", StringComparison.OrdinalIgnoreCase)) return false;
-                        return content.Contains("<svg", StringComparison.OrdinalIgnoreCase);
-                    }
 
                 default:
                     return false;
