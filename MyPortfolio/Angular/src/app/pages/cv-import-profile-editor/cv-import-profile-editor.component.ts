@@ -23,6 +23,7 @@ import {
   CreateEducationRequest,
   CreateExperienceRequest,
   CreateProjectRequest,
+  CvPortfolioDraft,
   EducationDto,
   ExperienceDto,
   ProjectDto,
@@ -71,6 +72,8 @@ export class CvImportProfileEditorComponent implements OnInit {
   errorMsg = '';
   cvErrorMsg = '';
   selectedCv?: File;
+  pendingCvDraft: CvPortfolioDraft | null = null;
+  isApplyingDraft = false;
   isUploadingCv = false;
   isDraggingCv = false;
   autoProcessOnDrop = true;
@@ -391,205 +394,227 @@ export class CvImportProfileEditorComponent implements OnInit {
 
     this.api.parseCv(this.selectedCv).subscribe({
       next: response => {
+        this.isParsing = false;
         const draft = response.data;
         if (!response.succeeded || !draft) {
-          this.isParsing = false;
           this.cvErrorMsg = formatFriendlyError(response.message, 'تعذر قراءة بيانات السيرة الذاتية، يرجى التأكد من محتوى الملف.');
           return;
         }
 
-        // 1. Personal Info
+        // Store draft for user review & approval - DO NOT save to database directly!
+        this.pendingCvDraft = draft;
+
+        // Populate local form fields for visual preview
         if (draft.personalInfo) {
           this.formData.name = draft.personalInfo.name || this.formData.name;
           this.formData.title = draft.personalInfo.jobTitle || this.formData.title;
           this.formData.bio = draft.personalInfo.about || this.formData.bio;
         }
 
-        // 2. Prepare cleanup of old data so profile is cleanly replaced by the new CV
-        const cleanup$: Observable<any>[] = [];
-        this.experiences.forEach(e => cleanup$.push(this.api.deleteExperience(e.id).pipe(catchError(() => of(null)))));
-        this.projects.forEach(p => cleanup$.push(this.api.deleteProject(p.id).pipe(catchError(() => of(null)))));
-        this.categories.forEach(c => cleanup$.push(this.api.deleteSkillCategory(c.id).pipe(catchError(() => of(null)))));
-        this.educations.forEach(e => cleanup$.push(this.api.deleteEducation(e.id).pipe(catchError(() => of(null)))));
-        this.certifications.forEach(c => cleanup$.push(this.api.deleteCertification(c.id).pipe(catchError(() => of(null)))));
-        this.socialLinks.forEach(s => cleanup$.push(this.api.deleteSocialLink(s.id).pipe(catchError(() => of(null)))));
-
-        const executeCreations = () => {
-          const createOperations$: Observable<any>[] = [];
-
-          // Save Profile Personal Info
-          createOperations$.push(
-            this.api.updateProfile({
-              fullName: this.formData.name,
-              title: this.formData.title,
-              location: this.formData.location,
-              email: this.formData.email,
-              phone: this.formData.phone,
-              summary: this.formData.bio,
-              avatarUrl: this.formData.avatarUrl,
-              cvUrl: this.formData.cvUrl,
-              availableForHire: this.formData.availableForHire
-            }).pipe(catchError(() => of(null)))
-          );
-
-          // Experiences
-          if (draft.experiences?.length) {
-            draft.experiences.forEach((exp, idx) => {
-              const jobTitle = exp.jobTitle || 'Developer';
-              const companyName = exp.companyName || 'Company';
-              const desc = exp.description?.trim() || `${jobTitle} at ${companyName}`;
-              const startDate = this.formatIsoDate(exp.startDate);
-              const endDate = exp.isCurrent ? null : (exp.endDate ? this.formatIsoDate(exp.endDate) : null);
-              createOperations$.push(
-                this.api.createExperience({
-                  jobTitle,
-                  companyName,
-                  description: desc,
-                  startDate,
-                  endDate,
-                  isCurrent: exp.isCurrent,
-                  displayOrder: idx
-                }).pipe(catchError(() => of(null)))
-              );
-            });
-          }
-
-          // Projects
-          if (draft.projects?.length) {
-            draft.projects.forEach((proj, idx) => {
-              createOperations$.push(
-                this.api.createProject({
-                  title: proj.title,
-                  description: proj.description || '',
-                  technologies: proj.technologies || [],
-                  liveUrl: proj.liveUrl,
-                  githubUrl: proj.githubUrl,
-                  image: proj.image,
-                  isFeatured: proj.isFeatured,
-                  displayOrder: idx
-                }).pipe(catchError(() => of(null)))
-              );
-            });
-          }
-
-          // Skills (Categories with Skills)
-          if (draft.skills?.length) {
-            draft.skills.forEach((cat, idx) => {
-              const skillNames = (cat.skills || []).map(s => s.name);
-              createOperations$.push(
-                this.api.createCategoryWithSkills({
-                  name: cat.category,
-                  skills: skillNames,
-                  displayOrder: idx
-                }).pipe(catchError(() => of(null)))
-              );
-            });
-          }
-
-          // Education
-          if (draft.education?.length) {
-            draft.education.forEach((edu, idx) => {
-              const degree = edu.degree || 'Degree';
-              const institutionName = edu.institutionName || 'University';
-              const desc = edu.description?.trim() || `${degree} - ${institutionName}`;
-              const startDate = this.formatIsoDate(edu.startDate);
-              const endDate = edu.isCurrent ? null : (edu.endDate ? this.formatIsoDate(edu.endDate) : null);
-              createOperations$.push(
-                this.api.createEducation({
-                  degree,
-                  institutionName,
-                  fieldOfStudy: edu.fieldOfStudy || null,
-                  startDate,
-                  endDate,
-                  description: desc,
-                  isCurrent: edu.isCurrent,
-                  displayOrder: idx
-                }).pipe(catchError(() => of(null)))
-              );
-            });
-          }
-
-          // Certifications
-          if (draft.certifications?.length) {
-            draft.certifications.forEach((cert, idx) => {
-              createOperations$.push(
-                this.api.createCertification({
-                  name: cert.name,
-                  issuingOrganization: cert.issuingOrganization || 'Organization',
-                  issueDate: this.formatIsoDate(cert.issueDate),
-                  credentialId: cert.credentialId,
-                  credentialUrl: cert.credentialUrl,
-                  description: cert.description || '',
-                  displayOrder: idx
-                }).pipe(catchError(() => of(null)))
-              );
-            });
-          }
-
-          // Social Links
-          if (draft.socialLinks?.length) {
-            draft.socialLinks.forEach((link, idx) => {
-              const iconName = getSocialIconName(link.platform, link.url);
-              createOperations$.push(
-                this.api.createSocialLink({
-                  platform: link.platform,
-                  url: link.url,
-                  icon: iconName,
-                  displayOrder: idx
-                }).pipe(catchError(() => of(null)))
-              );
-            });
-          }
-
-          if (createOperations$.length > 0) {
-            this.toastMsg = 'جاري استبدال وحفظ بيانات السيرة الذاتية الجديدة...';
-            forkJoin(createOperations$).subscribe({
-              next: () => {
-                this.isParsing = false;
-                this.toastMsg = 'تم استبدال وتحديث جميع بيانات السيرة الذاتية (الخبرات، التعليم، المهارات، المشاريع) بنجاح!';
-                setTimeout(() => this.toastMsg = '', 4500);
-                this.loadProfile();
-                this.loadSkills();
-                this.loadExperiences();
-                this.loadProjects();
-                this.loadCredentials();
-                this.loadSocialLinks();
-              },
-              error: () => {
-                this.isParsing = false;
-                this.toastMsg = 'تم استخراج وتحديث بيانات الملف الشخصي.';
-                setTimeout(() => this.toastMsg = '', 4000);
-                this.loadProfile();
-                this.loadSkills();
-                this.loadExperiences();
-                this.loadProjects();
-                this.loadCredentials();
-                this.loadSocialLinks();
-              }
-            });
-          } else {
-            this.isParsing = false;
-            this.toastMsg = 'تم تحديث البيانات الشخصية بنجاح!';
-            setTimeout(() => this.toastMsg = '', 4000);
-            this.loadProfile();
-          }
-        };
-
-        if (cleanup$.length > 0) {
-          this.toastMsg = 'جاري مسح البيانات السابقة لاستبدالها بالـ CV الجديد...';
-          forkJoin(cleanup$).subscribe({
-            next: () => executeCreations(),
-            error: () => executeCreations()
-          });
-        } else {
-          executeCreations();
-        }
+        this.toastMsg = 'تم استخراج البيانات بنجاح! راجع البيانات المستخرجة في الشريط أعلاه واضغط "موافقة وحفظ في الموقع" لاعتمادها.';
+        setTimeout(() => this.toastMsg = '', 6000);
       },
       error: err => {
         this.isParsing = false;
         this.cvErrorMsg = formatFriendlyError(err, 'تعذر قراءة ملف السيرة الذاتية حالياً، يرجى المحاولة لاحقاً.');
       }
     });
+  }
+
+  applyPendingCvDraft(): void {
+    if (!this.pendingCvDraft) return;
+    const draft = this.pendingCvDraft;
+    this.isApplyingDraft = true;
+    this.errorMsg = '';
+    this.toastMsg = 'جاري حفظ واعتماد بيانات السيرة الذاتية في الموقع...';
+
+    // 1. Prepare cleanup of old data so profile is cleanly replaced by the new CV
+    const cleanup$: Observable<any>[] = [];
+    this.experiences.forEach(e => cleanup$.push(this.api.deleteExperience(e.id).pipe(catchError(() => of(null)))));
+    this.projects.forEach(p => cleanup$.push(this.api.deleteProject(p.id).pipe(catchError(() => of(null)))));
+    this.categories.forEach(c => cleanup$.push(this.api.deleteSkillCategory(c.id).pipe(catchError(() => of(null)))));
+    this.educations.forEach(e => cleanup$.push(this.api.deleteEducation(e.id).pipe(catchError(() => of(null)))));
+    this.certifications.forEach(c => cleanup$.push(this.api.deleteCertification(c.id).pipe(catchError(() => of(null)))));
+    this.socialLinks.forEach(s => cleanup$.push(this.api.deleteSocialLink(s.id).pipe(catchError(() => of(null)))));
+
+    const executeCreations = () => {
+      const createOperations$: Observable<any>[] = [];
+
+      // Save Profile Personal Info
+      createOperations$.push(
+        this.api.updateProfile({
+          fullName: this.formData.name,
+          title: this.formData.title,
+          location: this.formData.location,
+          email: this.formData.email,
+          phone: this.formData.phone,
+          summary: this.formData.bio,
+          avatarUrl: this.formData.avatarUrl,
+          cvUrl: this.formData.cvUrl,
+          availableForHire: this.formData.availableForHire
+        }).pipe(catchError(() => of(null)))
+      );
+
+      // Experiences
+      if (draft.experiences?.length) {
+        draft.experiences.forEach((exp, idx) => {
+          const jobTitle = exp.jobTitle || 'Developer';
+          const companyName = exp.companyName || 'Company';
+          const desc = exp.description?.trim() || `${jobTitle} at ${companyName}`;
+          const startDate = this.formatIsoDate(exp.startDate);
+          const endDate = exp.isCurrent ? null : (exp.endDate ? this.formatIsoDate(exp.endDate) : null);
+          createOperations$.push(
+            this.api.createExperience({
+              jobTitle,
+              companyName,
+              description: desc,
+              startDate,
+              endDate,
+              isCurrent: exp.isCurrent,
+              displayOrder: idx
+            }).pipe(catchError(() => of(null)))
+          );
+        });
+      }
+
+      // Projects
+      if (draft.projects?.length) {
+        draft.projects.forEach((proj, idx) => {
+          createOperations$.push(
+            this.api.createProject({
+              title: proj.title,
+              description: proj.description || '',
+              technologies: proj.technologies || [],
+              liveUrl: proj.liveUrl,
+              githubUrl: proj.githubUrl,
+              image: proj.image,
+              isFeatured: proj.isFeatured,
+              displayOrder: idx
+            }).pipe(catchError(() => of(null)))
+          );
+        });
+      }
+
+      // Skills (Categories with Skills)
+      if (draft.skills?.length) {
+        draft.skills.forEach((cat, idx) => {
+          const skillNames = (cat.skills || []).map(s => s.name);
+          createOperations$.push(
+            this.api.createCategoryWithSkills({
+              name: cat.category,
+              skills: skillNames,
+              displayOrder: idx
+            }).pipe(catchError(() => of(null)))
+          );
+        });
+      }
+
+      // Education
+      if (draft.education?.length) {
+        draft.education.forEach((edu, idx) => {
+          const degree = edu.degree || 'Degree';
+          const institutionName = edu.institutionName || 'University';
+          const desc = edu.description?.trim() || `${degree} - ${institutionName}`;
+          const startDate = this.formatIsoDate(edu.startDate);
+          const endDate = edu.isCurrent ? null : (edu.endDate ? this.formatIsoDate(edu.endDate) : null);
+          createOperations$.push(
+            this.api.createEducation({
+              degree,
+              institutionName,
+              fieldOfStudy: edu.fieldOfStudy || null,
+              startDate,
+              endDate,
+              description: desc,
+              isCurrent: edu.isCurrent,
+              displayOrder: idx
+            }).pipe(catchError(() => of(null)))
+          );
+        });
+      }
+
+      // Certifications
+      if (draft.certifications?.length) {
+        draft.certifications.forEach((cert, idx) => {
+          createOperations$.push(
+            this.api.createCertification({
+              name: cert.name,
+              issuingOrganization: cert.issuingOrganization || 'Organization',
+              issueDate: this.formatIsoDate(cert.issueDate),
+              credentialId: cert.credentialId,
+              credentialUrl: cert.credentialUrl,
+              description: cert.description || '',
+              displayOrder: idx
+            }).pipe(catchError(() => of(null)))
+          );
+        });
+      }
+
+      // Social Links
+      if (draft.socialLinks?.length) {
+        draft.socialLinks.forEach((link, idx) => {
+          const iconName = getSocialIconName(link.platform, link.url);
+          createOperations$.push(
+            this.api.createSocialLink({
+              platform: link.platform,
+              url: link.url,
+              icon: iconName,
+              displayOrder: idx
+            }).pipe(catchError(() => of(null)))
+          );
+        });
+      }
+
+      if (createOperations$.length > 0) {
+        forkJoin(createOperations$).subscribe({
+          next: () => {
+            this.isApplyingDraft = false;
+            this.pendingCvDraft = null;
+            this.toastMsg = 'تم اعتماد وحفظ جميع بيانات السيرة الذاتية بنجاح!';
+            setTimeout(() => this.toastMsg = '', 4500);
+            this.loadProfile();
+            this.loadSkills();
+            this.loadExperiences();
+            this.loadProjects();
+            this.loadCredentials();
+            this.loadSocialLinks();
+          },
+          error: () => {
+            this.isApplyingDraft = false;
+            this.pendingCvDraft = null;
+            this.toastMsg = 'تم استخراج وتحديث بيانات الملف الشخصي.';
+            setTimeout(() => this.toastMsg = '', 4000);
+            this.loadProfile();
+            this.loadSkills();
+            this.loadExperiences();
+            this.loadProjects();
+            this.loadCredentials();
+            this.loadSocialLinks();
+          }
+        });
+      } else {
+        this.isApplyingDraft = false;
+        this.pendingCvDraft = null;
+        this.toastMsg = 'تم تحديث البيانات الشخصية بنجاح!';
+        setTimeout(() => this.toastMsg = '', 4000);
+        this.loadProfile();
+      }
+    };
+
+    if (cleanup$.length > 0) {
+      forkJoin(cleanup$).subscribe({
+        next: () => executeCreations(),
+        error: () => executeCreations()
+      });
+    } else {
+      executeCreations();
+    }
+  }
+
+  cancelPendingCvDraft(): void {
+    this.pendingCvDraft = null;
+    this.toastMsg = 'تم إلغاء البيانات المستخرجة دون أي تعديل في قاعدة البيانات.';
+    setTimeout(() => this.toastMsg = '', 3500);
+    this.loadProfile();
   }
 
   // ==========================================
@@ -743,29 +768,14 @@ export class CvImportProfileEditorComponent implements OnInit {
     });
   }
 
-  removeSkill(category: SkillCategoryDto, skillId: string, skillName?: string): void {
-    const name = skillName || category.skills?.find(s => s.id === skillId)?.name || 'المهارة';
-    this.openDeleteConfirm({
-      title: 'حذف مهارة / Remove Skill',
-      itemName: name,
-      itemType: 'Skill',
-      message: `هل أنت متأكد من حذف المهارة "${name}" من قسم "${category.name}"؟`,
-      action: () => {
-        this.deleteModal.isDeleting = true;
-        this.deleteModal.errorMessage = '';
-        this.api.deleteSkill(skillId).subscribe({
-          next: () => {
-            category.skills = (category.skills || []).filter(s => s.id !== skillId);
-            this.closeDeleteConfirm();
-            this.toastMsg = `تم حذف المهارة "${name}".`;
-            setTimeout(() => this.toastMsg = '', 3000);
-          },
-          error: () => {
-            this.deleteModal.isDeleting = false;
-            this.deleteModal.errorMessage = 'تعذر حذف المهارة. يرجى المحاولة مرة أخرى.';
-          }
-        });
-      }
+  removeSkill(category: SkillCategoryDto, skillId: string): void {
+    this.api.deleteSkill(skillId).subscribe({
+      next: () => {
+        category.skills = (category.skills || []).filter(s => s.id !== skillId);
+        this.toastMsg = 'تمت إزالة المهارة بنجاح.';
+        setTimeout(() => this.toastMsg = '', 2000);
+      },
+      error: () => this.errorMsg = 'تعذر حذف المهارة.'
     });
   }
 
