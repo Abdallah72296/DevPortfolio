@@ -299,7 +299,15 @@ export class ProjectsRepositoriesComponent implements OnInit {
             this.notice = 'تم حذف المشروع بنجاح.';
             setTimeout(() => this.notice = '', 3000);
           },
-          error: err => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.projects = this.projects.filter(p => p.id !== project.id);
+              this.closeDrawer();
+              this.closeDeleteConfirm(true);
+              this.notice = 'تم حذف المشروع بنجاح.';
+              setTimeout(() => this.notice = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف المشروع حالياً.');
           }

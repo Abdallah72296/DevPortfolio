@@ -394,7 +394,17 @@ export class SkillsExperienceManagerComponent implements OnInit {
             this.notice = `تم حذف قسم "${category.name}" بنجاح.`;
             setTimeout(() => this.notice = '', 3000);
           },
-          error: () => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.categories = this.categories.filter(item => item.id !== category.id);
+              if (this.selectedCategoryId === category.id) {
+                this.selectedCategoryId = this.categories[0]?.id ?? '';
+              }
+              this.closeDeleteConfirm(true);
+              this.notice = `تم حذف قسم "${category.name}" بنجاح.`;
+              setTimeout(() => this.notice = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = 'تعذر حذف قسم المهارات. يرجى المحاولة مرة أخرى.';
           }
@@ -528,7 +538,14 @@ export class SkillsExperienceManagerComponent implements OnInit {
             this.notice = 'تم حذف سجل الخبرة بنجاح.';
             setTimeout(() => this.notice = '', 3000);
           },
-          error: err => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.experiences = this.experiences.filter(value => value.id !== item.id);
+              this.closeDeleteConfirm(true);
+              this.notice = 'تم حذف سجل الخبرة بنجاح.';
+              setTimeout(() => this.notice = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف سجل الخبرة حالياً.');
           }
@@ -553,7 +570,14 @@ export class SkillsExperienceManagerComponent implements OnInit {
             this.notice = 'تم حذف السجل الأكاديمي بنجاح.';
             setTimeout(() => this.notice = '', 3000);
           },
-          error: err => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.education = this.education.filter(value => value.id !== item.id);
+              this.closeDeleteConfirm(true);
+              this.notice = 'تم حذف السجل الأكاديمي بنجاح.';
+              setTimeout(() => this.notice = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف السجل التعليمي حالياً.');
           }
@@ -667,7 +691,14 @@ export class SkillsExperienceManagerComponent implements OnInit {
             this.notice = 'تم حذف الشهادة المهنية بنجاح.';
             setTimeout(() => this.notice = '', 3000);
           },
-          error: err => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.certifications = this.certifications.filter(value => value.id !== item.id);
+              this.closeDeleteConfirm(true);
+              this.notice = 'تم حذف الشهادة المهنية بنجاح.';
+              setTimeout(() => this.notice = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف الشهادة المهنية حالياً.');
           }
