@@ -818,7 +818,17 @@ export class CvImportProfileEditorComponent implements OnInit {
             this.toastMsg = `تم حذف قسم "${category.name}".`;
             setTimeout(() => this.toastMsg = '', 3000);
           },
-          error: () => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.categories = this.categories.filter(c => c.id !== category.id);
+              if (this.selectedCategoryId === category.id) {
+                this.selectedCategoryId = this.categories[0]?.id || '';
+              }
+              this.closeDeleteConfirm(true);
+              this.toastMsg = `تم حذف قسم "${category.name}".`;
+              setTimeout(() => this.toastMsg = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = 'تعذر حذف قسم المهارات.';
           }
@@ -912,7 +922,14 @@ export class CvImportProfileEditorComponent implements OnInit {
             this.toastMsg = 'تم حذف الخبرة الوظيفية بنجاح.';
             setTimeout(() => this.toastMsg = '', 3000);
           },
-          error: () => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.experiences = this.experiences.filter(e => e.id !== exp.id);
+              this.closeDeleteConfirm(true);
+              this.toastMsg = 'تم حذف الخبرة الوظيفية بنجاح.';
+              setTimeout(() => this.toastMsg = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = 'تعذر حذف الخبرة الوظيفية. يرجى المحاولة مرة أخرى.';
           }
@@ -1030,7 +1047,14 @@ export class CvImportProfileEditorComponent implements OnInit {
             this.toastMsg = `تم حذف المشروع "${proj.title}" بنجاح.`;
             setTimeout(() => this.toastMsg = '', 3000);
           },
-          error: () => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.projects = this.projects.filter(p => p.id !== proj.id);
+              this.closeDeleteConfirm(true);
+              this.toastMsg = `تم حذف المشروع "${proj.title}" بنجاح.`;
+              setTimeout(() => this.toastMsg = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = 'تعذر حذف المشروع. يرجى المحاولة مرة أخرى.';
           }
@@ -1138,7 +1162,14 @@ export class CvImportProfileEditorComponent implements OnInit {
             this.toastMsg = 'تم حذف المؤهل التعليمي بنجاح.';
             setTimeout(() => this.toastMsg = '', 3000);
           },
-          error: () => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.educations = this.educations.filter(e => e.id !== edu.id);
+              this.closeDeleteConfirm(true);
+              this.toastMsg = 'تم حذف المؤهل التعليمي بنجاح.';
+              setTimeout(() => this.toastMsg = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = 'تعذر حذف المؤهل التعليمي. يرجى المحاولة مرة أخرى.';
           }
@@ -1212,7 +1243,14 @@ export class CvImportProfileEditorComponent implements OnInit {
             this.toastMsg = 'تم حذف الشهادة المهنية بنجاح.';
             setTimeout(() => this.toastMsg = '', 3000);
           },
-          error: () => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.certifications = this.certifications.filter(c => c.id !== cert.id);
+              this.closeDeleteConfirm(true);
+              this.toastMsg = 'تم حذف الشهادة المهنية بنجاح.';
+              setTimeout(() => this.toastMsg = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = 'تعذر حذف الشهادة. يرجى المحاولة مرة أخرى.';
           }
@@ -1324,7 +1362,14 @@ export class CvImportProfileEditorComponent implements OnInit {
             this.toastMsg = 'تم حذف الرابط بنجاح.';
             setTimeout(() => this.toastMsg = '', 3000);
           },
-          error: err => {
+          error: (err: any) => {
+            if (err?.status === 404) {
+              this.socialLinks = this.socialLinks.filter(item => item.id !== link.id);
+              this.closeDeleteConfirm(true);
+              this.toastMsg = 'تم حذف الرابط بنجاح.';
+              setTimeout(() => this.toastMsg = '', 3000);
+              return;
+            }
             this.deleteModal.isDeleting = false;
             this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف الرابط الاجتماعي.');
           }
