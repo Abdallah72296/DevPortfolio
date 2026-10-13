@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:zip": "ng build && powershell -Command \"Compress-Archive -Path ./dist/portfolio-app/browser/* -DestinationPath ../portfolio-frontend.zip -Force\"",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
