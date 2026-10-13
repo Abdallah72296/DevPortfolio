@@ -165,7 +165,7 @@
           <div class="lg:col-span-7 flex flex-col gap-space-md">
             <div class="flex flex-wrap items-center gap-space-sm">
               <span class="px-space-sm py-1 rounded bg-surface-container-high text-secondary font-label-mono text-label-mono tracking-widest uppercase shadow-sm">
-                {{ portfolio?.profile?.badge || portfolio?.profile?.headlineRole || portfolio?.profile?.title || 'STAFF DISTRIBUTED SYSTEMS ARCHITECT' }}
+                {{ portfolio?.profile?.badge || 'SOFTWARE ARCHITECTURE & BACKEND' }}
               </span>
               <div *ngIf="portfolio?.profile?.availableForHire" class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-tertiary-container/20 text-tertiary font-code-sm text-code-sm">
                 <span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
@@ -174,11 +174,11 @@
             </div>
 
             <h1 class="font-display-hero text-display-hero text-on-surface tracking-tight leading-tight">
-              {{ portfolio?.profile?.summary || 'Architecting ultra-low latency distributed state engines & real-time telemetry pipelines.' }}
+              {{ portfolio?.profile?.title || portfolio?.profile?.headlineRole || 'Staff Distributed Systems Architect' }}
             </h1>
 
             <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
-              {{ portfolio?.profile?.longBio || 'Specialized in high-throughput network runtimes, consensus implementations, and zero-allocation memory architectures with provable data invariants.' }}
+              {{ portfolio?.profile?.summary || portfolio?.profile?.longBio || 'Specialized in high-throughput network runtimes, consensus implementations, and zero-allocation memory architectures with provable data invariants.' }}
             </p>
 
             <div class="flex flex-wrap items-center gap-space-md pt-space-sm">

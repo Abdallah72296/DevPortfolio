@@ -125,7 +125,7 @@
       <section class="flex flex-col gap-space-md relative">
         <div class="flex flex-wrap items-center gap-space-xs">
           <span class="px-2 py-0.5 rounded bg-surface-container-high text-secondary font-label-mono text-[10px] tracking-widest uppercase">
-            {{ portfolio?.profile?.badge || portfolio?.profile?.headlineRole || portfolio?.profile?.title || 'STAFF SYSTEMS ARCHITECT' }}
+            {{ portfolio?.profile?.badge || 'SOFTWARE ARCHITECTURE' }}
           </span>
           <div *ngIf="portfolio?.profile?.availableForHire" class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container/20 text-tertiary font-code-sm text-[11px]">
             <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping"></span>
@@ -134,11 +134,11 @@
         </div>
 
         <h1 class="font-display-hero text-2xl font-bold text-on-surface tracking-tight leading-tight">
-          {{ portfolio?.profile?.summary || 'Architecting ultra-low latency distributed state engines & real-time telemetry pipelines.' }}
+          {{ portfolio?.profile?.title || portfolio?.profile?.headlineRole || 'Staff Systems Architect' }}
         </h1>
 
         <p class="font-body-md text-sm text-on-surface-variant leading-relaxed">
-          {{ portfolio?.profile?.longBio || 'Specialized in high-throughput network runtimes, consensus implementations, and zero-allocation memory architectures.' }}
+          {{ portfolio?.profile?.summary || portfolio?.profile?.longBio || 'Specialized in high-throughput network runtimes, consensus implementations, and zero-allocation memory architectures.' }}
         </p>
 
         <!-- Profile Hero Portrait Card -->

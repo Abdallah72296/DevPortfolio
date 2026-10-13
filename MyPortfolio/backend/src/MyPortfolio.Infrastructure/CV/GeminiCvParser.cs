@@ -34,6 +34,7 @@ public class GeminiCvParser : ICvParser
         13. Extract ALL work experiences, jobs, internships, freelance, or teaching roles into the 'experiences' array with descriptive responsibilities.
         14. Map ONLY to the supported sections: PersonalInfo (Hero/About), Skills, Experiences, Projects, Education, Certifications, SocialLinks.
         15. Output MUST strictly adhere to the provided JSON schema.
+        16. personalInfo.jobTitle MUST be a short, concise professional title (e.g. '.NET Backend Developer', 'Full Stack Developer', 'Software Engineer', max 3-5 words). NEVER put an executive summary, bio, or sentences into jobTitle. All summary and description text MUST go into personalInfo.about.
         """;
 
     private const string JsonSchema = """

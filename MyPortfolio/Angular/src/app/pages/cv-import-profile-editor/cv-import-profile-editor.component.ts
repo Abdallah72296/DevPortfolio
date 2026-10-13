@@ -28,6 +28,7 @@ import {
   ExperienceDto,
   ProjectDto,
   SkillCategoryDto,
+  SkillDto,
   SocialLinkDto
 } from '../../core/models/admin.models';
 import { 
@@ -73,7 +74,16 @@ export class CvImportProfileEditorComponent implements OnInit {
   cvErrorMsg = '';
   selectedCv?: File;
   pendingCvDraft: CvPortfolioDraft | null = null;
+  hasPendingCvImport = false;
   isApplyingDraft = false;
+  previousDbIds = {
+    experiences: [] as string[],
+    projects: [] as string[],
+    categories: [] as string[],
+    educations: [] as string[],
+    certifications: [] as string[],
+    socialLinks: [] as string[]
+  };
   isUploadingCv = false;
   isDraggingCv = false;
   autoProcessOnDrop = true;
@@ -274,17 +284,23 @@ export class CvImportProfileEditorComponent implements OnInit {
       paragraphs: updatedParagraphs
     }).subscribe({
       next: response => {
-        this.isSaving = false;
-        if (response.succeeded) {
-          this.toastMsg = 'Profile successfully updated and saved to API.';
-          setTimeout(() => this.toastMsg = '', 3500);
+        if (!response.succeeded) {
+          this.isSaving = false;
+          this.errorMsg = response.message || 'تعذر حفظ بيانات الملف الشخصي.';
+          return;
+        }
+
+        if (this.hasPendingCvImport) {
+          this.commitCvItemsToDatabase();
         } else {
-          this.errorMsg = response.message || 'Profile could not be saved.';
+          this.isSaving = false;
+          this.toastMsg = 'تم حفظ ونشر كافة تعديلات الملف الشخصي بنجاح!';
+          setTimeout(() => this.toastMsg = '', 3500);
         }
       },
       error: () => {
         this.isSaving = false;
-        this.errorMsg = 'Profile could not be saved. Check connection or authorization.';
+        this.errorMsg = 'تعذر حفظ الملف الشخصي. يرجى التحقق من الاتصال بالخادم.';
       }
     });
   }
@@ -401,18 +417,136 @@ export class CvImportProfileEditorComponent implements OnInit {
           return;
         }
 
-        // Store draft for user review & approval - DO NOT save to database directly!
-        this.pendingCvDraft = draft;
-
-        // Populate local form fields for visual preview
-        if (draft.personalInfo) {
-          this.formData.name = draft.personalInfo.name || this.formData.name;
-          this.formData.title = draft.personalInfo.jobTitle || this.formData.title;
-          this.formData.bio = draft.personalInfo.about || this.formData.bio;
+        // Clean & extract concise title vs bio if title is too long
+        let title = draft.personalInfo?.jobTitle || this.formData.title;
+        let bio = draft.personalInfo?.about || this.formData.bio;
+        if (title && title.length > 50) {
+          const match = title.match(/^([A-Za-z0-9+#.\s]+?)(?:\s+(?:with|having|specializing|experienced|who)\b|[.,\n]|$)/i);
+          if (match && match[1] && match[1].trim().length >= 3) {
+            const extractedTitle = match[1].trim();
+            if (!bio || bio.length < title.length) {
+              bio = title;
+            }
+            title = extractedTitle;
+          }
         }
 
-        this.toastMsg = 'تم استخراج البيانات بنجاح! راجع البيانات المستخرجة في الشريط أعلاه واضغط "موافقة وحفظ في الموقع" لاعتمادها.';
-        setTimeout(() => this.toastMsg = '', 6000);
+        // 1. Populate form fields in-memory
+        if (draft.personalInfo) {
+          this.formData.name = draft.personalInfo.name || this.formData.name;
+          this.formData.title = title;
+          this.formData.bio = bio;
+        }
+
+        const now = Date.now();
+
+        // Snapshot existing non-temp database IDs so they can be cleanly replaced upon saveAndDeploy
+        this.previousDbIds = {
+          experiences: this.experiences.filter(e => !e.id.startsWith('temp-')).map(e => e.id),
+          projects: this.projects.filter(p => !p.id.startsWith('temp-')).map(p => p.id),
+          categories: this.categories.filter(c => !c.id.startsWith('temp-')).map(c => c.id),
+          educations: this.educations.filter(e => !e.id.startsWith('temp-')).map(e => e.id),
+          certifications: this.certifications.filter(c => !c.id.startsWith('temp-')).map(c => c.id),
+          socialLinks: this.socialLinks.filter(s => !s.id.startsWith('temp-')).map(s => s.id)
+        };
+
+        // 2. Populate skills into categories array in-memory
+        if (draft.skills && draft.skills.length > 0) {
+          this.categories = draft.skills.map((cat, catIdx) => ({
+            id: `temp-cat-${catIdx}-${now}`,
+            name: cat.category,
+            displayOrder: catIdx,
+            isVisible: true,
+            skills: cat.skills.map((s, sIdx) => ({
+              id: `temp-skill-${catIdx}-${sIdx}-${now}`,
+              name: s.name,
+              icon: s.icon || resolveSkillIcon(s.name),
+              displayOrder: sIdx,
+              isVisible: true,
+              skillCategoryId: `temp-cat-${catIdx}-${now}`
+            }))
+          }));
+          this.selectedCategoryId = this.categories[0]?.id || '';
+        }
+
+        // 3. Populate experiences into experiences array in-memory
+        if (draft.experiences && draft.experiences.length > 0) {
+          this.experiences = draft.experiences.map((exp, idx) => ({
+            id: `temp-exp-${idx}-${now}`,
+            jobTitle: exp.jobTitle,
+            companyName: exp.companyName,
+            description: exp.description || '',
+            startDate: this.formatIsoDate(exp.startDate),
+            endDate: exp.isCurrent ? null : (exp.endDate ? this.formatIsoDate(exp.endDate) : null),
+            isCurrent: exp.isCurrent,
+            displayOrder: idx,
+            isVisible: true
+          }));
+        }
+
+        // 4. Populate projects into projects array in-memory
+        if (draft.projects && draft.projects.length > 0) {
+          this.projects = draft.projects.map((proj, idx) => ({
+            id: `temp-proj-${idx}-${now}`,
+            title: proj.title,
+            description: proj.description || '',
+            image: proj.image || '',
+            liveUrl: proj.liveUrl || '',
+            githubUrl: proj.githubUrl || '',
+            technologies: proj.technologies || [],
+            isFeatured: false,
+            isVisible: true,
+            displayOrder: idx
+          }));
+        }
+
+        // 5. Populate education into educations array in-memory
+        if (draft.education && draft.education.length > 0) {
+          this.educations = draft.education.map((edu, idx) => ({
+            id: `temp-edu-${idx}-${now}`,
+            degree: edu.degree || 'Degree',
+            institutionName: edu.institutionName || 'University',
+            fieldOfStudy: edu.fieldOfStudy || '',
+            description: edu.description || '',
+            startDate: this.formatIsoDate(edu.startDate),
+            endDate: edu.isCurrent ? null : (edu.endDate ? this.formatIsoDate(edu.endDate) : null),
+            isCurrent: edu.isCurrent,
+            displayOrder: idx,
+            isVisible: true
+          }));
+        }
+
+        // 6. Populate certifications into certifications array in-memory
+        if (draft.certifications && draft.certifications.length > 0) {
+          this.certifications = draft.certifications.map((cert, idx) => ({
+            id: `temp-cert-${idx}-${now}`,
+            name: cert.name,
+            issuingOrganization: cert.issuingOrganization || '',
+            issueDate: this.formatIsoDate(cert.issueDate),
+            credentialId: cert.credentialId || '',
+            credentialUrl: cert.credentialUrl || '',
+            description: cert.description || '',
+            displayOrder: idx,
+            isVisible: true
+          }));
+        }
+
+        // 7. Populate social links into socialLinks array in-memory
+        if (draft.socialLinks && draft.socialLinks.length > 0) {
+          this.socialLinks = draft.socialLinks.map((s, idx) => ({
+            id: `temp-social-${idx}-${now}`,
+            platform: s.platform,
+            url: s.url,
+            icon: getSocialIconName(s.platform, s.url),
+            displayOrder: idx,
+            isVisible: true
+          }));
+        }
+
+        this.hasPendingCvImport = true;
+        this.pendingCvDraft = null;
+        this.toastMsg = 'تم استخراج وتعبئة جميع بيانات السيرة الذاتية في أماكنها بنجاح! راجع البيانات أدناه وعدّلها كما تريد، ولن يتم حفظها في قاعدة البيانات إلا عند الضغط على "Save Profile Changes".';
+        setTimeout(() => this.toastMsg = '', 7000);
       },
       error: err => {
         this.isParsing = false;
@@ -421,182 +555,148 @@ export class CvImportProfileEditorComponent implements OnInit {
     });
   }
 
-  applyPendingCvDraft(): void {
-    if (!this.pendingCvDraft) return;
-    const draft = this.pendingCvDraft;
-    this.isApplyingDraft = true;
-    this.errorMsg = '';
-    this.toastMsg = 'جاري حفظ واعتماد بيانات السيرة الذاتية في الموقع...';
+  commitCvItemsToDatabase(): void {
+    this.isSaving = true;
+    this.toastMsg = 'جاري حفظ واعتماد جميع بيانات الملف الشخصي والأقسام في قاعدة البيانات...';
 
-    // 1. Prepare cleanup of old data so profile is cleanly replaced by the new CV
+    // 1. Prepare cleanup of old database entities replaced by this import
     const cleanup$: Observable<any>[] = [];
-    this.experiences.forEach(e => cleanup$.push(this.api.deleteExperience(e.id).pipe(catchError(() => of(null)))));
-    this.projects.forEach(p => cleanup$.push(this.api.deleteProject(p.id).pipe(catchError(() => of(null)))));
-    this.categories.forEach(c => cleanup$.push(this.api.deleteSkillCategory(c.id).pipe(catchError(() => of(null)))));
-    this.educations.forEach(e => cleanup$.push(this.api.deleteEducation(e.id).pipe(catchError(() => of(null)))));
-    this.certifications.forEach(c => cleanup$.push(this.api.deleteCertification(c.id).pipe(catchError(() => of(null)))));
-    this.socialLinks.forEach(s => cleanup$.push(this.api.deleteSocialLink(s.id).pipe(catchError(() => of(null)))));
+    if (this.previousDbIds.experiences?.length) {
+      this.previousDbIds.experiences.forEach(id => cleanup$.push(this.api.deleteExperience(id).pipe(catchError(() => of(null)))));
+    }
+    if (this.previousDbIds.projects?.length) {
+      this.previousDbIds.projects.forEach(id => cleanup$.push(this.api.deleteProject(id).pipe(catchError(() => of(null)))));
+    }
+    if (this.previousDbIds.categories?.length) {
+      this.previousDbIds.categories.forEach(id => cleanup$.push(this.api.deleteSkillCategory(id).pipe(catchError(() => of(null)))));
+    }
+    if (this.previousDbIds.educations?.length) {
+      this.previousDbIds.educations.forEach(id => cleanup$.push(this.api.deleteEducation(id).pipe(catchError(() => of(null)))));
+    }
+    if (this.previousDbIds.certifications?.length) {
+      this.previousDbIds.certifications.forEach(id => cleanup$.push(this.api.deleteCertification(id).pipe(catchError(() => of(null)))));
+    }
+    if (this.previousDbIds.socialLinks?.length) {
+      this.previousDbIds.socialLinks.forEach(id => cleanup$.push(this.api.deleteSocialLink(id).pipe(catchError(() => of(null)))));
+    }
 
     const executeCreations = () => {
-      const createOperations$: Observable<any>[] = [];
-
-      // Save Profile Personal Info
-      createOperations$.push(
-        this.api.updateProfile({
-          fullName: this.formData.name,
-          title: this.formData.title,
-          location: this.formData.location,
-          email: this.formData.email,
-          phone: this.formData.phone,
-          summary: this.formData.bio,
-          avatarUrl: this.formData.avatarUrl,
-          cvUrl: this.formData.cvUrl,
-          availableForHire: this.formData.availableForHire
-        }).pipe(catchError(() => of(null)))
-      );
+      const createOps$: Observable<any>[] = [];
 
       // Experiences
-      if (draft.experiences?.length) {
-        draft.experiences.forEach((exp, idx) => {
-          const jobTitle = exp.jobTitle || 'Developer';
-          const companyName = exp.companyName || 'Company';
-          const desc = exp.description?.trim() || `${jobTitle} at ${companyName}`;
-          const startDate = this.formatIsoDate(exp.startDate);
-          const endDate = exp.isCurrent ? null : (exp.endDate ? this.formatIsoDate(exp.endDate) : null);
-          createOperations$.push(
-            this.api.createExperience({
-              jobTitle,
-              companyName,
-              description: desc,
-              startDate,
-              endDate,
-              isCurrent: exp.isCurrent,
-              displayOrder: idx
-            }).pipe(catchError(() => of(null)))
-          );
-        });
-      }
+      this.experiences.forEach((exp, idx) => {
+        const jobTitle = exp.jobTitle || 'Developer';
+        const companyName = exp.companyName || 'Company';
+        const desc = exp.description?.trim() || `${jobTitle} at ${companyName}`;
+        createOps$.push(
+          this.api.createExperience({
+            jobTitle,
+            companyName,
+            description: desc,
+            startDate: exp.startDate,
+            endDate: exp.isCurrent ? null : exp.endDate,
+            isCurrent: exp.isCurrent,
+            displayOrder: idx
+          }).pipe(catchError(() => of(null)))
+        );
+      });
 
       // Projects
-      if (draft.projects?.length) {
-        draft.projects.forEach((proj, idx) => {
-          createOperations$.push(
-            this.api.createProject({
-              title: proj.title,
-              description: proj.description || '',
-              technologies: proj.technologies || [],
-              liveUrl: proj.liveUrl,
-              githubUrl: proj.githubUrl,
-              image: proj.image,
-              isFeatured: proj.isFeatured,
-              displayOrder: idx
-            }).pipe(catchError(() => of(null)))
-          );
-        });
-      }
+      this.projects.forEach((proj, idx) => {
+        createOps$.push(
+          this.api.createProject({
+            title: proj.title,
+            description: proj.description || '',
+            technologies: proj.technologies || [],
+            liveUrl: proj.liveUrl,
+            githubUrl: proj.githubUrl,
+            image: proj.image,
+            isFeatured: proj.isFeatured,
+            displayOrder: idx
+          }).pipe(catchError(() => of(null)))
+        );
+      });
 
       // Skills (Categories with Skills)
-      if (draft.skills?.length) {
-        draft.skills.forEach((cat, idx) => {
-          const skillNames = (cat.skills || []).map(s => s.name);
-          createOperations$.push(
-            this.api.createCategoryWithSkills({
-              name: cat.category,
-              skills: skillNames,
-              displayOrder: idx
-            }).pipe(catchError(() => of(null)))
-          );
-        });
-      }
+      this.categories.forEach((cat, idx) => {
+        const skillNames = (cat.skills || []).map(s => s.name);
+        createOps$.push(
+          this.api.createCategoryWithSkills({
+            name: cat.name,
+            skills: skillNames,
+            displayOrder: idx
+          }).pipe(catchError(() => of(null)))
+        );
+      });
 
       // Education
-      if (draft.education?.length) {
-        draft.education.forEach((edu, idx) => {
-          const degree = edu.degree || 'Degree';
-          const institutionName = edu.institutionName || 'University';
-          const desc = edu.description?.trim() || `${degree} - ${institutionName}`;
-          const startDate = this.formatIsoDate(edu.startDate);
-          const endDate = edu.isCurrent ? null : (edu.endDate ? this.formatIsoDate(edu.endDate) : null);
-          createOperations$.push(
-            this.api.createEducation({
-              degree,
-              institutionName,
-              fieldOfStudy: edu.fieldOfStudy || null,
-              startDate,
-              endDate,
-              description: desc,
-              isCurrent: edu.isCurrent,
-              displayOrder: idx
-            }).pipe(catchError(() => of(null)))
-          );
-        });
-      }
+      this.educations.forEach((edu, idx) => {
+        const degree = edu.degree || 'Degree';
+        const institutionName = edu.institutionName || 'University';
+        const desc = edu.description?.trim() || `${degree} - ${institutionName}`;
+        createOps$.push(
+          this.api.createEducation({
+            degree,
+            institutionName,
+            fieldOfStudy: edu.fieldOfStudy || null,
+            startDate: edu.startDate,
+            endDate: edu.isCurrent ? null : edu.endDate,
+            description: desc,
+            isCurrent: edu.isCurrent,
+            displayOrder: idx
+          }).pipe(catchError(() => of(null)))
+        );
+      });
 
       // Certifications
-      if (draft.certifications?.length) {
-        draft.certifications.forEach((cert, idx) => {
-          createOperations$.push(
-            this.api.createCertification({
-              name: cert.name,
-              issuingOrganization: cert.issuingOrganization || 'Organization',
-              issueDate: this.formatIsoDate(cert.issueDate),
-              credentialId: cert.credentialId,
-              credentialUrl: cert.credentialUrl,
-              description: cert.description || '',
-              displayOrder: idx
-            }).pipe(catchError(() => of(null)))
-          );
-        });
-      }
+      this.certifications.forEach((cert, idx) => {
+        createOps$.push(
+          this.api.createCertification({
+            name: cert.name,
+            issuingOrganization: cert.issuingOrganization || 'Organization',
+            issueDate: cert.issueDate,
+            credentialId: cert.credentialId,
+            credentialUrl: cert.credentialUrl,
+            description: cert.description || '',
+            displayOrder: idx
+          }).pipe(catchError(() => of(null)))
+        );
+      });
 
       // Social Links
-      if (draft.socialLinks?.length) {
-        draft.socialLinks.forEach((link, idx) => {
-          const iconName = getSocialIconName(link.platform, link.url);
-          createOperations$.push(
-            this.api.createSocialLink({
-              platform: link.platform,
-              url: link.url,
-              icon: iconName,
-              displayOrder: idx
-            }).pipe(catchError(() => of(null)))
-          );
-        });
-      }
+      this.socialLinks.forEach((link, idx) => {
+        const iconName = link.icon || getSocialIconName(link.platform, link.url);
+        createOps$.push(
+          this.api.createSocialLink({
+            platform: link.platform,
+            url: link.url,
+            icon: iconName,
+            displayOrder: idx
+          }).pipe(catchError(() => of(null)))
+        );
+      });
 
-      if (createOperations$.length > 0) {
-        forkJoin(createOperations$).subscribe({
-          next: () => {
-            this.isApplyingDraft = false;
-            this.pendingCvDraft = null;
-            this.toastMsg = 'تم اعتماد وحفظ جميع بيانات السيرة الذاتية بنجاح!';
-            setTimeout(() => this.toastMsg = '', 4500);
-            this.loadProfile();
-            this.loadSkills();
-            this.loadExperiences();
-            this.loadProjects();
-            this.loadCredentials();
-            this.loadSocialLinks();
-          },
-          error: () => {
-            this.isApplyingDraft = false;
-            this.pendingCvDraft = null;
-            this.toastMsg = 'تم استخراج وتحديث بيانات الملف الشخصي.';
-            setTimeout(() => this.toastMsg = '', 4000);
-            this.loadProfile();
-            this.loadSkills();
-            this.loadExperiences();
-            this.loadProjects();
-            this.loadCredentials();
-            this.loadSocialLinks();
-          }
+      const finalizeCommit = () => {
+        this.isSaving = false;
+        this.hasPendingCvImport = false;
+        this.previousDbIds = { experiences: [], projects: [], categories: [], educations: [], certifications: [], socialLinks: [] };
+        this.toastMsg = 'تم حفظ ونشر كافة تعديلات الملف الشخصي وبيانات السيرة الذاتية بنجاح!';
+        setTimeout(() => this.toastMsg = '', 4500);
+        this.loadProfile();
+        this.loadSkills();
+        this.loadExperiences();
+        this.loadProjects();
+        this.loadCredentials();
+        this.loadSocialLinks();
+      };
+
+      if (createOps$.length > 0) {
+        forkJoin(createOps$).subscribe({
+          next: () => finalizeCommit(),
+          error: () => finalizeCommit()
         });
       } else {
-        this.isApplyingDraft = false;
-        this.pendingCvDraft = null;
-        this.toastMsg = 'تم تحديث البيانات الشخصية بنجاح!';
-        setTimeout(() => this.toastMsg = '', 4000);
-        this.loadProfile();
+        finalizeCommit();
       }
     };
 
@@ -608,13 +708,6 @@ export class CvImportProfileEditorComponent implements OnInit {
     } else {
       executeCreations();
     }
-  }
-
-  cancelPendingCvDraft(): void {
-    this.pendingCvDraft = null;
-    this.toastMsg = 'تم إلغاء البيانات المستخرجة دون أي تعديل في قاعدة البيانات.';
-    setTimeout(() => this.toastMsg = '', 3500);
-    this.loadProfile();
   }
 
   // ==========================================
@@ -721,6 +814,28 @@ export class CvImportProfileEditorComponent implements OnInit {
     const name = this.newSkillName.trim();
     const resolvedIcon = this.customSkillIcon || resolveSkillIcon(name);
 
+    if (this.selectedCategoryId.startsWith('temp-')) {
+      const newSkill: SkillDto = {
+        id: `temp-skill-${Date.now()}`,
+        name,
+        icon: resolvedIcon,
+        displayOrder: order,
+        isVisible: true,
+        skillCategoryId: this.selectedCategoryId
+      };
+      registerLearnedSkill(name, resolvedIcon, cat?.name);
+      if (cat) {
+        cat.skills = [...(cat.skills || []), newSkill];
+      }
+      this.newSkillName = '';
+      this.customSkillIcon = '';
+      this.showSkillSuggestions = false;
+      this.detectedSkillIconDisplay = { type: 'material', value: 'code' };
+      this.toastMsg = `Skill "${name}" added.`;
+      setTimeout(() => this.toastMsg = '', 3000);
+      return;
+    }
+
     this.api.createSkill({
       name,
       skillCategoryId: this.selectedCategoryId,
@@ -749,6 +864,23 @@ export class CvImportProfileEditorComponent implements OnInit {
 
   addCategory(): void {
     if (!this.newCategoryName.trim()) return;
+
+    if (this.hasPendingCvImport) {
+      const newCat: SkillCategoryDto = {
+        id: `temp-cat-${Date.now()}`,
+        name: this.newCategoryName.trim(),
+        displayOrder: this.categories.length,
+        isVisible: true,
+        skills: []
+      };
+      this.categories.push(newCat);
+      this.selectedCategoryId = newCat.id;
+      this.newCategoryName = '';
+      this.toastMsg = `Category "${newCat.name}" created.`;
+      setTimeout(() => this.toastMsg = '', 3000);
+      return;
+    }
+
     this.api.createSkillCategory({
       name: this.newCategoryName.trim(),
       displayOrder: this.categories.length
@@ -769,6 +901,13 @@ export class CvImportProfileEditorComponent implements OnInit {
   }
 
   removeSkill(category: SkillCategoryDto, skillId: string): void {
+    if (skillId.startsWith('temp-')) {
+      category.skills = (category.skills || []).filter(s => s.id !== skillId);
+      this.toastMsg = 'تمت إزالة المهارة بنجاح.';
+      setTimeout(() => this.toastMsg = '', 2000);
+      return;
+    }
+
     this.api.deleteSkill(skillId).subscribe({
       next: () => {
         category.skills = (category.skills || []).filter(s => s.id !== skillId);
@@ -782,6 +921,12 @@ export class CvImportProfileEditorComponent implements OnInit {
   renameSkill(category: SkillCategoryDto, skillId: string, currentName: string): void {
     const name = prompt('Edit skill name:', currentName)?.trim();
     if (!name || name === currentName) return;
+
+    if (skillId.startsWith('temp-')) {
+      const item = category.skills?.find(s => s.id === skillId);
+      if (item) item.name = name;
+      return;
+    }
 
     this.api.updateSkill(skillId, {
       name,
@@ -806,6 +951,17 @@ export class CvImportProfileEditorComponent implements OnInit {
       itemType: 'Category',
       message: `هل أنت متأكد من حذف قسم "${category.name}" وجميع المهارات التابعة له (${skillsCount} مهارة)؟`,
       action: () => {
+        if (category.id.startsWith('temp-')) {
+          this.categories = this.categories.filter(c => c.id !== category.id);
+          if (this.selectedCategoryId === category.id) {
+            this.selectedCategoryId = this.categories[0]?.id || '';
+          }
+          this.closeDeleteConfirm(true);
+          this.toastMsg = `تم حذف قسم "${category.name}".`;
+          setTimeout(() => this.toastMsg = '', 3000);
+          return;
+        }
+
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
         this.api.deleteSkillCategory(category.id).subscribe({
@@ -872,6 +1028,25 @@ export class CvImportProfileEditorComponent implements OnInit {
     if (!this.experienceForm.jobTitle.trim() || !this.experienceForm.companyName.trim()) return;
 
     if (this.editingExperience) {
+      if (this.editingExperience.id.startsWith('temp-')) {
+        const idx = this.experiences.findIndex(e => e.id === this.editingExperience!.id);
+        if (idx > -1) {
+          this.experiences[idx] = {
+            ...this.experiences[idx],
+            jobTitle: this.experienceForm.jobTitle,
+            companyName: this.experienceForm.companyName,
+            description: this.experienceForm.description,
+            startDate: this.experienceForm.startDate,
+            endDate: this.experienceForm.isCurrent ? null : this.experienceForm.endDate,
+            isCurrent: this.experienceForm.isCurrent
+          };
+        }
+        this.experienceModalOpen = false;
+        this.toastMsg = 'تم تعديل الخبرة الوظيفية.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+
       this.api.updateExperience(this.editingExperience.id, this.experienceForm).subscribe({
         next: res => {
           if (res.succeeded && res.data) {
@@ -887,6 +1062,24 @@ export class CvImportProfileEditorComponent implements OnInit {
         error: () => this.errorMsg = 'Could not update experience.'
       });
     } else {
+      if (this.hasPendingCvImport) {
+        this.experiences.push({
+          id: `temp-exp-${Date.now()}`,
+          jobTitle: this.experienceForm.jobTitle,
+          companyName: this.experienceForm.companyName,
+          description: this.experienceForm.description,
+          startDate: this.experienceForm.startDate,
+          endDate: this.experienceForm.isCurrent ? null : this.experienceForm.endDate,
+          isCurrent: this.experienceForm.isCurrent,
+          displayOrder: this.experiences.length,
+          isVisible: true
+        });
+        this.experienceModalOpen = false;
+        this.toastMsg = 'تمت إضافة الخبرة بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+
       this.api.createExperience({
         ...this.experienceForm,
         displayOrder: this.experiences.length
@@ -913,6 +1106,14 @@ export class CvImportProfileEditorComponent implements OnInit {
       itemType: 'Experience',
       message: `هل أنت متأكد من حذف دور "${exp.jobTitle}" في شركة "${exp.companyName}" من مسارك المهني؟`,
       action: () => {
+        if (exp.id.startsWith('temp-')) {
+          this.experiences = this.experiences.filter(e => e.id !== exp.id);
+          this.closeDeleteConfirm(true);
+          this.toastMsg = 'تم حذف الخبرة الوظيفية.';
+          setTimeout(() => this.toastMsg = '', 3000);
+          return;
+        }
+
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
         this.api.deleteExperience(exp.id).subscribe({
@@ -994,6 +1195,26 @@ export class CvImportProfileEditorComponent implements OnInit {
     };
 
     if (this.editingProject) {
+      if (this.editingProject.id.startsWith('temp-')) {
+        const idx = this.projects.findIndex(p => p.id === this.editingProject!.id);
+        if (idx > -1) {
+          this.projects[idx] = {
+            ...this.projects[idx],
+            title: this.projectForm.title,
+            description: this.projectForm.description || '',
+            technologies: techs,
+            liveUrl: this.projectForm.liveUrl,
+            githubUrl: this.projectForm.githubUrl,
+            image: this.projectForm.image,
+            isFeatured: this.projectForm.isFeatured
+          };
+        }
+        this.projectModalOpen = false;
+        this.toastMsg = 'تم تعديل المشروع بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+
       this.api.updateProject(this.editingProject.id, {
         ...req,
         isVisible: this.editingProject.isVisible
@@ -1012,6 +1233,25 @@ export class CvImportProfileEditorComponent implements OnInit {
         error: () => this.errorMsg = 'Could not update project.'
       });
     } else {
+      if (this.hasPendingCvImport) {
+        this.projects.push({
+          id: `temp-proj-${Date.now()}`,
+          title: this.projectForm.title,
+          description: this.projectForm.description || '',
+          technologies: techs,
+          liveUrl: this.projectForm.liveUrl,
+          githubUrl: this.projectForm.githubUrl,
+          image: this.projectForm.image,
+          isFeatured: this.projectForm.isFeatured,
+          isVisible: true,
+          displayOrder: this.projects.length
+        });
+        this.projectModalOpen = false;
+        this.toastMsg = 'تمت إضافة المشروع بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+
       this.api.createProject({
         ...req,
         displayOrder: this.projects.length
@@ -1038,6 +1278,14 @@ export class CvImportProfileEditorComponent implements OnInit {
       itemType: 'Project',
       message: `هل أنت متأكد من حذف المشروع "${proj.title}" نهائياً؟ سيتم حذفه من قاعدة البيانات ومعرض أعمالك فوراً.`,
       action: () => {
+        if (proj.id.startsWith('temp-')) {
+          this.projects = this.projects.filter(p => p.id !== proj.id);
+          this.closeDeleteConfirm(true);
+          this.toastMsg = `تم حذف المشروع "${proj.title}" بنجاح.`;
+          setTimeout(() => this.toastMsg = '', 3000);
+          return;
+        }
+
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
         this.api.deleteProject(proj.id).subscribe({
@@ -1116,6 +1364,26 @@ export class CvImportProfileEditorComponent implements OnInit {
     if (!this.educationForm.degree.trim() || !this.educationForm.institutionName.trim()) return;
 
     if (this.editingEducation) {
+      if (this.editingEducation.id.startsWith('temp-')) {
+        const idx = this.educations.findIndex(e => e.id === this.editingEducation!.id);
+        if (idx > -1) {
+          this.educations[idx] = {
+            ...this.educations[idx],
+            degree: this.educationForm.degree,
+            institutionName: this.educationForm.institutionName,
+            fieldOfStudy: this.educationForm.fieldOfStudy || '',
+            description: this.educationForm.description || '',
+            startDate: this.educationForm.startDate,
+            endDate: this.educationForm.isCurrent ? null : this.educationForm.endDate,
+            isCurrent: this.educationForm.isCurrent
+          };
+        }
+        this.credentialModalOpen = false;
+        this.toastMsg = 'تم تعديل المؤهل التعليمي بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+
       this.api.updateEducation(this.editingEducation.id, this.educationForm).subscribe({
         next: res => {
           if (res.succeeded && res.data) {
@@ -1129,6 +1397,25 @@ export class CvImportProfileEditorComponent implements OnInit {
         error: () => this.errorMsg = 'Could not update education.'
       });
     } else {
+      if (this.hasPendingCvImport) {
+        this.educations.push({
+          id: `temp-edu-${Date.now()}`,
+          degree: this.educationForm.degree,
+          institutionName: this.educationForm.institutionName,
+          fieldOfStudy: this.educationForm.fieldOfStudy || '',
+          description: this.educationForm.description || '',
+          startDate: this.educationForm.startDate,
+          endDate: this.educationForm.isCurrent ? null : this.educationForm.endDate,
+          isCurrent: this.educationForm.isCurrent,
+          displayOrder: this.educations.length,
+          isVisible: true
+        });
+        this.credentialModalOpen = false;
+        this.toastMsg = 'تمت إضافة المؤهل التعليمي بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+
       this.api.createEducation({
         ...this.educationForm,
         displayOrder: this.educations.length
@@ -1153,6 +1440,14 @@ export class CvImportProfileEditorComponent implements OnInit {
       itemType: 'Education',
       message: `هل أنت متأكد من حذف مؤهل "${edu.degree}" في "${edu.institutionName}" من بياناتك؟`,
       action: () => {
+        if (edu.id.startsWith('temp-')) {
+          this.educations = this.educations.filter(e => e.id !== edu.id);
+          this.closeDeleteConfirm(true);
+          this.toastMsg = 'تم حذف المؤهل التعليمي بنجاح.';
+          setTimeout(() => this.toastMsg = '', 3000);
+          return;
+        }
+
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
         this.api.deleteEducation(edu.id).subscribe({
@@ -1197,6 +1492,25 @@ export class CvImportProfileEditorComponent implements OnInit {
     if (!this.certificationForm.name.trim() || !this.certificationForm.issuingOrganization.trim()) return;
 
     if (this.editingCertification) {
+      if (this.editingCertification.id.startsWith('temp-')) {
+        const idx = this.certifications.findIndex(c => c.id === this.editingCertification!.id);
+        if (idx > -1) {
+          this.certifications[idx] = {
+            ...this.certifications[idx],
+            name: this.certificationForm.name,
+            issuingOrganization: this.certificationForm.issuingOrganization,
+            issueDate: this.certificationForm.issueDate,
+            credentialId: this.certificationForm.credentialId || '',
+            credentialUrl: this.certificationForm.credentialUrl || '',
+            description: this.certificationForm.description || ''
+          };
+        }
+        this.credentialModalOpen = false;
+        this.toastMsg = 'تم تعديل الشهادة المهنية بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+
       this.api.updateCertification(this.editingCertification.id, this.certificationForm).subscribe({
         next: res => {
           if (res.succeeded && res.data) {
@@ -1210,6 +1524,24 @@ export class CvImportProfileEditorComponent implements OnInit {
         error: () => this.errorMsg = 'Could not update certification.'
       });
     } else {
+      if (this.hasPendingCvImport) {
+        this.certifications.push({
+          id: `temp-cert-${Date.now()}`,
+          name: this.certificationForm.name,
+          issuingOrganization: this.certificationForm.issuingOrganization,
+          issueDate: this.certificationForm.issueDate,
+          credentialId: this.certificationForm.credentialId || '',
+          credentialUrl: this.certificationForm.credentialUrl || '',
+          description: this.certificationForm.description || '',
+          displayOrder: this.certifications.length,
+          isVisible: true
+        });
+        this.credentialModalOpen = false;
+        this.toastMsg = 'تمت إضافة الشهادة المهنية بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+
       this.api.createCertification({
         ...this.certificationForm,
         displayOrder: this.certifications.length
@@ -1234,6 +1566,14 @@ export class CvImportProfileEditorComponent implements OnInit {
       itemType: 'Certification',
       message: `هل أنت متأكد من حذف شهادة "${cert.name}" الصادرة من "${cert.issuingOrganization}"؟`,
       action: () => {
+        if (cert.id.startsWith('temp-')) {
+          this.certifications = this.certifications.filter(c => c.id !== cert.id);
+          this.closeDeleteConfirm(true);
+          this.toastMsg = 'تم حذف الشهادة المهنية بنجاح.';
+          setTimeout(() => this.toastMsg = '', 3000);
+          return;
+        }
+
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
         this.api.deleteCertification(cert.id).subscribe({
@@ -1309,6 +1649,39 @@ export class CvImportProfileEditorComponent implements OnInit {
     if (!this.socialForm.platform.trim() || !this.socialForm.url.trim()) return;
 
     const icon = this.socialForm.icon || getSocialIconName(this.socialForm.platform, this.socialForm.url);
+    if (this.editingSocialId) {
+      if (this.editingSocialId.startsWith('temp-')) {
+        const link = this.socialLinks.find(l => l.id === this.editingSocialId);
+        if (link) {
+          link.platform = this.socialForm.platform.trim();
+          link.url = this.socialForm.url.trim();
+          link.icon = icon;
+        }
+        this.editingSocialId = null;
+        this.socialForm = { platform: '', url: '', icon: '' };
+        this.selectedPresetPlatform = '';
+        this.toastMsg = 'تم تعديل الرابط بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+    } else {
+      if (this.hasPendingCvImport) {
+        this.socialLinks.push({
+          id: `temp-social-${Date.now()}`,
+          platform: this.socialForm.platform.trim(),
+          url: this.socialForm.url.trim(),
+          icon: icon,
+          displayOrder: this.socialLinks.length,
+          isVisible: true
+        });
+        this.socialForm = { platform: '', url: '', icon: '' };
+        this.selectedPresetPlatform = '';
+        this.toastMsg = 'تمت إضافة الرابط بنجاح.';
+        setTimeout(() => this.toastMsg = '', 3000);
+        return;
+      }
+    }
+
     const request = {
       platform: this.socialForm.platform.trim(),
       url: this.socialForm.url.trim(),
@@ -1340,6 +1713,11 @@ export class CvImportProfileEditorComponent implements OnInit {
   }
 
   toggleSocialLink(link: SocialLinkDto): void {
+    if (link.id.startsWith('temp-')) {
+      link.isVisible = !link.isVisible;
+      return;
+    }
+
     this.api.setSocialLinkVisibility(link.id, !link.isVisible).subscribe({
       next: response => response.succeeded ? link.isVisible = response.data.isVisible : this.errorMsg = sanitizeTechnicalText(response.message, 'تعذر تعديل ظهور الرابط.'),
       error: err => this.errorMsg = formatFriendlyError(err, 'فشل تعديل حالة ظهور الرابط.')
@@ -1353,6 +1731,14 @@ export class CvImportProfileEditorComponent implements OnInit {
       itemType: 'Social Link',
       message: `هل أنت متأكد من حذف رابط "${link.platform}" (${link.url})؟`,
       action: () => {
+        if (link.id.startsWith('temp-')) {
+          this.socialLinks = this.socialLinks.filter(item => item.id !== link.id);
+          this.closeDeleteConfirm(true);
+          this.toastMsg = 'تم حذف الرابط بنجاح.';
+          setTimeout(() => this.toastMsg = '', 3000);
+          return;
+        }
+
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
         this.api.deleteSocialLink(link.id).subscribe({
@@ -1384,6 +1770,12 @@ export class CvImportProfileEditorComponent implements OnInit {
     if (target < 0 || target >= this.socialLinks.length) return;
     const reordered = [...this.socialLinks];
     [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+
+    if (this.hasPendingCvImport || reordered.some(l => l.id.startsWith('temp-'))) {
+      this.socialLinks = reordered.map((item, displayOrder) => ({ ...item, displayOrder }));
+      return;
+    }
+
     this.api.reorderSocialLinks(reordered.map((item, displayOrder) => ({ id: item.id, displayOrder }))).subscribe({
       next: response => response.succeeded ? this.socialLinks = reordered.map((item, displayOrder) => ({ ...item, displayOrder })) : this.errorMsg = response.message,
       error: () => this.errorMsg = 'Social link order could not be saved.'
