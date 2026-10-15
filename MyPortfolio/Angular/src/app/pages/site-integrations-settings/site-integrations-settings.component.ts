@@ -25,18 +25,18 @@ export class SiteIntegrationsSettingsComponent implements OnInit {
   };
   savingSettings = false;
   readonly themes = [
-    { key: 'obsidian-dark', name: 'Obsidian', description: 'Charcoal with violet accents', swatches: ['#0f131c', '#262a33', '#d0bcff'] },
-    { key: 'light', name: 'Porcelain', description: 'Bright, clean and minimal', swatches: ['#f7f8fc', '#e5e8f0', '#7048d8'] },
-    { key: 'midnight', name: 'Midnight', description: 'Deep navy with cool blue tones', swatches: ['#080d19', '#121d31', '#91aaff'] },
-    { key: 'emerald', name: 'Emerald', description: 'Dark forest with vivid green accents', swatches: ['#0b1512', '#17251f', '#65e6ad'] },
-    { key: 'rose', name: 'Rose Quartz', description: 'Deep plum with soft rose accents', swatches: ['#191117', '#2b1b26', '#ff9fc8'] },
-    { key: 'ocean', name: 'Ocean', description: 'Blue slate with bright aqua accents', swatches: ['#0b1419', '#14262d', '#5ee6e0'] },
-    { key: 'graphite', name: 'Graphite', description: 'Monochrome, crisp and understated', swatches: ['#101112', '#252729', '#f0f0f0'] },
-    { key: 'sunset', name: 'Sunset', description: 'Warm charcoal with coral and amber accents', swatches: ['#1b1212', '#30201d', '#ff9b75'] },
-    { key: 'lavender', name: 'Lavender', description: 'Soft violet palette for a creative portfolio', swatches: ['#15121f', '#282238', '#c5a7ff'] },
-    { key: 'paper', name: 'Paper', description: 'Warm editorial white with ink accents', swatches: ['#f7f3eb', '#e9e2d6', '#a14d2b'] },
-    { key: 'ecosync', name: 'EcoSync', description: 'Clean canvas with deep forest green and electric water blue', swatches: ['#f8fafc', '#005a36', '#00df81'] },
-    { key: 'ecosync-dark', name: 'EcoSync Dark', description: 'Night navy with neon energy green & water blue', swatches: ['#0b111e', '#111c2d', '#00df81'] }
+    { key: 'obsidian-dark', name: 'Obsidian', description: 'Charcoal with violet accents', swatches: ['#0f131c', '#1c2028', '#d0bcff'] },
+    { key: 'light', name: 'Porcelain', description: 'Bright, clean and minimal', swatches: ['#f8fafc', '#ffffff', '#6366f1'] },
+    { key: 'midnight', name: 'Midnight', description: 'Deep navy with cool blue tones', swatches: ['#080d19', '#10192b', '#8da4ff'] },
+    { key: 'emerald', name: 'Emerald', description: 'Dark forest with vivid green accents', swatches: ['#081410', '#12231d', '#4ee39d'] },
+    { key: 'rose', name: 'Rose Quartz', description: 'Deep plum with soft rose accents', swatches: ['#170f15', '#281a25', '#ff94bf'] },
+    { key: 'ocean', name: 'Ocean', description: 'Blue slate with bright aqua accents', swatches: ['#08131a', '#11222d', '#38bdf8'] },
+    { key: 'graphite', name: 'Graphite', description: 'Monochrome, crisp and understated', swatches: ['#0f1011', '#1e2022', '#e4e4e7'] },
+    { key: 'sunset', name: 'Sunset', description: 'Warm charcoal with coral and amber accents', swatches: ['#170f0e', '#291a18', '#ff8c69'] },
+    { key: 'lavender', name: 'Lavender', description: 'Soft violet palette for a creative portfolio', swatches: ['#120e1a', '#231b33', '#c084fc'] },
+    { key: 'paper', name: 'Paper', description: 'Warm editorial white with ink accents', swatches: ['#fbf8f2', '#ffffff', '#a84b29'] },
+    { key: 'ecosync', name: 'EcoSync', description: 'Clean canvas with deep forest green and electric water blue', swatches: ['#f8fafc', '#ffffff', '#005a36'] },
+    { key: 'ecosync-dark', name: 'EcoSync Dark', description: 'Night navy with neon energy green & water blue', swatches: ['#0b111e', '#121c2d', '#00df81'] }
   ];
   loading = true;
   error = '';

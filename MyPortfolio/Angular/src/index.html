@@ -19,14 +19,31 @@
     (function () {
       try {
         var path = window.location.pathname || '';
-        var match = path.match(/\/(?:u|portfolio)\/([a-zA-Z0-9_\-\.]+)/i);
+        var match = path.match(/\/(?:u|portfolio|portfolio-mobile)\/([a-zA-Z0-9_\-\.]+)/i);
         var u = match ? match[1] : (new URLSearchParams(window.location.search).get('u') || '');
         var theme = (u && localStorage.getItem('portfolio.theme.' + u.toLowerCase()))
           || localStorage.getItem('portfolio.theme.global')
           || 'obsidian-dark';
         document.documentElement.dataset.portfolioTheme = theme;
+        var isLight = theme === 'light' || theme === 'paper' || theme === 'ecosync';
+        if (isLight) {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        } else {
+          document.documentElement.classList.remove('light');
+          document.documentElement.classList.add('dark');
+        }
         var applyBody = function () {
-          if (document.body) document.body.dataset.portfolioTheme = theme;
+          if (document.body) {
+            document.body.dataset.portfolioTheme = theme;
+            if (isLight) {
+              document.body.classList.remove('dark');
+              document.body.classList.add('light');
+            } else {
+              document.body.classList.remove('light');
+              document.body.classList.add('dark');
+            }
+          }
         };
         if (document.body) applyBody();
         else document.addEventListener('DOMContentLoaded', applyBody);

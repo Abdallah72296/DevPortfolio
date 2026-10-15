@@ -30,8 +30,8 @@
   body {
     margin: 0;
     padding: 0;
-    background-color: #0f131c;
-    color: #dfe2ee;
+    background-color: var(--pt-page, #0f131c);
+    color: var(--pt-ink, #dfe2ee);
   }
 
   body {
@@ -77,303 +77,346 @@
 }
 
 /* Shared palette tokens keep every portfolio surface and both studio top bars in sync. */
+
+/* 1. Obsidian (Charcoal with violet accents) */
 :root[data-portfolio-theme="obsidian-dark"],
 body[data-portfolio-theme="obsidian-dark"] {
   --pt-page: #0f131c;
-  --pt-topbar: #0f131c;
+  --pt-topbar: rgba(15, 19, 28, 0.88);
   --pt-lowest: #0a0e16;
-  --pt-low: #181c24;
+  --pt-low: #141822;
   --pt-surface: #1c2028;
   --pt-high: #262a33;
   --pt-highest: #31353e;
   --pt-ink: #dfe2ee;
-  --pt-muted: #cbc3d7;
+  --pt-muted: #958ea0;
   --pt-primary: #d0bcff;
   --pt-on-primary: #3c0091;
   --pt-secondary: #4cd7f6;
   --pt-on-secondary: #003640;
   --pt-tertiary: #4edea3;
   --pt-on-tertiary: #003824;
-  --pt-border: #494454;
+  --pt-border: #31353e;
 }
 
+/* 2. Porcelain (Bright, clean and minimal light) */
 :root[data-portfolio-theme="light"],
 body[data-portfolio-theme="light"] {
-  --pt-page: #f7f8fc;
-  --pt-topbar: #fff;
-  --pt-lowest: #fff;
-  --pt-low: #eef0f6;
-  --pt-surface: #eef0f6;
-  --pt-high: #e5e8f0;
-  --pt-highest: #d9deea;
-  --pt-ink: #20212a;
-  --pt-muted: #505563;
-  --pt-primary: #7048d8;
-  --pt-on-primary: #fff;
-  --pt-secondary: #6038bd;
-  --pt-on-secondary: #fff;
-  --pt-tertiary: #24794b;
-  --pt-on-tertiary: #fff;
-  --pt-border: #c8cbd5;
+  --pt-page: #f8fafc;
+  --pt-topbar: rgba(255, 255, 255, 0.92);
+  --pt-lowest: #f1f5f9;
+  --pt-low: #f8fafc;
+  --pt-surface: #ffffff;
+  --pt-high: #f1f5f9;
+  --pt-highest: #e2e8f0;
+  --pt-ink: #0f172a;
+  --pt-muted: #64748b;
+  --pt-primary: #6366f1;
+  --pt-on-primary: #ffffff;
+  --pt-secondary: #0284c7;
+  --pt-on-secondary: #ffffff;
+  --pt-tertiary: #10b981;
+  --pt-on-tertiary: #ffffff;
+  --pt-border: #e2e8f0;
 }
 
+/* 3. Midnight (Deep navy with cool blue tones) */
 :root[data-portfolio-theme="midnight"],
 body[data-portfolio-theme="midnight"] {
   --pt-page: #080d19;
-  --pt-topbar: #0b1120;
+  --pt-topbar: rgba(8, 13, 25, 0.88);
   --pt-lowest: #050914;
   --pt-low: #0c1424;
   --pt-surface: #10192b;
-  --pt-high: #121d31;
-  --pt-highest: #1c2b44;
+  --pt-high: #162238;
+  --pt-highest: #20314d;
   --pt-ink: #e1e7ff;
-  --pt-muted: #b5c1df;
-  --pt-primary: #91aaff;
-  --pt-on-primary: #101e4a;
-  --pt-secondary: #72d4ff;
-  --pt-on-secondary: #102441;
-  --pt-tertiary: #63dfbb;
-  --pt-on-tertiary: #09392e;
-  --pt-border: #354462;
+  --pt-muted: #8fa2c7;
+  --pt-primary: #8da4ff;
+  --pt-on-primary: #0b1c54;
+  --pt-secondary: #5ad8ff;
+  --pt-on-secondary: #003547;
+  --pt-tertiary: #4ce6ba;
+  --pt-on-tertiary: #003829;
+  --pt-border: #1c2c47;
 }
 
+/* 4. Emerald (Dark forest with vivid green accents) */
 :root[data-portfolio-theme="emerald"],
 body[data-portfolio-theme="emerald"] {
-  --pt-page: #0b1512;
-  --pt-topbar: #0d1914;
-  --pt-lowest: #07100d;
-  --pt-low: #101c17;
-  --pt-surface: #142019;
-  --pt-high: #17251f;
-  --pt-highest: #22352c;
-  --pt-ink: #e1f4ea;
-  --pt-muted: #bbd4c6;
-  --pt-primary: #65e6ad;
-  --pt-on-primary: #063b28;
-  --pt-secondary: #63d6c2;
-  --pt-on-secondary: #063b35;
-  --pt-tertiary: #f1cb70;
-  --pt-on-tertiary: #3b2b08;
-  --pt-border: #395348;
+  --pt-page: #081410;
+  --pt-topbar: rgba(8, 20, 16, 0.88);
+  --pt-lowest: #050d0a;
+  --pt-low: #0d1a15;
+  --pt-surface: #12231d;
+  --pt-high: #192e26;
+  --pt-highest: #233e34;
+  --pt-ink: #e3f5ec;
+  --pt-muted: #8aa99b;
+  --pt-primary: #4ee39d;
+  --pt-on-primary: #003821;
+  --pt-secondary: #5ee6d0;
+  --pt-on-secondary: #003730;
+  --pt-tertiary: #f4cf66;
+  --pt-on-tertiary: #3a2b00;
+  --pt-border: #1f372e;
 }
 
+/* 5. Rose Quartz (Deep plum with soft rose accents) */
 :root[data-portfolio-theme="rose"],
 body[data-portfolio-theme="rose"] {
-  --pt-page: #191117;
-  --pt-topbar: #20141d;
-  --pt-lowest: #110b10;
-  --pt-low: #21151d;
-  --pt-surface: #261923;
-  --pt-high: #2b1b26;
-  --pt-highest: #3b2634;
-  --pt-ink: #f8e8ef;
-  --pt-muted: #dcc3d0;
-  --pt-primary: #ff9fc8;
-  --pt-on-primary: #40152b;
-  --pt-secondary: #e6a8e7;
-  --pt-on-secondary: #3e1742;
-  --pt-tertiary: #ffc080;
-  --pt-on-tertiary: #42230a;
-  --pt-border: #604453;
+  --pt-page: #170f15;
+  --pt-topbar: rgba(23, 15, 21, 0.88);
+  --pt-lowest: #0f0a0e;
+  --pt-low: #1f141d;
+  --pt-surface: #281a25;
+  --pt-high: #342231;
+  --pt-highest: #462e42;
+  --pt-ink: #fae9f1;
+  --pt-muted: #b491a4;
+  --pt-primary: #ff94bf;
+  --pt-on-primary: #4a0d2a;
+  --pt-secondary: #e59cf7;
+  --pt-on-secondary: #420f4c;
+  --pt-tertiary: #ffba7a;
+  --pt-on-tertiary: #452100;
+  --pt-border: #3d273a;
 }
 
+/* 6. Ocean (Blue slate with bright aqua accents) */
 :root[data-portfolio-theme="ocean"],
 body[data-portfolio-theme="ocean"] {
-  --pt-page: #0b1419;
-  --pt-topbar: #0d1b21;
-  --pt-lowest: #071014;
-  --pt-low: #101d22;
-  --pt-surface: #122229;
-  --pt-high: #14262d;
-  --pt-highest: #203740;
-  --pt-ink: #e3f2f4;
-  --pt-muted: #bad0d5;
-  --pt-primary: #5ee6e0;
-  --pt-on-primary: #063532;
-  --pt-secondary: #77c5ff;
-  --pt-on-secondary: #102b48;
-  --pt-tertiary: #a6de77;
-  --pt-on-tertiary: #263b12;
-  --pt-border: #35545d;
+  --pt-page: #08131a;
+  --pt-topbar: rgba(8, 19, 26, 0.88);
+  --pt-lowest: #050d12;
+  --pt-low: #0d1a22;
+  --pt-surface: #11222d;
+  --pt-high: #172d3b;
+  --pt-highest: #213c4e;
+  --pt-ink: #e0f2fe;
+  --pt-muted: #86a4b8;
+  --pt-primary: #38bdf8;
+  --pt-on-primary: #003554;
+  --pt-secondary: #2dd4bf;
+  --pt-on-secondary: #003830;
+  --pt-tertiary: #a3e635;
+  --pt-on-tertiary: #273800;
+  --pt-border: #1d3647;
 }
 
+/* 7. Graphite (Monochrome, crisp and understated) */
 :root[data-portfolio-theme="graphite"],
 body[data-portfolio-theme="graphite"] {
-  --pt-page: #101112;
-  --pt-topbar: #17191a;
-  --pt-lowest: #090a0b;
-  --pt-low: #191b1d;
-  --pt-surface: #202224;
-  --pt-high: #252729;
-  --pt-highest: #333638;
-  --pt-ink: #f0f0f0;
-  --pt-muted: #c2c4c6;
-  --pt-primary: #f0f0f0;
-  --pt-on-primary: #111;
-  --pt-secondary: #c2c4c6;
-  --pt-on-secondary: #111;
-  --pt-tertiary: #f6c56c;
-  --pt-on-tertiary: #34280f;
-  --pt-border: #4b4e50;
+  --pt-page: #0f1011;
+  --pt-topbar: rgba(15, 16, 17, 0.88);
+  --pt-lowest: #090a0a;
+  --pt-low: #161719;
+  --pt-surface: #1e2022;
+  --pt-high: #27292c;
+  --pt-highest: #36393c;
+  --pt-ink: #f4f4f5;
+  --pt-muted: #a1a1aa;
+  --pt-primary: #e4e4e7;
+  --pt-on-primary: #18181b;
+  --pt-secondary: #94a3b8;
+  --pt-on-secondary: #0f172a;
+  --pt-tertiary: #f59e0b;
+  --pt-on-tertiary: #451a03;
+  --pt-border: #2e3135;
 }
 
+/* 8. Sunset (Warm charcoal with coral and amber accents) */
 :root[data-portfolio-theme="sunset"],
 body[data-portfolio-theme="sunset"] {
-  --pt-page: #1b1212;
-  --pt-topbar: #251715;
-  --pt-lowest: #120c0c;
-  --pt-low: #241816;
-  --pt-surface: #2a1c19;
-  --pt-high: #30201d;
-  --pt-highest: #432c27;
-  --pt-ink: #fff0e9;
-  --pt-muted: #e2c7ba;
-  --pt-primary: #ff9b75;
-  --pt-on-primary: #421b0f;
-  --pt-secondary: #ffd17b;
-  --pt-on-secondary: #422b09;
-  --pt-tertiary: #98d7b7;
-  --pt-on-tertiary: #153c2c;
-  --pt-border: #62443a;
+  --pt-page: #170f0e;
+  --pt-topbar: rgba(23, 15, 14, 0.88);
+  --pt-lowest: #0f0a09;
+  --pt-low: #1f1412;
+  --pt-surface: #291a18;
+  --pt-high: #36221f;
+  --pt-highest: #4a2e2a;
+  --pt-ink: #fff1ee;
+  --pt-muted: #b9938b;
+  --pt-primary: #ff8c69;
+  --pt-on-primary: #451306;
+  --pt-secondary: #ffb84d;
+  --pt-on-secondary: #422600;
+  --pt-tertiary: #4ade80;
+  --pt-on-tertiary: #052e16;
+  --pt-border: #3f2723;
 }
 
+/* 9. Lavender (Soft violet palette for a creative portfolio) */
 :root[data-portfolio-theme="lavender"],
 body[data-portfolio-theme="lavender"] {
-  --pt-page: #15121f;
-  --pt-topbar: #1c172a;
-  --pt-lowest: #0e0b17;
-  --pt-low: #1e192b;
-  --pt-surface: #241e32;
-  --pt-high: #282238;
-  --pt-highest: #39304f;
-  --pt-ink: #f0eaff;
-  --pt-muted: #cec2e8;
-  --pt-primary: #c5a7ff;
-  --pt-on-primary: #281440;
-  --pt-secondary: #e3a6fa;
-  --pt-on-secondary: #3e1649;
-  --pt-tertiary: #95dfc5;
-  --pt-on-tertiary: #103a2b;
-  --pt-border: #51446c;
+  --pt-page: #120e1a;
+  --pt-topbar: rgba(18, 14, 26, 0.88);
+  --pt-lowest: #0b0811;
+  --pt-low: #1a1426;
+  --pt-surface: #231b33;
+  --pt-high: #2d2342;
+  --pt-highest: #3d3059;
+  --pt-ink: #f3efff;
+  --pt-muted: #a79bbd;
+  --pt-primary: #c084fc;
+  --pt-on-primary: #3b0764;
+  --pt-secondary: #e879f9;
+  --pt-on-secondary: #4a044e;
+  --pt-tertiary: #38bdf8;
+  --pt-on-tertiary: #082f49;
+  --pt-border: #35294e;
 }
 
+/* 10. Paper (Warm editorial white with ink accents) */
 :root[data-portfolio-theme="paper"],
 body[data-portfolio-theme="paper"] {
-  --pt-page: #f7f3eb;
-  --pt-topbar: #fffdf8;
-  --pt-lowest: #fffdf8;
-  --pt-low: #f0eade;
-  --pt-surface: #eee7db;
-  --pt-high: #e9e2d6;
-  --pt-highest: #dcd2c3;
-  --pt-ink: #29251f;
-  --pt-muted: #62594f;
-  --pt-primary: #a14d2b;
-  --pt-on-primary: #fffaf3;
-  --pt-secondary: #315e70;
-  --pt-on-secondary: #fffaf3;
-  --pt-tertiary: #427a54;
-  --pt-on-tertiary: #fff;
-  --pt-border: #c9bdab;
+  --pt-page: #fbf8f2;
+  --pt-topbar: rgba(251, 248, 242, 0.92);
+  --pt-lowest: #f3ede2;
+  --pt-low: #faf6ee;
+  --pt-surface: #ffffff;
+  --pt-high: #f4eee3;
+  --pt-highest: #e9e1d2;
+  --pt-ink: #2a221b;
+  --pt-muted: #6e6255;
+  --pt-primary: #a84b29;
+  --pt-on-primary: #ffffff;
+  --pt-secondary: #24586d;
+  --pt-on-secondary: #ffffff;
+  --pt-tertiary: #2e734b;
+  --pt-on-tertiary: #ffffff;
+  --pt-border: #dfd4c3;
 }
 
+/* 11. EcoSync (Clean canvas with deep forest green and electric water blue) */
 :root[data-portfolio-theme="ecosync"],
 body[data-portfolio-theme="ecosync"] {
   --pt-page: #f8fafc;
-  --pt-topbar: #ffffff;
-  --pt-lowest: #ffffff;
-  --pt-low: #f1f5f9;
+  --pt-topbar: rgba(255, 255, 255, 0.92);
+  --pt-lowest: #f1f5f9;
+  --pt-low: #f8fafc;
   --pt-surface: #ffffff;
-  --pt-high: #e2e8f0;
-  --pt-highest: #cbd5e1;
+  --pt-high: #f1f5f9;
+  --pt-highest: #e2e8f0;
   --pt-ink: #0f172a;
-  --pt-muted: #64748b;
+  --pt-muted: #475569;
   --pt-primary: #005a36;
   --pt-on-primary: #ffffff;
   --pt-secondary: #0066ff;
   --pt-on-secondary: #ffffff;
-  --pt-tertiary: #00df81;
-  --pt-on-tertiary: #032b1a;
-  --pt-border: #e2e8f0;
+  --pt-tertiary: #00a860;
+  --pt-on-tertiary: #ffffff;
+  --pt-border: #cbd5e1;
 }
 
+/* 12. EcoSync Dark (Night navy with neon energy green & water blue) */
 :root[data-portfolio-theme="ecosync-dark"],
 body[data-portfolio-theme="ecosync-dark"] {
   --pt-page: #0b111e;
-  --pt-topbar: #0b111e;
+  --pt-topbar: rgba(11, 17, 30, 0.88);
   --pt-lowest: #070c15;
   --pt-low: #0e1726;
-  --pt-surface: #111c2d;
-  --pt-high: #18283f;
-  --pt-highest: #213654;
+  --pt-surface: #121c2d;
+  --pt-high: #1a283f;
+  --pt-highest: #233754;
   --pt-ink: #f1f5f9;
-  --pt-muted: #94a3b8;
+  --pt-muted: #8b9db7;
   --pt-primary: #00df81;
-  --pt-on-primary: #032b1a;
-  --pt-secondary: #0066ff;
-  --pt-on-secondary: #ffffff;
-  --pt-tertiary: #38bdf8;
-  --pt-on-tertiary: #082f49;
-  --pt-border: #1e293b;
+  --pt-on-primary: #022c19;
+  --pt-secondary: #38bdf8;
+  --pt-on-secondary: #082f49;
+  --pt-tertiary: #818cf8;
+  --pt-on-tertiary: #1e1b4b;
+  --pt-border: #1e2e47;
 }
 
+/* ==========================================================================
+   Comprehensive Theme Overrides for Public Portfolio (Desktop & Mobile)
+   ========================================================================== */
+
+/* 1. Page background & base text color */
+html[data-portfolio-theme],
+body[data-portfolio-theme],
 body[data-portfolio-theme] app-public-portfolio-desktop,
-body[data-portfolio-theme] app-public-portfolio-mobile {
-  background-color: var(--pt-page) !important;
-  color: var(--pt-ink) !important;
-}
-
+body[data-portfolio-theme] app-public-portfolio-mobile,
 body[data-portfolio-theme] app-public-portfolio-desktop main,
 body[data-portfolio-theme] app-public-portfolio-mobile main {
   background-color: var(--pt-page) !important;
   color: var(--pt-ink) !important;
 }
 
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-background"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-background"] {
-  background-color: var(--pt-page) !important;
-}
-
+/* 2. Topbar / Sticky Headers */
+body[data-portfolio-theme] app-public-portfolio-desktop header,
+body[data-portfolio-theme] app-public-portfolio-mobile header,
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/80"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/80"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/90"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/90"] {
   background-color: var(--pt-topbar) !important;
+  border-color: var(--pt-border) !important;
 }
 
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface"] {
-  background-color: var(--pt-page) !important;
-}
-
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container"] {
-  background-color: var(--pt-surface) !important;
-}
-
+/* 3. Lowest Surface: Inset chips, footer, input backgrounds */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest"] {
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/60"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/60"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/70"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/70"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/80"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/80"] {
   background-color: var(--pt-lowest) !important;
 }
 
+/* 4. Low Surface: Metric cards, subtle background blocks */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-low"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-low"] {
   background-color: var(--pt-low) !important;
 }
 
+/* 5. Standard Card Surface: Cards, experience items, project cards, education */
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container/60"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container/60"] {
+  background-color: var(--pt-surface) !important;
+}
+
+/* 6. High Surface: Action buttons, tags, avatar fallback, elevated surfaces */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high"] {
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high/60"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high/60"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high/90"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high/90"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high/95"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high/95"] {
   background-color: var(--pt-high) !important;
 }
 
+/* 7. Highest Surface: Progress tracks, modal dropdowns, highlighted items */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-highest"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-highest"] {
   background-color: var(--pt-highest) !important;
 }
 
+/* 8. Page Background fallbacks */
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-background"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-background"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface/80"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface/80"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface/85"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface/85"] {
+  background-color: var(--pt-page) !important;
+}
+
+/* 9. Primary Colors */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary"] {
   background-color: var(--pt-primary) !important;
+  color: var(--pt-on-primary) !important;
 }
 
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary-container"],
@@ -383,7 +426,14 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary-conta
 
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary-container/10"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary-container/10"] {
-  background-color: color-mix(in srgb, var(--pt-primary) 10%, transparent) !important;
+  background-color: color-mix(in srgb, var(--pt-primary) 12%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary-container/20"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary-container/20"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary/15"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary/15"] {
+  background-color: color-mix(in srgb, var(--pt-primary) 15%, transparent) !important;
 }
 
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary/30"],
@@ -391,9 +441,11 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary/30"] 
   background-color: color-mix(in srgb, var(--pt-primary) 30%, transparent) !important;
 }
 
+/* 10. Secondary Colors */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-secondary"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-secondary"] {
   background-color: var(--pt-secondary) !important;
+  color: var(--pt-on-secondary) !important;
 }
 
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-secondary/10"],
@@ -401,9 +453,16 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-secondary/10"
   background-color: color-mix(in srgb, var(--pt-secondary) 10%, transparent) !important;
 }
 
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-secondary/15"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-secondary/15"] {
+  background-color: color-mix(in srgb, var(--pt-secondary) 15%, transparent) !important;
+}
+
+/* 11. Tertiary Colors */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-tertiary"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-tertiary"] {
   background-color: var(--pt-tertiary) !important;
+  color: var(--pt-on-tertiary) !important;
 }
 
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-tertiary-container/20"],
@@ -411,33 +470,10 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-tertiary-cont
   background-color: color-mix(in srgb, var(--pt-tertiary) 20%, transparent) !important;
 }
 
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface/80"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface/80"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface/85"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface/85"] {
-  background-color: var(--pt-page) !important;
-}
-
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/60"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/60"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/80"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/80"] {
-  background-color: var(--pt-lowest) !important;
-}
-
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high/60"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high/60"] {
-  background-color: var(--pt-high) !important;
-}
-
+/* 12. Text Colors */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-primary"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-primary"] {
   color: var(--pt-on-primary) !important;
-}
-
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-primary-container"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-primary-container"] {
-  color: var(--pt-ink) !important;
 }
 
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-secondary"],
@@ -456,10 +492,7 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-surface"
 }
 
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-surface-variant"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-surface-variant"] {
-  color: var(--pt-muted) !important;
-}
-
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-surface-variant"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-outline"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-outline"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-outline-variant"],
@@ -473,10 +506,7 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-primary"] {
 }
 
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-secondary"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-secondary"] {
-  color: var(--pt-secondary) !important;
-}
-
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-secondary"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-secondary-fixed-dim"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-secondary-fixed-dim"] {
   color: var(--pt-secondary) !important;
@@ -487,39 +517,186 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-tertiary"] 
   color: var(--pt-tertiary) !important;
 }
 
+/* 13. Borders */
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant"] {
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-surface-container-highest"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-surface-container-highest"] {
   border-color: var(--pt-border) !important;
 }
 
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/10"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/10"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/15"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/15"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/20"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/20"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/30"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/30"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/40"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/40"] {
-  border-color: color-mix(in srgb, var(--pt-border) 50%, transparent) !important;
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/40"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-surface-container-highest/30"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-surface-container-highest/30"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-surface-container-highest/40"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-surface-container-highest/40"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-surface-container-highest/50"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-surface-container-highest/50"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-surface-container-highest/60"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-surface-container-highest/60"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-surface-container-highest/70"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-surface-container-highest/70"] {
+  border-color: color-mix(in srgb, var(--pt-border) 65%, transparent) !important;
 }
 
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-primary/30"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-primary/30"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-primary/40"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-primary/40"] {
   border-color: color-mix(in srgb, var(--pt-primary) 40%, transparent) !important;
 }
 
-body[data-portfolio-theme] app-public-portfolio-desktop [class*="bg-gradient-to-"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class*="bg-gradient-to-"] {
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-secondary/35"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-secondary/35"] {
+  border-color: color-mix(in srgb, var(--pt-secondary) 40%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-tertiary/40"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-tertiary/40"] {
+  border-color: color-mix(in srgb, var(--pt-tertiary) 40%, transparent) !important;
+}
+
+/* 14. Interactive States (Hover & Group Hover) */
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="hover:bg-surface-container-highest"]:hover,
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="hover:bg-surface-container-highest"]:hover {
+  background-color: var(--pt-highest) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="hover:bg-surface-container-high"]:hover,
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="hover:bg-surface-container-high"]:hover {
+  background-color: var(--pt-high) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="hover:bg-surface-container"]:not([class*="hover:bg-surface-container-"]):hover,
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="hover:bg-surface-container"]:not([class*="hover:bg-surface-container-"]):hover {
+  background-color: var(--pt-surface) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="hover:text-primary"]:hover,
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="hover:text-primary"]:hover {
+  color: var(--pt-primary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="hover:text-secondary"]:hover,
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="hover:text-secondary"]:hover {
+  color: var(--pt-secondary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="hover:border-primary"]:hover,
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="hover:border-primary"]:hover {
+  border-color: var(--pt-primary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop .group:hover [class*="group-hover:text-primary"],
+body[data-portfolio-theme] app-public-portfolio-mobile .group:hover [class*="group-hover:text-primary"] {
+  color: var(--pt-primary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop .group:hover [class*="group-hover:text-secondary"],
+body[data-portfolio-theme] app-public-portfolio-mobile .group:hover [class*="group-hover:text-secondary"] {
+  color: var(--pt-secondary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop .group:hover [class*="group-hover:bg-primary"],
+body[data-portfolio-theme] app-public-portfolio-mobile .group:hover [class*="group-hover:bg-primary"] {
+  background-color: var(--pt-primary) !important;
+  color: var(--pt-on-primary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop .group:hover [class*="group-hover:bg-secondary"],
+body[data-portfolio-theme] app-public-portfolio-mobile .group:hover [class*="group-hover:bg-secondary"] {
+  background-color: var(--pt-secondary) !important;
+  color: var(--pt-on-secondary) !important;
+}
+
+/* 15. Hero Section & Avatar Chromatic Glow */
+body[data-portfolio-theme] app-public-portfolio-desktop section[class*="bg-gradient-to-b"] {
   background-image: linear-gradient(to bottom, var(--pt-page), var(--pt-low), var(--pt-page)) !important;
 }
 
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/80"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/90"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/80"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/90"] {
-  background-color: var(--pt-topbar) !important;
+body[data-portfolio-theme] app-public-portfolio-desktop .bg-primary-container\/10 {
+  background-color: color-mix(in srgb, var(--pt-primary) 12%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop .bg-secondary\/10 {
+  background-color: color-mix(in srgb, var(--pt-secondary) 10%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="from-primary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="from-primary"] {
+  --tw-gradient-from: var(--pt-primary) var(--tw-gradient-from-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-from), var(--tw-gradient-to)) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="to-secondary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="to-secondary"] {
+  --tw-gradient-to: var(--pt-secondary) var(--tw-gradient-to-position) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="via-secondary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="via-secondary"] {
+  --tw-gradient-stops: var(--tw-gradient-from), var(--pt-secondary) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+}
+
+/* 16. Inputs, Textareas, Selects & Form Controls */
+body[data-portfolio-theme] app-public-portfolio-desktop input,
+body[data-portfolio-theme] app-public-portfolio-desktop textarea,
+body[data-portfolio-theme] app-public-portfolio-desktop select,
+body[data-portfolio-theme] app-public-portfolio-mobile input,
+body[data-portfolio-theme] app-public-portfolio-mobile textarea,
+body[data-portfolio-theme] app-public-portfolio-mobile select {
+  background-color: var(--pt-lowest) !important;
+  color: var(--pt-ink) !important;
+  border: 1px solid var(--pt-border) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop input::placeholder,
+body[data-portfolio-theme] app-public-portfolio-desktop textarea::placeholder,
+body[data-portfolio-theme] app-public-portfolio-mobile input::placeholder,
+body[data-portfolio-theme] app-public-portfolio-mobile textarea::placeholder {
+  color: var(--pt-muted) !important;
+  opacity: 0.7;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop input:focus,
+body[data-portfolio-theme] app-public-portfolio-desktop textarea:focus,
+body[data-portfolio-theme] app-public-portfolio-desktop select:focus,
+body[data-portfolio-theme] app-public-portfolio-mobile input:focus,
+body[data-portfolio-theme] app-public-portfolio-mobile textarea:focus,
+body[data-portfolio-theme] app-public-portfolio-mobile select:focus {
+  border-color: var(--pt-primary) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pt-primary) 25%, transparent) !important;
+  outline: none !important;
+}
+
+/* 17. Light themes clean elevation & borders */
+:root[data-portfolio-theme="light"] app-public-portfolio-desktop [class*="rounded-xl"],
+:root[data-portfolio-theme="light"] app-public-portfolio-desktop [class*="rounded-2xl"],
+:root[data-portfolio-theme="paper"] app-public-portfolio-desktop [class*="rounded-xl"],
+:root[data-portfolio-theme="paper"] app-public-portfolio-desktop [class*="rounded-2xl"],
+:root[data-portfolio-theme="ecosync"] app-public-portfolio-desktop [class*="rounded-xl"],
+:root[data-portfolio-theme="ecosync"] app-public-portfolio-desktop [class*="rounded-2xl"],
+:root[data-portfolio-theme="light"] app-public-portfolio-mobile [class*="rounded-xl"],
+:root[data-portfolio-theme="light"] app-public-portfolio-mobile [class*="rounded-2xl"],
+:root[data-portfolio-theme="paper"] app-public-portfolio-mobile [class*="rounded-xl"],
+:root[data-portfolio-theme="paper"] app-public-portfolio-mobile [class*="rounded-2xl"],
+:root[data-portfolio-theme="ecosync"] app-public-portfolio-mobile [class*="rounded-xl"],
+:root[data-portfolio-theme="ecosync"] app-public-portfolio-mobile [class*="rounded-2xl"] {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* ==========================================================================
-   Portfolio Navigation Items - Instant Hover & Active System
+   Portfolio Navigation Items - Dynamic Hover & Active System
    ========================================================================== */
 .nav-link-btn {
   display: inline-flex;
@@ -541,7 +718,7 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/9
   color: var(--pt-primary, #d0bcff) !important;
   background-color: var(--pt-high, #262a33) !important;
   border-color: color-mix(in srgb, var(--pt-primary) 20%, transparent) !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
   transform: translateY(-0.5px);
 }
 
@@ -550,109 +727,131 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/9
   background-color: var(--pt-high, #262a33) !important;
   font-weight: 500;
   border-color: color-mix(in srgb, var(--pt-primary) 30%, transparent) !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 /* ==========================================================================
-   Project Technology Badges - Minimal, Compact & Eye-Friendly System
+   Project Technology Badges - Tailored System for All 12 Themes
    ========================================================================== */
 .project-tech-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.15rem 0.5rem;
+  padding: 0.18rem 0.55rem;
   border-radius: 4px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 0.6875rem;
-  font-weight: 450;
+  font-weight: 500;
   line-height: 1.35;
   letter-spacing: 0.01em;
-  background-color: color-mix(in srgb, var(--pt-secondary, #4cd7f6) 6%, var(--pt-surface, #1c2028));
-  color: color-mix(in srgb, var(--pt-secondary, #4cd7f6) 75%, var(--pt-muted, #cbc3d7));
-  border: 1px solid color-mix(in srgb, var(--pt-secondary, #4cd7f6) 18%, transparent);
+  background-color: color-mix(in srgb, var(--pt-secondary) 8%, var(--pt-surface));
+  color: color-mix(in srgb, var(--pt-secondary) 85%, var(--pt-ink));
+  border: 1px solid color-mix(in srgb, var(--pt-secondary) 25%, transparent);
   transition: all 0.15s ease;
   user-select: none;
 }
 
 .project-tech-badge:hover {
-  background-color: color-mix(in srgb, var(--pt-secondary, #4cd7f6) 12%, var(--pt-high, #262a33));
-  border-color: color-mix(in srgb, var(--pt-secondary, #4cd7f6) 32%, transparent);
-  color: var(--pt-ink, #dfe2ee);
+  background-color: color-mix(in srgb, var(--pt-secondary) 15%, var(--pt-high));
+  border-color: color-mix(in srgb, var(--pt-secondary) 40%, transparent);
+  color: var(--pt-ink);
 }
 
 .project-tech-badge .tech-dot {
   display: none !important;
 }
 
-/* Specific theme refinements for calm, eye-friendly contrast */
+/* 1. Obsidian */
+:root[data-portfolio-theme="obsidian-dark"],
+body[data-portfolio-theme="obsidian-dark"] .project-tech-badge {
+  background-color: color-mix(in srgb, var(--pt-secondary) 7%, #1c2028);
+  border-color: color-mix(in srgb, var(--pt-secondary) 22%, transparent);
+  color: color-mix(in srgb, var(--pt-secondary) 80%, #dfe2ee);
+}
+
+/* 2. Porcelain (Light) */
 :root[data-portfolio-theme="light"],
 body[data-portfolio-theme="light"] .project-tech-badge {
-  background-color: color-mix(in srgb, var(--pt-secondary) 5%, #ffffff);
-  border-color: color-mix(in srgb, var(--pt-secondary) 18%, transparent);
-  color: color-mix(in srgb, var(--pt-secondary) 85%, #20212a);
-  font-weight: 500;
+  background-color: color-mix(in srgb, var(--pt-secondary) 7%, #ffffff);
+  border-color: color-mix(in srgb, var(--pt-secondary) 22%, transparent);
+  color: #0284c7;
 }
 
-:root[data-portfolio-theme="paper"],
-body[data-portfolio-theme="paper"] .project-tech-badge {
-  background-color: color-mix(in srgb, var(--pt-secondary) 6%, #fffdf8);
-  border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
-  color: color-mix(in srgb, var(--pt-secondary) 85%, #29251f);
-  font-weight: 500;
+/* 3. Midnight */
+:root[data-portfolio-theme="midnight"],
+body[data-portfolio-theme="midnight"] .project-tech-badge {
+  background-color: color-mix(in srgb, var(--pt-secondary) 8%, #10192b);
+  border-color: color-mix(in srgb, var(--pt-secondary) 24%, transparent);
+  color: color-mix(in srgb, var(--pt-secondary) 85%, #e1e7ff);
 }
 
+/* 4. Emerald */
 :root[data-portfolio-theme="emerald"],
 body[data-portfolio-theme="emerald"] .project-tech-badge {
-  background-color: color-mix(in srgb, var(--pt-secondary) 7%, #142019);
-  border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
-  color: color-mix(in srgb, var(--pt-secondary) 80%, #bbd4c6);
+  background-color: color-mix(in srgb, var(--pt-secondary) 8%, #12231d);
+  border-color: color-mix(in srgb, var(--pt-secondary) 24%, transparent);
+  color: color-mix(in srgb, var(--pt-secondary) 85%, #e3f5ec);
 }
 
+/* 5. Rose Quartz */
 :root[data-portfolio-theme="rose"],
 body[data-portfolio-theme="rose"] .project-tech-badge {
-  background-color: color-mix(in srgb, var(--pt-secondary) 7%, #261923);
-  border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
-  color: color-mix(in srgb, var(--pt-secondary) 80%, #dcc3d0);
+  background-color: color-mix(in srgb, var(--pt-secondary) 8%, #281a25);
+  border-color: color-mix(in srgb, var(--pt-secondary) 24%, transparent);
+  color: color-mix(in srgb, var(--pt-secondary) 85%, #fae9f1);
 }
 
+/* 6. Ocean */
 :root[data-portfolio-theme="ocean"],
 body[data-portfolio-theme="ocean"] .project-tech-badge {
-  background-color: color-mix(in srgb, var(--pt-secondary) 7%, #122229);
-  border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
-  color: color-mix(in srgb, var(--pt-secondary) 80%, #bad0d5);
+  background-color: color-mix(in srgb, var(--pt-secondary) 8%, #11222d);
+  border-color: color-mix(in srgb, var(--pt-secondary) 24%, transparent);
+  color: color-mix(in srgb, var(--pt-secondary) 85%, #e0f2fe);
 }
 
-:root[data-portfolio-theme="sunset"],
-body[data-portfolio-theme="sunset"] .project-tech-badge {
-  background-color: color-mix(in srgb, var(--pt-secondary) 7%, #2a1c19);
-  border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
-  color: color-mix(in srgb, var(--pt-secondary) 80%, #e2c7ba);
-}
-
-:root[data-portfolio-theme="lavender"],
-body[data-portfolio-theme="lavender"] .project-tech-badge {
-  background-color: color-mix(in srgb, var(--pt-secondary) 7%, #241e32);
-  border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
-  color: color-mix(in srgb, var(--pt-secondary) 80%, #cec2e8);
-}
-
+/* 7. Graphite */
 :root[data-portfolio-theme="graphite"],
 body[data-portfolio-theme="graphite"] .project-tech-badge {
-  background-color: color-mix(in srgb, var(--pt-secondary) 6%, #202224);
-  border-color: color-mix(in srgb, var(--pt-secondary) 18%, transparent);
+  background-color: color-mix(in srgb, var(--pt-secondary) 7%, #1e2022);
+  border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
   color: var(--pt-muted);
 }
 
-:root[data-portfolio-theme="ecosync"],
-body[data-portfolio-theme="ecosync"] .project-tech-badge {
-  background-color: color-mix(in srgb, #0066ff 6%, #ffffff);
-  border-color: color-mix(in srgb, #0066ff 20%, transparent);
-  color: #0066ff;
-  font-weight: 500;
+/* 8. Sunset */
+:root[data-portfolio-theme="sunset"],
+body[data-portfolio-theme="sunset"] .project-tech-badge {
+  background-color: color-mix(in srgb, var(--pt-secondary) 8%, #291a18);
+  border-color: color-mix(in srgb, var(--pt-secondary) 24%, transparent);
+  color: color-mix(in srgb, var(--pt-secondary) 85%, #fff1ee);
 }
 
+/* 9. Lavender */
+:root[data-portfolio-theme="lavender"],
+body[data-portfolio-theme="lavender"] .project-tech-badge {
+  background-color: color-mix(in srgb, var(--pt-secondary) 8%, #231b33);
+  border-color: color-mix(in srgb, var(--pt-secondary) 24%, transparent);
+  color: color-mix(in srgb, var(--pt-secondary) 85%, #f3efff);
+}
+
+/* 10. Paper */
+:root[data-portfolio-theme="paper"],
+body[data-portfolio-theme="paper"] .project-tech-badge {
+  background-color: color-mix(in srgb, var(--pt-secondary) 8%, #ffffff);
+  border-color: color-mix(in srgb, var(--pt-secondary) 24%, transparent);
+  color: #24586d;
+}
+
+/* 11. EcoSync */
+:root[data-portfolio-theme="ecosync"],
+body[data-portfolio-theme="ecosync"] .project-tech-badge {
+  background-color: color-mix(in srgb, #0066ff 7%, #ffffff);
+  border-color: color-mix(in srgb, #0066ff 22%, transparent);
+  color: #0066ff;
+}
+
+/* 12. EcoSync Dark */
 :root[data-portfolio-theme="ecosync-dark"],
 body[data-portfolio-theme="ecosync-dark"] .project-tech-badge {
-  background-color: color-mix(in srgb, #00df81 8%, #111c2d);
-  border-color: color-mix(in srgb, #00df81 22%, transparent);
+  background-color: color-mix(in srgb, #00df81 9%, #121c2d);
+  border-color: color-mix(in srgb, #00df81 25%, transparent);
   color: #00df81;
 }

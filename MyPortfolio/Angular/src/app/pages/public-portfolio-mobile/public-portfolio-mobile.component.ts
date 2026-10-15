@@ -149,16 +149,39 @@ export class PublicPortfolioMobileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.presentation.loadPublicSettings();
     this.route.paramMap.subscribe(params => {
+      const username = params.get('username') 
+        || this.route.snapshot.queryParamMap.get('u')
+        || this.authService.getUsername()
+        || undefined;
+      const isDashboardPreview = this.route.snapshot.queryParamMap.get('preview') === 'dashboard'
+        && this.authService.isAuthenticated();
+
+      this.presentation.preparePublicTheme(username);
+      this.portfolio = null;
       this.portfolioLoading = true;
-      this.portfolioData.getMobilePortfolioPreview().subscribe({
-      next: result => {
-        this.portfolio = result?.data ?? null;
-        this.portfolioLoading = false;
-        if (!this.portfolio) this.portfolioError = 'This portfolio could not be found.';
-      },
-      error: () => { this.portfolioLoading = false; this.portfolioError = 'Portfolio content is temporarily unavailable.'; }
+      this.portfolioError = '';
+
+      const portfolioRequest = isDashboardPreview || !username
+        ? this.portfolioData.getMobilePortfolioPreview()
+        : this.portfolioData.getPublicPortfolio(username);
+
+      portfolioRequest.subscribe({
+        next: result => {
+          this.portfolio = result?.succeeded ? (result.data ?? null) : (result?.data ?? result ?? null);
+          this.portfolioLoading = false;
+          if (this.portfolio) {
+            this.presentation.applyPublicSettings(this.portfolio, username);
+          } else {
+            this.portfolioError = result?.message || 'This portfolio could not be found.';
+          }
+        },
+        error: error => {
+          this.portfolioLoading = false;
+          this.portfolioError = error?.status === 404
+            ? 'This portfolio does not exist or is not public.'
+            : 'Portfolio content is temporarily unavailable. Please try again.';
+        }
       });
     });
   }

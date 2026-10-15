@@ -56,9 +56,27 @@ export class PortfolioPresentationService {
 
   applyTheme(themeKey: string): void {
     const theme = themeKey || 'obsidian-dark';
+    const isLight = ['light', 'paper', 'ecosync'].includes(theme);
+
     this.document.documentElement.dataset['portfolioTheme'] = theme;
     if (this.document.body) {
       this.document.body.dataset['portfolioTheme'] = theme;
+    }
+
+    if (isLight) {
+      this.document.documentElement.classList.remove('dark');
+      this.document.documentElement.classList.add('light');
+      if (this.document.body) {
+        this.document.body.classList.remove('dark');
+        this.document.body.classList.add('light');
+      }
+    } else {
+      this.document.documentElement.classList.remove('light');
+      this.document.documentElement.classList.add('dark');
+      if (this.document.body) {
+        this.document.body.classList.remove('light');
+        this.document.body.classList.add('dark');
+      }
     }
   }
 
