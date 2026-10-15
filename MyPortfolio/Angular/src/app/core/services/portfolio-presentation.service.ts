@@ -5,61 +5,101 @@ import { AdminApiService } from './admin-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class PortfolioPresentationService {
-  private readonly api = inject(AdminApiService);
   private readonly document = inject(DOCUMENT);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
-  private previewTheme: string | null = null;
-  private readonly localThemeKey = 'portfolio.theme.preview';
+  private readonly api = inject(AdminApiService);
 
   get selectedTheme(): string {
-    return this.document.body.dataset['portfolioTheme'] || this.readLocalTheme() || 'obsidian-dark';
+    return this.document.body?.dataset['portfolioTheme'] 
+      || this.document.documentElement.dataset['portfolioTheme'] 
+      || 'obsidian-dark';
   }
 
   loadPublicSettings(): void {
-    this.applyTheme(this.previewTheme || this.readLocalTheme() || 'obsidian-dark');
-    this.api.getPublicSiteSettings().subscribe({
+    this.preparePublicTheme();
+    this.api.getSiteSettings().subscribe({
       next: response => {
         const settings = response.succeeded ? response.data : null;
         if (!settings) return;
-        this.applyTheme(this.previewTheme || settings.themeKey || 'obsidian-dark');
+        this.applyTheme(settings.themeKey || 'obsidian-dark');
         if (settings.seoTitle) this.title.setTitle(settings.seoTitle);
         if (settings.seoDescription) this.meta.updateTag({ name: 'description', content: settings.seoDescription });
         if (settings.seoKeywords) this.meta.updateTag({ name: 'keywords', content: settings.seoKeywords });
-      }, error: () => undefined
+      },
+      error: () => undefined
     });
   }
 
+  preparePublicTheme(username?: string): void {
+    const cached = (username ? this.readTheme(username) : null) || this.readGlobalTheme() || 'obsidian-dark';
+    this.applyTheme(cached);
+  }
+
+  applyPublicSettings(settings: {
+    themeKey?: string | null;
+    seoTitle?: string | null;
+    seoDescription?: string | null;
+    seoKeywords?: string | null;
+    profile?: { fullName?: string | null; summary?: string | null; longBio?: string | null } | null;
+  }, username?: string): void {
+    const themeKey = settings.themeKey || 'obsidian-dark';
+    this.applyTheme(themeKey);
+    this.writeTheme(username, themeKey);
+    this.title.setTitle(settings.seoTitle || `${settings.profile?.fullName || username || 'Engineering'} — Portfolio`);
+    this.meta.updateTag({
+      name: 'description',
+      content: settings.seoDescription || settings.profile?.summary || settings.profile?.longBio || 'Public portfolio'
+    });
+    this.meta.updateTag({ name: 'keywords', content: settings.seoKeywords || '' });
+  }
+
   applyTheme(themeKey: string): void {
-    this.document.body.dataset['portfolioTheme'] = themeKey || 'obsidian-dark';
+    const theme = themeKey || 'obsidian-dark';
+    this.document.documentElement.dataset['portfolioTheme'] = theme;
+    if (this.document.body) {
+      this.document.body.dataset['portfolioTheme'] = theme;
+    }
   }
 
   preview(themeKey: string): void {
-    this.previewTheme = themeKey || 'obsidian-dark';
-    this.writeLocalTheme(this.previewTheme);
-    this.applyTheme(this.previewTheme);
+    this.applyTheme(themeKey || 'obsidian-dark');
   }
 
-  saveTheme(themeKey: string): void {
-    this.previewTheme = null;
+  saveTheme(themeKey: string, username?: string): void {
     const savedTheme = themeKey || 'obsidian-dark';
-    this.writeLocalTheme(savedTheme);
     this.applyTheme(savedTheme);
+    this.writeTheme(username, savedTheme);
   }
 
-  private readLocalTheme(): string | null {
+  private themeStorageKey(username: string): string {
+    return `portfolio.theme.${username.trim().toLowerCase()}`;
+  }
+
+  private readTheme(username: string): string | null {
     try {
-      return this.document.defaultView?.localStorage.getItem(this.localThemeKey) || null;
+      return this.document.defaultView?.localStorage.getItem(this.themeStorageKey(username)) || null;
     } catch {
       return null;
     }
   }
 
-  private writeLocalTheme(themeKey: string): void {
+  private readGlobalTheme(): string | null {
     try {
-      this.document.defaultView?.localStorage.setItem(this.localThemeKey, themeKey);
+      return this.document.defaultView?.localStorage.getItem('portfolio.theme.global') || null;
     } catch {
-      // Preview remains available for the current session when browser storage is disabled.
+      return null;
+    }
+  }
+
+  private writeTheme(username: string | undefined, themeKey: string): void {
+    try {
+      if (username) {
+        this.document.defaultView?.localStorage.setItem(this.themeStorageKey(username), themeKey);
+      }
+      this.document.defaultView?.localStorage.setItem('portfolio.theme.global', themeKey);
+    } catch {
+      // The server theme remains authoritative when browser storage is disabled.
     }
   }
 }

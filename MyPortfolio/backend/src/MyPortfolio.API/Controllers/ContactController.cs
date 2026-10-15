@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MyPortfolio.API.Models;
 using MyPortfolio.Application.Common.Models;
 using MyPortfolio.Application.ContactMessages.Commands.CreateContactMessage;
@@ -21,6 +22,7 @@ public class ContactController : ControllerBase
     }
 
     [HttpPost]
+    [EnableRateLimiting("public-contact")]
     [ProducesResponseType(typeof(Result<ContactMessageDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Result<ContactMessageDto>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(

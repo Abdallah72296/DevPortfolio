@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -83,20 +83,16 @@ export class AdminApiService {
     return this.http.get<ApiResponse<PortfolioSiteSettingsDto>>(`${this.apiUrl}/api/admin/site-settings`);
   }
 
-  getPublicSiteSettings(): Observable<ApiResponse<PortfolioSiteSettingsDto | null>> {
-    return this.http.get<ApiResponse<PortfolioSiteSettingsDto | null>>(`${this.apiUrl}/api/portfolio/site-settings`);
-  }
-
   updateSiteSettings(settings: Omit<PortfolioSiteSettingsDto, 'isPublished' | 'publishedAt'>): Observable<ApiResponse<PortfolioSiteSettingsDto>> {
     return this.http.put<ApiResponse<PortfolioSiteSettingsDto>>(`${this.apiUrl}/api/admin/site-settings`, settings);
   }
 
-  publishSite(): Observable<ApiResponse<{ isPublished: boolean; publishedAt: string; deploymentPerformed: boolean }>> {
-    return this.http.post<ApiResponse<{ isPublished: boolean; publishedAt: string; deploymentPerformed: boolean }>>(`${this.apiUrl}/api/admin/site-settings/publish`, {});
-  }
-
-  getAdminUsers(): Observable<ApiResponse<AdminUserDto[]>> {
-    return this.http.get<ApiResponse<AdminUserDto[]>>(`${this.apiUrl}/api/admin/users`);
+  getAdminUsers(pageNumber = 1, pageSize = 10, search = '', role = 'All', status = 'All'): Observable<ApiResponse<AdminUserDto[]>> {
+    let params = new HttpParams().set('pageNumber', pageNumber).set('pageSize', pageSize);
+    if (search.trim()) params = params.set('search', search.trim());
+    if (role !== 'All') params = params.set('role', role);
+    if (status !== 'All') params = params.set('status', status);
+    return this.http.get<ApiResponse<AdminUserDto[]>>(`${this.apiUrl}/api/admin/users`, { params });
   }
 
   createAdminUser(email: string, password: string, role: 'Admin' | 'User', fullName = ''): Observable<ApiResponse<AdminUserDto>> {

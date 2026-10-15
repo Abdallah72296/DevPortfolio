@@ -109,12 +109,19 @@ public class FileUploadService : IFileUploadService
         if (contentStream == null || length == 0)
             return new UploadFileResult(false, Message: "A CV PDF file is required.");
 
+        if (string.IsNullOrWhiteSpace(userId))
+            return new UploadFileResult(false, Message: "A valid user identity is required to upload a CV.");
+
         if (!string.Equals(Path.GetExtension(fileName), ".pdf", StringComparison.OrdinalIgnoreCase) ||
             !string.Equals(contentType, "application/pdf", StringComparison.OrdinalIgnoreCase))
             return new UploadFileResult(false, Message: "Only PDF files are supported.");
 
         if (length > 10 * 1024 * 1024)
             return new UploadFileResult(false, Message: "CV file must be 10 MB or smaller.");
+
+        var profile = await _userProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+        if (profile is null)
+            return new UploadFileResult(false, Message: "The authenticated user's portfolio profile was not found.");
 
         var webRoot = _environment.WebRootPath;
         if (string.IsNullOrWhiteSpace(webRoot)) webRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
@@ -143,16 +150,9 @@ public class FileUploadService : IFileUploadService
 
         var relativeUrl = $"/uploads/cv/{uniqueFileName}";
 
-        var profile = !string.IsNullOrWhiteSpace(userId)
-            ? await _userProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken)
-            : await _userProfileRepository.FirstOrDefaultAsync(p => true, cancellationToken);
-
-        if (profile != null)
-        {
-            profile.SetCvUrl(relativeUrl);
-            _userProfileRepository.Update(profile);
-            await _userProfileRepository.SaveChangesAsync(cancellationToken);
-        }
+        profile.SetCvUrl(relativeUrl);
+        _userProfileRepository.Update(profile);
+        await _userProfileRepository.SaveChangesAsync(cancellationToken);
 
         return new UploadFileResult(
             Succeeded: true,

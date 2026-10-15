@@ -25,4 +25,8 @@ public record PortfolioDto(
     List<PublicEducationDto> Education,
     List<PublicCertificationDto> Certifications,
     List<PublicSocialLinkDto> SocialLinks,
-    PublicUserProfileDto? Profile = null);
+    PublicUserProfileDto? Profile = null,
+    string ThemeKey = "obsidian-dark",
+    string? SeoTitle = null,
+    string? SeoDescription = null,
+    string? SeoKeywords = null);

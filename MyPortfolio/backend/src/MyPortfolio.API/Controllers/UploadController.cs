@@ -64,6 +64,9 @@ public class UploadController : ControllerBase
         }
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized(new { succeeded = false, message = "A valid user identity is required to upload a CV." });
+
         var baseUrl = $"{Request.Scheme}://{Request.Host}";
         await using var stream = dto.File.OpenReadStream();
 

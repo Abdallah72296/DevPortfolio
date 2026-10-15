@@ -1,7 +1,7 @@
 <app-dashboard-header></app-dashboard-header>
 <app-dashboard-sidebar></app-dashboard-sidebar>
-<div class="pl-64">
-  <main class="w-full pt-16 min-h-screen bg-background text-on-surface px-gutter-desktop py-space-lg">
+<div class="pl-0 lg:pl-56">
+  <main class="w-full pt-16 min-h-screen bg-background text-on-surface px-4 sm:px-gutter-desktop py-space-lg">
     <div class="flex flex-col w-full gap-space-lg">
 <!-- Production Telemetry Status Banner -->
 <section class="relative overflow-hidden rounded-xl bg-surface-container-low shadow-xl p-space-lg">
@@ -329,7 +329,7 @@
 <span class="w-3 h-3 rounded-full bg-error-container/60"></span>
 <span class="w-3 h-3 rounded-full bg-secondary-container/60"></span>
 <span class="w-3 h-3 rounded-full bg-tertiary-container/60"></span>
-<span class="font-label-mono text-label-mono text-on-surface-variant ml-2">PREVIEW ENGINE • DEMO DATA</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant ml-2">LIVE PORTFOLIO PREVIEW</span>
 </div>
 <!-- Segmented Viewport Toggles -->
 <div class="flex items-center p-0.5 rounded bg-surface-container-lowest" id="viewport-switcher">
@@ -343,81 +343,32 @@
 <span class="material-symbols-outlined text-[14px]">smartphone</span>
 </button>
 </div>
-<a class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-bright text-on-surface font-code-sm text-code-sm hover:text-secondary transition-colors" routerLink="/portfolio">
-<span>Fullsite</span>
+<a class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-bright text-on-surface font-code-sm text-code-sm hover:text-secondary transition-colors" [routerLink]="['/portfolio', auth.getUsername()]">
+<span>Open public site</span>
 <span class="material-symbols-outlined text-[12px]">open_in_new</span>
 </a>
 </div>
-<!-- Miniaturized Live Render Container -->
-<div class="p-space-md bg-surface-container-lowest flex justify-center items-center min-h-[380px] overflow-hidden transition-all duration-300" id="preview-canvas-wrapper">
-<div class="w-full rounded-lg bg-surface p-space-md shadow-2xl flex flex-col gap-space-md transition-all duration-300" [ngClass]="viewportMode === 'mobile' ? 'max-w-[320px]' : viewportMode === 'tablet' ? 'max-w-[640px]' : 'max-w-full'" id="preview-frame">
-<!-- Simulated Sub-header -->
-<div class="flex items-center justify-between pb-2 border-b border-surface-container-highest">
-<div class="flex items-center gap-1.5">
-<span class="w-2 h-2 rounded-full bg-tertiary"></span>
-<span class="font-code-sm text-code-sm font-semibold text-on-surface">{{ portfolioSummary?.profileName ?? 'Portfolio preview' }}</span>
+<div class="p-space-md bg-surface-container-lowest flex justify-center items-start min-h-[520px] overflow-auto" id="preview-canvas-wrapper">
+  <div class="shrink-0 overflow-hidden rounded-lg border border-surface-container-highest bg-background shadow-2xl transition-[width] duration-300"
+       [style.width]="viewportMode === 'desktop' ? '100%' : viewportMode === 'tablet' ? '640px' : '375px'">
+    <iframe *ngIf="portfolioPreviewUrl; else previewUnavailable"
+            [src]="portfolioPreviewUrl"
+            [style.width]="viewportMode === 'desktop' ? '100%' : viewportMode === 'tablet' ? '640px' : '375px'"
+            class="block h-[520px] border-0 bg-background"
+            title="Live preview of your saved portfolio"
+            loading="eager"></iframe>
+  </div>
+  <ng-template #previewUnavailable>
+    <div class="flex min-h-[420px] w-full flex-col items-center justify-center gap-2 text-center text-on-surface-variant">
+      <span class="material-symbols-outlined text-[32px]">preview</span>
+      <p>Sign in to preview your portfolio.</p>
+    </div>
+  </ng-template>
 </div>
-<div class="flex items-center gap-2 font-code-sm text-code-sm text-on-surface-variant">
-<span>Projects</span>
-<span>Writing</span>
-<span>Contact</span>
-</div>
-</div>
-<!-- Simulated Hero Persona -->
-<div class="flex flex-col gap-space-xs mt-space-xs">
-<div class="inline-flex items-center gap-1 font-label-mono text-label-mono text-secondary">
-<span class="material-symbols-outlined text-[12px]">terminal</span>
-                DISTRIBUTED SYSTEMS • EX-STRIPE
-              </div>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">
-                Architecting high-throughput distributed state engines.
-              </h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
-                Designing resilient primitives, consensus algorithms, and ultra-low latency transaction layers for modern web-scale clouds.
-              </p>
-</div>
-<!-- Simulated Architecture Graphic Card -->
-<div class="p-space-sm rounded bg-surface-container-low flex flex-col gap-1.5">
-<div class="flex items-center justify-between font-label-mono text-label-mono text-outline">
-<span>ACTIVE CLUSTER TELEMETRY</span>
-<span class="text-tertiary font-code-sm">99.999% UPTIME</span>
-</div>
-<div class="h-12 w-full rounded bg-surface-container flex items-center justify-around px-2">
-<div class="flex flex-col items-center">
-<span class="font-code-sm text-code-sm text-secondary font-bold">14.2ms</span>
-<span class="font-label-mono text-[9px] text-on-surface-variant">P99 LATENCY</span>
-</div>
-<div class="h-6 w-px bg-surface-container-highest"></div>
-<div class="flex flex-col items-center">
-<span class="font-code-sm text-code-sm text-tertiary font-bold">48.5K</span>
-<span class="font-label-mono text-[9px] text-on-surface-variant">REQ / SEC</span>
-</div>
-<div class="h-6 w-px bg-surface-container-highest"></div>
-<div class="flex flex-col items-center">
-<span class="font-code-sm text-code-sm text-primary font-bold">0 ERROR</span>
-<span class="font-label-mono text-[9px] text-on-surface-variant">RAFT CONSENSUS</span>
-</div>
-</div>
-</div>
-<!-- Simulated Primary Project Card Snippet -->
-<div class="p-space-sm rounded bg-surface-container flex items-center justify-between">
-<div class="flex flex-col">
-<span class="font-code-sm text-code-sm text-on-surface font-semibold">nebula-raft-kv</span>
-<span class="font-label-mono text-label-mono text-outline">Rust • RocksDB • Tokio</span>
-</div>
-<span class="font-label-mono text-label-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded">★ 1.8k</span>
-</div>
-</div>
-</div>
-<!-- Footer preview telemetry -->
 <div class="p-space-sm bg-surface-container-high flex items-center justify-between font-label-mono text-label-mono text-on-surface-variant px-space-md">
-<span class="flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px] text-secondary">memory</span>
-            SSR Bundle: 41.2 KB (Gzip)
-          </span>
-<span class="text-tertiary">STATIC DEMO • NOT LIVE DATA</span>
-</div>
-</section>
+  <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-secondary">sync</span>Preview uses your latest saved profile data</span>
+  <span class="text-tertiary">PRIVATE DASHBOARD PREVIEW</span>
+</div></section>
 <!-- Live Backend Diagnostics -->
 <section class="flex flex-col rounded-xl bg-surface-container shadow-md p-space-md">
   <div class="flex items-center justify-between pb-space-sm mb-space-sm border-b border-surface-container-high">

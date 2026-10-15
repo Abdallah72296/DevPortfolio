@@ -26,7 +26,11 @@ export class PageSwitcherComponent {
   private canShowOnCurrentPage(): boolean {
     if (environment.production || !this.auth.isAuthenticated()) return false;
     const path = this.router.url.split('?')[0];
-    return path !== '/auth' && path !== '/portfolio' && path !== '/portfolio-mobile' && !path.startsWith('/u/');
+    return path !== '/auth' && path !== '/portfolio' && !path.startsWith('/portfolio-mobile/') && !path.startsWith('/u/');
+  }
+
+  get mobilePortfolioLink(): string[] {
+    return ['/portfolio-mobile', this.auth.getUsername()];
   }
 
   toggle() {

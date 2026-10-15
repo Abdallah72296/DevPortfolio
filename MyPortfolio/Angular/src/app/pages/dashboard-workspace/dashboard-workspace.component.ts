@@ -2,12 +2,14 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DashboardHeaderComponent } from '../../shared/components/dashboard-header/dashboard-header.component';
 import { DashboardSidebarComponent } from '../../shared/components/dashboard-sidebar/dashboard-sidebar.component';
 import { AdminApiService } from '../../core/services/admin-api.service';
-import { PortfolioSectionDto } from '../../core/models/admin.models';
+import { PortfolioAnalyticsSummary, PortfolioSectionDto } from '../../core/models/admin.models';
+import { AuthService } from '../../core/services/auth.service';
+import { PortfolioDataService } from '../../core/services/portfolio-data.service';
 
-type RuntimeState = 'published' | 'draft' | 'saving' | 'error' | 'empty';
 type ViewportType = 'desktop' | 'tablet' | 'mobile';
 
 @Component({
@@ -20,17 +22,96 @@ type ViewportType = 'desktop' | 'tablet' | 'mobile';
 export class DashboardWorkspaceComponent implements OnInit {
   private readonly api = inject(AdminApiService);
   private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly portfolioData = inject(PortfolioDataService);
+  private readonly adminApi = inject(AdminApiService);
+  readonly auth = inject(AuthService);
   sections: PortfolioSectionDto[] = [];
   sectionTitle = '';
   loadingSections = false;
   sectionError = '';
   sectionNotice = '';
-  currentState: RuntimeState = 'published';
   viewportMode: ViewportType = 'desktop';
   toastMessage = '';
   copied = false;
+  portfolio: any = null;
+  portfolioPreviewUrl: SafeResourceUrl | null = null;
+  previewLoading = true;
+  previewError = '';
+  analyticsSummary: PortfolioAnalyticsSummary | null = null;
+  analyticsLoading = true;
+  apiState: 'checking' | 'online' | 'offline' = 'checking';
+  databaseState: 'checking' | 'connected' | 'offline' = 'checking';
+  apiFramework = 'API';
 
-  ngOnInit(): void { this.loadSections(); }
+  ngOnInit(): void {
+    this.loadSections();
+    this.loadLiveMetrics();
+    const username = this.auth.getUsername();
+    if (this.auth.isAuthenticated() && username) {
+      this.portfolioPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        `/portfolio/${encodeURIComponent(username)}?preview=dashboard`
+      );
+      this.portfolioData.getMobilePortfolioPreview().subscribe({
+        next: response => {
+          this.previewLoading = false;
+          this.portfolio = response?.succeeded ? response.data ?? null : null;
+          if (!this.portfolio) this.previewError = response?.message || 'Portfolio data could not be loaded.';
+        },
+        error: () => {
+          this.previewLoading = false;
+          this.previewError = 'Portfolio data could not be loaded. Check the API connection.';
+        }
+      });
+    } else {
+      this.previewLoading = false;
+      this.previewError = 'Sign in to preview your portfolio.';
+    }
+  }
+
+  get completenessScore(): number {
+    const profile = this.portfolio?.profile;
+    if (!profile) return 0;
+    const checks = [
+      !!profile.fullName?.trim(),
+      !!(profile.headlineRole || profile.title)?.trim(),
+      !!(profile.summary || profile.longBio)?.trim(),
+      !!profile.avatarUrl?.trim(),
+      !!profile.email?.trim(),
+      !!profile.phone?.trim(),
+      !!profile.location?.trim(),
+      (this.portfolio?.experiences?.length ?? 0) > 0,
+      (this.portfolio?.skills?.length ?? 0) > 0,
+      (this.portfolio?.projects?.length ?? 0) > 0
+    ];
+    return Math.round(checks.filter(Boolean).length / checks.length * 100);
+  }
+
+  private loadLiveMetrics(): void {
+    this.adminApi.getApiHealth().subscribe({
+      next: response => {
+        this.apiState = response.succeeded && response.data?.status?.toLowerCase() === 'healthy'
+          ? 'online'
+          : 'offline';
+        this.apiFramework = response.data?.framework ?? 'API';
+      },
+      error: () => this.apiState = 'offline'
+    });
+    this.adminApi.getDatabaseHealth().subscribe({
+      next: response => this.databaseState = response.succeeded && response.data?.connected ? 'connected' : 'offline',
+      error: () => this.databaseState = 'offline'
+    });
+    this.adminApi.getAnalyticsSummary().subscribe({
+      next: response => {
+        this.analyticsSummary = response.succeeded ? response.data ?? null : null;
+        this.analyticsLoading = false;
+      },
+      error: () => {
+        this.analyticsSummary = null;
+        this.analyticsLoading = false;
+      }
+    });
+  }
 
   loadSections(): void {
     this.loadingSections = true;
@@ -96,34 +177,8 @@ export class DashboardWorkspaceComponent implements OnInit {
     });
   }
 
-  setState(state: RuntimeState) {
-    this.currentState = state;
-    if (state === 'saving') {
-      this.showToast('Saving to ASP.NET Core API...');
-      setTimeout(() => {
-        this.currentState = 'published';
-        this.showToast('All changes persistent in ASP.NET Core cluster');
-      }, 1500);
-    } else if (state === 'draft') {
-      this.showToast('Draft state saved locally.');
-    } else if (state === 'error') {
-      this.showToast('Error syncing with remote endpoint.');
-    }
-  }
-
   setViewport(mode: ViewportType) {
     this.viewportMode = mode;
-  }
-
-  deployDraft() {
-    this.currentState = 'saving';
-    this.api.publishSite().subscribe({
-      next: response => {
-        this.currentState = response.succeeded && response.data.isPublished ? 'published' : 'error';
-        this.showToast(response.message || 'Publish state was not recorded.');
-      },
-      error: () => { this.currentState = 'error'; this.showToast('Could not record publish state.'); }
-    });
   }
 
   modifyTheme() {
@@ -138,7 +193,8 @@ export class DashboardWorkspaceComponent implements OnInit {
 
   copyLink() {
     this.copied = true;
-    navigator?.clipboard?.writeText('https://alexrivera.devfolio.io');
+    const username = this.auth.getUsername();
+    if (username) navigator?.clipboard?.writeText(`${window.location.origin}/portfolio/${encodeURIComponent(username)}`);
     setTimeout(() => this.copied = false, 2500);
   }
 

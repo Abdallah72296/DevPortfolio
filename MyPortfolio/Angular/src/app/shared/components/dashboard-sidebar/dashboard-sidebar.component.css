@@ -2,3 +2,13 @@
 :host {
   display: block;
 }
+
+@media (max-width: 1023px) {
+  :host aside {
+    transform: translateX(-100%);
+  }
+
+  :host aside.mobile-open {
+    transform: translateX(0);
+  }
+}

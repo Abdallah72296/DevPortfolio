@@ -7,6 +7,7 @@ import { catchError } from 'rxjs/operators';
 import { DashboardHeaderComponent } from '../../shared/components/dashboard-header/dashboard-header.component';
 import { DashboardSidebarComponent } from '../../shared/components/dashboard-sidebar/dashboard-sidebar.component';
 import { AdminApiService } from '../../core/services/admin-api.service';
+import { AuthService } from '../../core/services/auth.service';
 import { formatFriendlyError, sanitizeTechnicalText } from '../../core/helpers/error-formatter';
 import { PRESET_PLATFORMS, resolveSocialPlatform, getSocialIconName, getSocialSvg, getSocialColor } from '../../core/helpers/social-icon.helper';
 import {
@@ -48,6 +49,7 @@ import { environment } from '../../../environments/environment';
 })
 export class CvImportProfileEditorComponent implements OnInit {
   readonly api = inject(AdminApiService);
+  readonly auth = inject(AuthService);
 
   // Hero Metrics & Stat Cards Visibility Configuration
   metricsConfig: MetricsVisibilityConfig = { ...DEFAULT_METRICS_CONFIG };
@@ -62,16 +64,18 @@ export class CvImportProfileEditorComponent implements OnInit {
     phone: '+1 (415) 890-2384',
     bio: 'Architecting ultra-low latency distributed state engines & real-time telemetry pipelines handling petabyte-scale throughput. Passionate about consensus mechanisms, zero-allocation runtimes, and Linux kernel observability.',
     avatarUrl: '',
-    cvUrl: '',
+    cvUrl: typeof localStorage !== 'undefined' ? (localStorage.getItem('myportfolio_cached_cv_url') || '') : '',
     availableForHire: true
   };
 
   // State flags & messages
   isParsing = false;
+  isLoadingProfile = true;
   isSaving = false;
   toastMsg = '';
   errorMsg = '';
   cvErrorMsg = '';
+  cvCopyStatus = '';
   selectedCv?: File;
   pendingCvDraft: CvPortfolioDraft | null = null;
   hasPendingCvImport = false;
@@ -87,6 +91,49 @@ export class CvImportProfileEditorComponent implements OnInit {
   isUploadingCv = false;
   isDraggingCv = false;
   autoProcessOnDrop = true;
+  get autoExtractOnSelect(): boolean { return this.autoProcessOnDrop; }
+  set autoExtractOnSelect(enabled: boolean) { this.autoProcessOnDrop = enabled; }
+
+  get cvDisplayName(): string {
+    if (this.selectedCv?.name) return this.selectedCv.name;
+    if (this.formData.cvUrl) {
+      const parts = this.formData.cvUrl.split('?')[0].split('/');
+      const last = parts[parts.length - 1];
+      if (last && last.trim()) {
+        try { return decodeURIComponent(last); } catch { return last; }
+      }
+      return 'Active_Resume.pdf';
+    }
+    return 'No CV Selected';
+  }
+
+  get totalSkillsCount(): number {
+    return (this.categories || []).reduce((acc, cat) => acc + (cat.skills?.length || 0), 0);
+  }
+
+  togglePublicCv(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (!checked) {
+      if (this.formData.cvUrl) {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('myportfolio_cached_cv_url_backup', this.formData.cvUrl);
+        }
+      }
+      this.formData.cvUrl = '';
+      this.toastMsg = 'Public CV download disabled.';
+    } else {
+      const backup = typeof localStorage !== 'undefined' ? localStorage.getItem('myportfolio_cached_cv_url_backup') : '';
+      if (backup) {
+        this.formData.cvUrl = backup;
+        this.toastMsg = 'Public CV download enabled.';
+      } else if (this.selectedCv) {
+        this.uploadCv();
+      } else {
+        this.toastMsg = 'Please choose or upload a CV file first.';
+      }
+    }
+    setTimeout(() => this.toastMsg = '', 3000);
+  }
   isUploadingAvatar = false;
   isDraggingAvatar = false;
   isUploadingProjectImage = false;
@@ -220,6 +267,7 @@ export class CvImportProfileEditorComponent implements OnInit {
   loadProfile(): void {
     this.api.getProfile().subscribe({
       next: response => {
+        this.isLoadingProfile = false;
         if (response.succeeded && response.data) {
           const p = response.data;
           this.existingParagraphs = p.paragraphs ?? [];
@@ -235,9 +283,21 @@ export class CvImportProfileEditorComponent implements OnInit {
             cvUrl: p.cvUrl ?? '',
             availableForHire: p.availableForHire ?? true
           };
+          if (typeof localStorage !== 'undefined') {
+            if (p.cvUrl) localStorage.setItem('myportfolio_cached_cv_url', p.cvUrl);
+            else localStorage.removeItem('myportfolio_cached_cv_url');
+            if (p.avatarUrl) localStorage.setItem('myportfolio_avatar_url', p.avatarUrl);
+            if (p.fullName) localStorage.setItem('myportfolio_full_name', p.fullName);
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('myportfolio_profile_updated', { detail: { avatarUrl: p.avatarUrl, fullName: p.fullName } }));
+            }
+          }
         }
       },
-      error: () => this.errorMsg = 'Profile could not be loaded. Please verify API connection.'
+      error: () => {
+        this.isLoadingProfile = false;
+        this.errorMsg = 'Profile could not be loaded. Please verify API connection.';
+      }
     });
   }
 
@@ -288,6 +348,14 @@ export class CvImportProfileEditorComponent implements OnInit {
           this.isSaving = false;
           this.errorMsg = response.message || 'تعذر حفظ بيانات الملف الشخصي.';
           return;
+        }
+
+        if (typeof localStorage !== 'undefined') {
+          if (this.formData.avatarUrl) localStorage.setItem('myportfolio_avatar_url', this.formData.avatarUrl);
+          if (this.formData.name) localStorage.setItem('myportfolio_full_name', this.formData.name);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('myportfolio_profile_updated', { detail: { avatarUrl: this.formData.avatarUrl, fullName: this.formData.name } }));
+          }
         }
 
         if (this.hasPendingCvImport) {
@@ -347,7 +415,6 @@ export class CvImportProfileEditorComponent implements OnInit {
 
       if (this.autoProcessOnDrop) {
         this.triggerParse();
-        this.uploadCv();
       }
     } else {
       this.selectedCv = undefined;
@@ -376,6 +443,19 @@ export class CvImportProfileEditorComponent implements OnInit {
         this.cvErrorMsg = error?.error?.message || 'CV upload failed.';
       }
     });
+  }
+
+  async copyCvLink(): Promise<void> {
+    const cvUrl = this.resolveMediaUrl(this.formData.cvUrl);
+    if (!cvUrl || typeof navigator === 'undefined' || !navigator.clipboard) return;
+
+    try {
+      await navigator.clipboard.writeText(new URL(cvUrl, window.location.origin).toString());
+      this.cvCopyStatus = 'Copied';
+    } catch {
+      this.cvCopyStatus = 'Copy failed';
+    }
+    window.setTimeout(() => this.cvCopyStatus = '', 2500);
   }
 
   formatIsoDate(raw: any, fallback = new Date().toISOString().slice(0, 10)): string {
@@ -436,6 +516,9 @@ export class CvImportProfileEditorComponent implements OnInit {
           this.formData.name = draft.personalInfo.name || this.formData.name;
           this.formData.title = title;
           this.formData.bio = bio;
+          // Keep existing values when the CV has no explicit contact details.
+          this.formData.location = draft.personalInfo.location?.trim() || this.formData.location;
+          this.formData.phone = draft.personalInfo.phone?.trim() || this.formData.phone;
         }
 
         const now = Date.now();
@@ -1833,6 +1916,21 @@ export class CvImportProfileEditorComponent implements OnInit {
     return `${environment.apiUrl}${cleanUrl}`;
   }
 
+  onAvatarUrlChange(newUrl: string): void {
+    if (typeof localStorage !== 'undefined') {
+      if (newUrl && !newUrl.startsWith('blob:')) {
+        localStorage.setItem('myportfolio_avatar_url', newUrl);
+      } else if (!newUrl) {
+        localStorage.removeItem('myportfolio_avatar_url');
+      }
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('myportfolio_profile_updated', {
+        detail: { avatarUrl: newUrl, fullName: this.formData.name }
+      }));
+    }
+  }
+
   private handleAvatarFile(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.errorMsg = 'Only image files (JPG, PNG, WebP, SVG, GIF) can be uploaded for profile avatar.';
@@ -1842,6 +1940,11 @@ export class CvImportProfileEditorComponent implements OnInit {
     // Instant local preview for immediate visual feedback
     const localPreviewUrl = URL.createObjectURL(file);
     this.formData.avatarUrl = localPreviewUrl;
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('myportfolio_profile_updated', {
+        detail: { avatarUrl: localPreviewUrl, fullName: this.formData.name }
+      }));
+    }
 
     this.isUploadingAvatar = true;
     this.errorMsg = '';
@@ -1851,6 +1954,12 @@ export class CvImportProfileEditorComponent implements OnInit {
         if (res.succeeded) {
           const uploadedUrl = res.relativeUrl || res.url;
           this.formData.avatarUrl = uploadedUrl;
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('myportfolio_avatar_url', uploadedUrl);
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('myportfolio_profile_updated', { detail: { avatarUrl: uploadedUrl, fullName: this.formData.name } }));
+            }
+          }
           this.toastMsg = 'Profile avatar uploaded successfully. Saving profile...';
 
           // Auto-save avatar to profile immediately

@@ -143,12 +143,12 @@ export class ProjectsRepositoriesComponent implements OnInit {
         if (result.succeeded) {
           this.projects = result.data ?? [];
         } else {
-          this.error = sanitizeTechnicalText(result.message, 'تعذر تحميل المشاريع حالياً.');
+          this.error = sanitizeTechnicalText(result.message, 'Could not load projects right now.');
         }
       },
       error: err => {
         this.loading = false;
-        this.error = formatFriendlyError(err, 'تعذر الاتصال بالخادم لتحميل المشاريع.');
+        this.error = formatFriendlyError(err, 'Could not connect to the server to load projects.');
       }
     });
   }
@@ -213,7 +213,7 @@ export class ProjectsRepositoriesComponent implements OnInit {
 
     const title = (this.selected.title || '').trim();
     if (!title) {
-      this.drawerError = 'يرجى إدخال اسم المشروع أولاً للمتابعة (حقل إجباري).';
+      this.drawerError = 'Enter a project name to continue. This field is required.';
       return;
     }
 
@@ -240,16 +240,16 @@ export class ProjectsRepositoriesComponent implements OnInit {
         this.saving = false;
         if (result.succeeded) {
           this.closeDrawer();
-          this.notice = 'تم حفظ المشروع بنجاح في قاعدة البيانات.';
+          this.notice = 'Project saved.';
           setTimeout(() => this.notice = '', 3500);
           this.loadProjects();
         } else {
-          this.drawerError = sanitizeTechnicalText(result.message, 'تعذر حفظ المشروع، يرجى التأكد من البيانات المدخلة والمحاولة مرة أخرى.');
+          this.drawerError = sanitizeTechnicalText(result.message, 'Could not save the project. Check the details and try again.');
         }
       },
       error: err => {
         this.saving = false;
-        this.drawerError = formatFriendlyError(err, 'حدث خطأ أثناء حفظ المشروع، يرجى مراجعة الحقول والمحاولة ثانية.');
+        this.drawerError = formatFriendlyError(err, 'Could not save the project. Review the fields and try again.');
       }
     });
   }
@@ -261,10 +261,10 @@ export class ProjectsRepositoriesComponent implements OnInit {
         if (res.succeeded) {
           project.isVisible = nextVal;
         } else {
-          this.error = sanitizeTechnicalText(res.message, 'تعذر تعديل حالة ظهور المشروع.');
+          this.error = sanitizeTechnicalText(res.message, 'Could not update project visibility.');
         }
       },
-      error: err => this.error = formatFriendlyError(err, 'فشل تحديث حالة الظهور.')
+      error: err => this.error = formatFriendlyError(err, 'Could not update visibility.')
     });
   }
 
@@ -275,19 +275,19 @@ export class ProjectsRepositoriesComponent implements OnInit {
         if (res.succeeded) {
           project.isFeatured = nextVal;
         } else {
-          this.error = sanitizeTechnicalText(res.message, 'تعذر تحديث تمييز المشروع.');
+          this.error = sanitizeTechnicalText(res.message, 'Could not update the featured status.');
         }
       },
-      error: err => this.error = formatFriendlyError(err, 'فشل تحديث حالة المشروع المميز.')
+      error: err => this.error = formatFriendlyError(err, 'Could not update the featured status.')
     });
   }
 
   deleteProject(project: ProjectDto): void {
     this.openDeleteConfirm({
-      title: 'حذف المشروع / Delete Project',
+      title: 'Delete Project',
       itemName: project.title,
       itemType: 'Project',
-      message: `هل أنت متأكد من حذف المشروع "${project.title}" نهائياً من قاعدة البيانات؟`,
+      message: `Permanently delete “${project.title}”?`,
       action: () => {
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
@@ -296,7 +296,7 @@ export class ProjectsRepositoriesComponent implements OnInit {
             this.projects = this.projects.filter(p => p.id !== project.id);
             this.closeDrawer();
             this.closeDeleteConfirm(true);
-            this.notice = 'تم حذف المشروع بنجاح.';
+            this.notice = 'Project deleted.';
             setTimeout(() => this.notice = '', 3000);
           },
           error: (err: any) => {
@@ -304,12 +304,12 @@ export class ProjectsRepositoriesComponent implements OnInit {
               this.projects = this.projects.filter(p => p.id !== project.id);
               this.closeDrawer();
               this.closeDeleteConfirm(true);
-              this.notice = 'تم حذف المشروع بنجاح.';
+              this.notice = 'Project deleted.';
               setTimeout(() => this.notice = '', 3000);
               return;
             }
             this.deleteModal.isDeleting = false;
-            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف المشروع حالياً.');
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'Could not delete the project right now.');
           }
         });
       }
@@ -335,14 +335,14 @@ export class ProjectsRepositoriesComponent implements OnInit {
     this.api.reorderProjects(items).subscribe({
       next: res => {
         if (res.succeeded) {
-          this.notice = 'تم حفظ ترتيب عرض المشاريع بنجاح.';
+          this.notice = 'Project order saved.';
           setTimeout(() => this.notice = '', 3000);
           this.loadProjects();
         } else {
-          this.error = sanitizeTechnicalText(res.message, 'تعذر حفظ ترتيب المشاريع.');
+          this.error = sanitizeTechnicalText(res.message, 'Could not save project order.');
         }
       },
-      error: err => this.error = formatFriendlyError(err, 'فشل حفظ ترتيب المشاريع.')
+      error: err => this.error = formatFriendlyError(err, 'Could not save project order.')
     });
   }
 
@@ -394,7 +394,7 @@ export class ProjectsRepositoriesComponent implements OnInit {
 
   private handleImageFile(file: File): void {
     if (!file.type.startsWith('image/')) {
-      const msg = 'يرجى اختيار ملف صورة صالح بصيغة (JPG, PNG, WebP, SVG, GIF).';
+      const msg = 'Choose a valid image file (JPG, PNG, WebP, SVG, or GIF).';
       if (this.drawerOpen) {
         this.drawerError = msg;
       } else {
@@ -409,16 +409,16 @@ export class ProjectsRepositoriesComponent implements OnInit {
         this.isUploadingImage = false;
         if (res.succeeded && this.selected) {
           this.selected.image = res.relativeUrl || res.url;
-          this.notice = 'تم رفع صورة المشروع بنجاح.';
+          this.notice = 'Project image uploaded.';
           setTimeout(() => this.notice = '', 3000);
         } else {
-          const failMsg = sanitizeTechnicalText((res as any).message, 'تعذر حفظ ملف الصورة، يرجى المحاولة مرة أخرى.');
+          const failMsg = sanitizeTechnicalText((res as any).message, 'Could not save the image. Please try again.');
           if (this.drawerOpen) this.drawerError = failMsg; else this.error = failMsg;
         }
       },
       error: err => {
         this.isUploadingImage = false;
-        const errMsg = formatFriendlyError(err, 'حدث خطأ أثناء رفع الصورة. يرجى التأكد من أن حجم الصورة أقل من 10 ميجابايت.');
+        const errMsg = formatFriendlyError(err, 'Could not upload the image. Make sure it is smaller than 10 MB.');
         if (this.drawerOpen) this.drawerError = errMsg; else this.error = errMsg;
       }
     });

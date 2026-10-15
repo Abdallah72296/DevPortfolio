@@ -1,6 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PortfolioPresentationService } from './core/services/portfolio-presentation.service';
 
 @Component({
   selector: 'app-root',
@@ -9,11 +8,6 @@ import { PortfolioPresentationService } from './core/services/portfolio-presenta
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
-  private readonly presentation = inject(PortfolioPresentationService);
+export class AppComponent {
   title = 'DevFolio Studio';
-
-  ngOnInit(): void {
-    this.presentation.loadPublicSettings();
-  }
 }

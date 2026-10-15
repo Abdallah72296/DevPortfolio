@@ -1,5 +1,13 @@
-<aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/20 z-40 flex flex-col justify-between overflow-y-auto">
-  <div class="py-space-md flex flex-col gap-space-md">
+<div *ngIf="navigation.isMobileMenuOpen" class="fixed inset-0 top-16 z-30 bg-black/55 backdrop-blur-sm lg:hidden" (click)="navigation.closeMobileMenu()" aria-hidden="true"></div>
+<aside id="dashboard-sidebar" [class.mobile-open]="navigation.isMobileMenuOpen" (click)="navigation.closeMobileMenu()" class="fixed left-0 top-16 bottom-0 w-72 max-w-[85vw] lg:w-56 bg-surface-container-low border-r border-outline-variant/25 z-40 flex flex-col justify-between overflow-y-auto transition-transform duration-200">
+  <div class="py-space-sm flex flex-col gap-space-sm">
+    <!-- Mobile header with Close button (visible only on mobile/tablet) -->
+    <div class="flex items-center justify-between px-space-md pb-1.5 border-b border-outline-variant/20 lg:hidden">
+      <span class="text-[11px] font-bold text-on-surface-variant font-label-mono tracking-wider uppercase">Menu</span>
+      <button type="button" (click)="navigation.closeMobileMenu()" class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer" aria-label="Close menu">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
     <!-- OVERVIEW -->
     <div class="px-space-md">
       <div class="font-label-mono text-label-mono text-outline uppercase tracking-wider mb-space-xs px-space-sm">
@@ -8,16 +16,16 @@
       <nav class="flex flex-col gap-0.5">
         <a 
           routerLink="/dashboard" 
-          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary" 
+          routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm" 
           [routerLinkActiveOptions]="{ exact: true }"
-          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">space_dashboard</span>
           <span class="font-body-sm text-body-sm">Dashboard Summary</span>
         </a>
         <a 
           routerLink="/workspace"
-          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
-          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">devices</span>
           <span class="font-body-sm text-body-sm">Workspace &amp; Simulator</span>
         </a>
@@ -28,7 +36,7 @@
     <div *ngIf="auth.isAdmin()" class="px-space-md">
       <div class="font-label-mono text-label-mono text-outline uppercase tracking-wider mb-space-xs px-space-sm">ADMINISTRATION</div>
       <nav class="flex flex-col gap-0.5">
-        <a routerLink="/access-control" routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary" class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+        <a *ngIf="auth.isAdmin()" routerLink="/access-control" routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm" class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
           <span class="font-body-sm text-body-sm">Access Control</span>
         </a>
@@ -43,32 +51,32 @@
       <nav class="flex flex-col gap-0.5">
         <a 
           routerLink="/profile-editor" 
-          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
-          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">person_outline</span>
           <span class="font-body-sm text-body-sm">Profile &amp; CV Editor</span>
         </a>
         <a 
           [routerLink]="['/skills-experience']"
           [queryParams]="{ tab: 'experience' }"
-          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
-          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">work_outline</span>
           <span class="font-body-sm text-body-sm">Experience &amp; Career</span>
         </a>
         <a 
           [routerLink]="['/skills-experience']"
           [queryParams]="{ tab: 'education' }"
-          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
-          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">school</span>
           <span class="font-body-sm text-body-sm">Education &amp; Certs</span>
         </a>
         <a 
           [routerLink]="['/skills-experience']"
           [queryParams]="{ tab: 'skills' }"
-          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
-          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">terminal</span>
           <span class="font-body-sm text-body-sm">Skills &amp; Tech Stack</span>
         </a>
@@ -83,8 +91,8 @@
       <nav class="flex flex-col gap-0.5">
         <a 
           routerLink="/projects" 
-          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
-          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">folder_code</span>
           <span class="font-body-sm text-body-sm">Projects &amp; Repos</span>
         </a>
@@ -99,8 +107,8 @@
       <nav class="flex flex-col gap-0.5">
         <a 
           routerLink="/integrations"
-          routerLinkActive="bg-surface-container-high text-on-surface font-semibold border-l-2 border-primary"
-          class="flex items-center gap-space-sm px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
+          routerLinkActive="bg-primary/15 text-primary border-l-2 border-primary font-semibold shadow-sm"
+          class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">palette</span>
           <span class="font-body-sm text-body-sm">Theme &amp; Templates</span>
         </a>
@@ -108,24 +116,11 @@
     </div>
   </div>
 
-  <!-- FOOTER CLIENT ENGINE WIDGET -->
-  <div class="p-space-md border-t border-outline-variant/20 bg-surface-container-low/50">
-    <div class="rounded bg-surface-container p-space-sm border border-outline-variant/30 flex flex-col gap-space-xs">
-      <div class="flex items-center justify-between">
-        <span class="font-label-mono text-label-mono text-on-surface-variant">CLIENT ENGINE</span>
-        <span class="font-code-sm text-code-sm text-tertiary flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>Active
-        </span>
-      </div>
-      <div class="font-code-sm text-code-sm text-on-surface font-medium">Angular Client v17.3</div>
-      <div class="flex items-center justify-between pt-1 border-t border-outline-variant/20 font-label-mono text-label-mono text-outline">
-        <span class="flex items-center gap-1">
-          <span class="material-symbols-outlined text-[12px] text-secondary">sync</span>Sync: OK
-        </span>
-        <a class="text-primary hover:underline flex items-center gap-0.5" routerLink="/portfolio" target="_blank" rel="noopener">
-          My portfolio<span class="material-symbols-outlined text-[10px]">north_east</span>
-        </a>
-      </div>
-    </div>
+  <div class="border-t border-outline-variant/20 p-space-sm">
+    <a class="flex items-center justify-between rounded-lg border border-outline-variant/20 bg-surface-container px-space-sm py-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+       [routerLink]="['/portfolio', auth.getUsername()]" target="_blank" rel="noopener">
+      <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[17px] text-secondary">open_in_new</span><span class="font-body-sm text-body-sm">View my portfolio</span></span>
+      <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+    </a>
   </div>
 </aside>

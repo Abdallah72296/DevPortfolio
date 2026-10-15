@@ -7,11 +7,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        "accent": {
+          "cyan": "#00d2ff",
+          "sky": "#38bdf8",
+          "teal": "#14b8a6",
+          "violet": "#8b5cf6",
+          "indigo": "#6366f1",
+          "emerald": "#10b981",
+          "amber": "#f59e0b",
+          "rose": "#f43f5e"
+        },
         "error-container": "#93000a",
         "inverse-on-surface": "#2c3039",
         "surface-container": "#1c2028",
         "secondary": "#4cd7f6",
-        "on-primary": "#3c0091",
+        "on-primary": "#ffffff",
         "surface-container-high": "#262a33",
         "surface-container-low": "#181c24",
         "surface-bright": "#353942",
@@ -27,9 +37,9 @@ module.exports = {
         "on-primary-fixed": "#23005c",
         "tertiary": "#4edea3",
         "primary-fixed": "#e9ddff",
-        "primary": "#d0bcff",
+        "primary": "#6366f1",
         "tertiary-container": "#00a572",
-        "primary-fixed-dim": "#d0bcff",
+        "primary-fixed-dim": "#818cf8",
         "on-error": "#690005",
         "on-error-container": "#ffdad6",
         "secondary-container": "#03b5d3",
@@ -48,12 +58,12 @@ module.exports = {
         "on-tertiary-container": "#00311f",
         "on-secondary-container": "#00424e",
         "error": "#ffb4ab",
-        "on-primary-container": "#340080",
+        "on-primary-container": "#ffffff",
         "surface-dim": "#0f131c",
         "surface-variant": "#31353e",
-        "primary-container": "#a078ff",
+        "primary-container": "#4f46e5",
         "secondary-fixed": "#acedff",
-        "surface-tint": "#d0bcff"
+        "surface-tint": "#6366f1"
       },
       borderRadius: {
         DEFAULT: "0.125rem",
@@ -73,16 +83,16 @@ module.exports = {
         "space-lg": "1.5rem"
       },
       fontFamily: {
-        "body-md": ["Geist", "sans-serif"],
-        "headline-lg": ["Geist", "sans-serif"],
+        "body-md": ["system-ui", "sans-serif"],
+        "headline-lg": ["system-ui", "sans-serif"],
         "label-mono": ["JetBrains Mono", "monospace"],
-        "display-hero": ["Geist", "sans-serif"],
+        "display-hero": ["system-ui", "sans-serif"],
         "code-sm": ["JetBrains Mono", "monospace"],
-        "body-lg": ["Geist", "sans-serif"],
-        "body-sm": ["Geist", "sans-serif"],
-        "headline-sm": ["Geist", "sans-serif"],
-        "headline-md": ["Geist", "sans-serif"],
-        "display-hero-mobile": ["Geist", "sans-serif"],
+        "body-lg": ["system-ui", "sans-serif"],
+        "body-sm": ["system-ui", "sans-serif"],
+        "headline-sm": ["system-ui", "sans-serif"],
+        "headline-md": ["system-ui", "sans-serif"],
+        "display-hero-mobile": ["system-ui", "sans-serif"],
         "code-lg": ["JetBrains Mono", "monospace"],
         "code-md": ["JetBrains Mono", "monospace"]
       },

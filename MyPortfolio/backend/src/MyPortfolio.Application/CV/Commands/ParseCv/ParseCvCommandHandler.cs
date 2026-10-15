@@ -57,6 +57,12 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
         // 4. Normalize and sanitize draft data
         var normalizedDraft = NormalizeDraft(draft);
 
+        if (!HasExtractedContent(normalizedDraft))
+        {
+            return Result<CvPortfolioDraft>.Failure(
+                "No supported portfolio information could be extracted from this CV. Make sure the PDF contains readable text and try again.");
+        }
+
         // 5. Validate normalized draft
         var validationResult = await _draftValidator.ValidateAsync(normalizedDraft, cancellationToken);
         if (!validationResult.IsValid)
@@ -111,7 +117,10 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
         var personalInfo = draft.PersonalInfo == null ? null : new CvPersonalInfoDraft(
             Clamp(draft.PersonalInfo.Name, 150),
             Clamp(draft.PersonalInfo.JobTitle, 150),
-            Clamp(draft.PersonalInfo.About, 2000));
+            Clamp(draft.PersonalInfo.About, 2000),
+            Clamp(draft.PersonalInfo.Email, 254),
+            Clamp(draft.PersonalInfo.Phone, 50),
+            Clamp(draft.PersonalInfo.Location, 200));
 
         // 2. Skills sanitization
         var skills = (draft.Skills ?? [])
@@ -131,15 +140,11 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
             .Where(e => !string.IsNullOrWhiteSpace(e.JobTitle) || !string.IsNullOrWhiteSpace(e.CompanyName))
             .Select(e =>
             {
-                var jobTitle = Clamp(e.JobTitle?.Trim(), 150) ?? "Professional";
-                var companyName = Clamp(e.CompanyName?.Trim(), 150) ?? "Company";
+                var jobTitle = Clamp(e.JobTitle?.Trim(), 150) ?? string.Empty;
+                var companyName = Clamp(e.CompanyName?.Trim(), 150) ?? string.Empty;
                 var desc = Clamp(e.Description?.Trim(), 2000);
-                if (string.IsNullOrWhiteSpace(desc))
-                {
-                    desc = $"{jobTitle} at {companyName}";
-                }
-                var startDate = NormalizeDateString(e.StartDate) ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
-                var endDate = e.IsCurrent ? null : NormalizeDateString(e.EndDate, true);
+                var startDate = NormalizeDateString(e.StartDate);
+                var endDate = e.IsCurrent ? null : NormalizeDateString(e.EndDate);
 
                 return new CvExperienceDraft(
                     jobTitle,
@@ -169,15 +174,11 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
             .Where(e => !string.IsNullOrWhiteSpace(e.InstitutionName) || !string.IsNullOrWhiteSpace(e.Degree))
             .Select(e =>
             {
-                var inst = Clamp(e.InstitutionName?.Trim(), 200) ?? "Institution";
-                var degree = Clamp(e.Degree?.Trim(), 150) ?? "Degree";
+                var inst = Clamp(e.InstitutionName?.Trim(), 200) ?? string.Empty;
+                var degree = Clamp(e.Degree?.Trim(), 150) ?? string.Empty;
                 var desc = Clamp(e.Description?.Trim(), 1000);
-                if (string.IsNullOrWhiteSpace(desc))
-                {
-                    desc = $"{degree} - {inst}";
-                }
-                var startDate = NormalizeDateString(e.StartDate) ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
-                var endDate = e.IsCurrent ? null : NormalizeDateString(e.EndDate, true);
+                var startDate = NormalizeDateString(e.StartDate);
+                var endDate = e.IsCurrent ? null : NormalizeDateString(e.EndDate);
 
                 return new CvEducationDraft(
                     inst,
@@ -195,8 +196,8 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
             .Where(c => !string.IsNullOrWhiteSpace(c.Name))
             .Select(c => new CvCertificationDraft(
                 Clamp(c.Name.Trim(), 200)!,
-                Clamp(c.IssuingOrganization?.Trim() ?? "Organization", 200)!,
-                NormalizeDateString(c.IssueDate) ?? DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                Clamp(c.IssuingOrganization?.Trim(), 200) ?? string.Empty,
+                NormalizeDateString(c.IssueDate),
                 Clamp(c.CredentialId, 100),
                 NormalizeUrl(c.CredentialUrl),
                 Clamp(c.Description, 1000)))
@@ -254,7 +255,7 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
         return null;
     }
 
-    private static string? NormalizeDateString(string? rawDate, bool isEndDate = false)
+    private static string? NormalizeDateString(string? rawDate)
     {
         if (string.IsNullOrWhiteSpace(rawDate))
         {
@@ -264,21 +265,15 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
         var trimmed = rawDate.Trim();
 
         // Already valid ISO yyyy-MM-dd
-        if (System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^\d{4}-\d{2}-\d{2}$"))
+        if (DateOnly.TryParseExact(trimmed, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var exactDate))
         {
-            return trimmed;
+            return exactDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
         }
 
         // yyyy-MM -> yyyy-MM-01
-        if (System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^\d{4}-\d{2}$"))
+        if (System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^(19\d\d|20\d\d)-(0[1-9]|1[0-2])$"))
         {
             return $"{trimmed}-01";
-        }
-
-        // Try standard DateTime parsing
-        if (DateTime.TryParse(trimmed, System.Globalization.CultureInfo.InvariantCulture, out var dt))
-        {
-            return dt.ToString("yyyy-MM-dd");
         }
 
         // Regex for Year and Month name (e.g. 'Oct. 2020', 'Dec 2024')
@@ -299,9 +294,19 @@ public class ParseCvCommandHandler : IRequestHandler<ParseCvCommand, Result<CvPo
                 }
             }
 
-            return new DateTime(year, month, 1).ToString("yyyy-MM-dd");
+            return new DateTime(year, month, 1).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        return isEndDate ? null : DateTime.UtcNow.ToString("yyyy-MM-dd");
+        return null;
     }
+
+    private static bool HasExtractedContent(CvPortfolioDraft draft) =>
+        !string.IsNullOrWhiteSpace(draft.PersonalInfo?.Name) ||
+        !string.IsNullOrWhiteSpace(draft.PersonalInfo?.JobTitle) ||
+        !string.IsNullOrWhiteSpace(draft.PersonalInfo?.About) ||
+        !string.IsNullOrWhiteSpace(draft.PersonalInfo?.Email) ||
+        !string.IsNullOrWhiteSpace(draft.PersonalInfo?.Phone) ||
+        !string.IsNullOrWhiteSpace(draft.PersonalInfo?.Location) ||
+        draft.Skills.Count > 0 || draft.Experiences.Count > 0 || draft.Projects.Count > 0 ||
+        draft.Education.Count > 0 || draft.Certifications.Count > 0 || draft.SocialLinks.Count > 0;
 }

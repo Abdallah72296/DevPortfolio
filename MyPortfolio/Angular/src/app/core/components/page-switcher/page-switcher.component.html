@@ -93,14 +93,14 @@
         <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/portfolio</span>
       </a>
 
-      <a routerLink="/portfolio-mobile" (click)="isOpen = false"
+      <a [routerLink]="mobilePortfolioLink" (click)="isOpen = false"
          routerLinkActive="bg-primary/20 text-primary border-l-2 border-primary font-medium"
          class="flex items-center justify-between px-2.5 py-1.5 rounded hover:bg-surface-container text-body-sm text-on-surface transition-colors">
         <span class="flex items-center gap-2">
           <span class="material-symbols-outlined text-[16px] text-tertiary">phone_android</span>
           <span>Public Portfolio (Mobile)</span>
         </span>
-        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/portfolio-mobile</span>
+        <span class="font-label-mono text-[9px] px-1 py-0.5 rounded bg-surface-container-lowest text-outline">/portfolio-mobile/:username</span>
       </a>
 
       <div class="text-[10px] font-label-mono text-outline uppercase px-2 pt-2">Platform & Auth</div>

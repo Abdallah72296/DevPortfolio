@@ -52,7 +52,7 @@
     <div class="px-space-md mt-space-sm">
       <span class="font-label-mono text-label-mono text-outline uppercase tracking-wider px-space-sm">Public Portfolio</span>
       <nav class="mt-space-xs flex flex-col gap-space-xs">
-        <a routerLink="/portfolio" target="_blank" class="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all">
+        <a [routerLink]="['/portfolio', auth.getUsername()]" target="_blank" class="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all">
           <div class="flex items-center gap-space-sm">
             <span class="material-symbols-outlined text-[20px] text-tertiary">public</span>
             <span class="font-body-md text-body-md">Live Portfolio</span>

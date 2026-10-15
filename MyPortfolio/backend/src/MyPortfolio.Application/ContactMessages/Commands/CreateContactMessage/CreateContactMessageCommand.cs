@@ -35,15 +35,17 @@ public class CreateContactMessageCommandHandler : IRequestHandler<CreateContactM
 
         var profiles = _context.UserProfiles.AsQueryable();
         MyPortfolio.Domain.Entities.UserProfile? profile = null;
-        if (!string.IsNullOrWhiteSpace(request.Username))
-        {
-            var username = request.Username.Trim().ToLowerInvariant();
-            profile = await profiles.IgnoreQueryFilters().FirstOrDefaultAsync(p =>
-                p.Email.ToLower() == username || p.Email.ToLower().StartsWith(username + "@") ||
-                p.FullName.ToLower() == username || p.UserId.ToLower() == username, cancellationToken);
-        }
-        profile ??= await profiles.OrderBy(p => p.CreatedAt).FirstOrDefaultAsync(cancellationToken);
-        if (profile != null) message.AssignOwner(profile.OwnerUserId);
+        var username = request.Username?.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(username))
+            return Result<ContactMessageDto>.Failure("A portfolio username is required.");
+
+        profile = await profiles.IgnoreQueryFilters().FirstOrDefaultAsync(p =>
+            p.Email.ToLower() == username || p.Email.ToLower().StartsWith(username + "@") ||
+            p.FullName.ToLower() == username || p.UserId.ToLower() == username, cancellationToken);
+        if (profile is null)
+            return Result<ContactMessageDto>.Failure("The portfolio recipient was not found.");
+
+        message.AssignOwner(profile.OwnerUserId);
 
         _context.ContactMessages.Add(message);
         await _context.SaveChangesAsync(cancellationToken);

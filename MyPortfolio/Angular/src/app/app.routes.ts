@@ -55,13 +55,17 @@ export const routes: Routes = [
     title: 'Alex Rivera - Staff Distributed Systems Engineer'
   },
   {
+    path: 'portfolio/:username',
+    loadComponent: () => import('./pages/public-portfolio-desktop/public-portfolio-desktop.component').then(m => m.PublicPortfolioDesktopComponent),
+    title: 'DevFolio - Public Portfolio'
+  },
+  {
     path: 'u/:username',
     loadComponent: () => import('./pages/public-portfolio-desktop/public-portfolio-desktop.component').then(m => m.PublicPortfolioDesktopComponent),
     title: 'DevFolio - Public Portfolio'
   },
   {
-    path: 'portfolio-mobile',
-    canActivate: [adminAuthGuard],
+    path: 'portfolio-mobile/:username',
     loadComponent: () => import('./pages/public-portfolio-mobile/public-portfolio-mobile.component').then(m => m.PublicPortfolioMobileComponent),
     title: 'DevFolio - Mobile Portfolio Preview'
   },

@@ -7,13 +7,13 @@ import { DashboardSidebarComponent } from '../../shared/components/dashboard-sid
 import { AdminApiService } from '../../core/services/admin-api.service';
 import { CertificationDto, CreateCertificationRequest, CreateEducationRequest, CreateExperienceRequest, EducationDto, ExperienceDto, SkillCategoryDto } from '../../core/models/admin.models';
 import { formatFriendlyError, sanitizeTechnicalText } from '../../core/helpers/error-formatter';
-import { 
-  searchSkillCatalog, 
-  resolveSkillIcon, 
-  registerLearnedSkill, 
-  getSkillIconDisplay, 
-  CatalogSkill, 
-  SkillIconDisplay 
+import {
+  searchSkillCatalog,
+  resolveSkillIcon,
+  registerLearnedSkill,
+  getSkillIconDisplay,
+  CatalogSkill,
+  SkillIconDisplay
 } from '../../core/helpers/skill-registry.helper';
 
 @Component({
@@ -52,6 +52,8 @@ export class SkillsExperienceManagerComponent implements OnInit {
   inlineSkillActive: { [categoryId: string]: boolean } = {};
   editingExperience: ExperienceDto | null = null;
   experienceForm: CreateExperienceRequest = this.emptyExperience();
+  educationModalOpen = false;
+  credentialModalType: 'education' | 'certification' = 'education';
   editingEducation: EducationDto | null = null;
   educationForm: CreateEducationRequest = this.emptyEducation();
   editingCertification: CertificationDto | null = null;
@@ -157,17 +159,17 @@ export class SkillsExperienceManagerComponent implements OnInit {
     this.api.createSkill({ name, icon: resolvedIcon, displayOrder: category.skills?.length ?? 0, skillCategoryId: category.id }).subscribe({
       next: response => {
         if (!response.succeeded) {
-          this.error = sanitizeTechnicalText(response.message, 'تعذر إضافة المهارة.');
+          this.error = sanitizeTechnicalText(response.message, 'Could not add the skill.');
           return;
         }
         registerLearnedSkill(name, resolvedIcon, category.name);
         this.inlineSkillInput[category.id] = '';
         this.inlineSkillActive[category.id] = false;
         category.skills = [...(category.skills ?? []), response.data];
-        this.notice = `تمت إضافة مهارة "${name}" بنجاح.`;
+        this.notice = `Skill “${name}” added.`;
         setTimeout(() => this.notice = '', 3000);
       },
-      error: err => this.error = formatFriendlyError(err, 'تعذر إضافة المهارة حالياً.')
+      error: err => this.error = formatFriendlyError(err, 'Could not add the skill right now.')
     });
   }
 
@@ -193,51 +195,51 @@ export class SkillsExperienceManagerComponent implements OnInit {
           this.categories = response.data ?? [];
           this.selectedCategoryId ||= this.categories[0]?.id ?? '';
         } else {
-          this.error = sanitizeTechnicalText(response.message, 'تعذر تحميل تصنيفات المهارات.');
+          this.error = sanitizeTechnicalText(response.message, 'Could not load skill categories.');
         }
         this.loading = false;
       },
       error: err => {
         this.loading = false;
-        this.error = formatFriendlyError(err, 'تعذر تحميل المهارات. يرجى التأكد من تشغيل الخادم وتسجيل الدخول.');
+        this.error = formatFriendlyError(err, 'Could not load skills. Check that the server is running and you are signed in.');
       }
     });
     this.api.getExperiences().subscribe({
       next: response => { if (response.succeeded) this.experiences = response.data ?? []; },
-      error: err => this.error ||= formatFriendlyError(err, 'تعذر تحميل سجلات الخبرة.')
+      error: err => this.error ||= formatFriendlyError(err, 'Could not load work experience.')
     });
     this.api.getEducations().subscribe({
       next: response => { if (response.succeeded) this.education = response.data ?? []; },
-      error: err => this.error ||= formatFriendlyError(err, 'تعذر تحميل السجلات التعليمية.')
+      error: err => this.error ||= formatFriendlyError(err, 'Could not load education records.')
     });
     this.api.getCertifications().subscribe({
       next: response => { if (response.succeeded) this.certifications = response.data ?? []; },
-      error: err => this.error ||= formatFriendlyError(err, 'تعذر تحميل الشهادات المهنية.')
+      error: err => this.error ||= formatFriendlyError(err, 'Could not load certifications.')
     });
   }
 
   addCategory(): void {
     const name = this.newCategoryName.trim();
     if (!name) {
-      this.error = 'يرجى كتابة اسم التصنيف أو القسم أولاً (حقل إجباري).';
+      this.error = 'Enter a category name first. This field is required.';
       return;
     }
     this.error = '';
     this.api.createSkillCategory({ name, displayOrder: this.categories.length }).subscribe({
       next: response => {
         if (!response.succeeded) {
-          this.error = sanitizeTechnicalText(response.message, 'تعذر إضافة التصنيف، يرجى المحاولة ثانية.');
+          this.error = sanitizeTechnicalText(response.message, 'Could not add the category. Please try again.');
           return;
         }
         this.newCategoryName = '';
         this.selectedCategoryId = response.data.id;
-        this.categories = [...this.categories, response.data];
+        this.categories = [...this.categories, { ...response.data, skills: response.data.skills ?? [] }];
         this.taxonomyConfigOpen = false;
-        this.notice = `تمت إضافة تصنيف "${name}" بنجاح.`;
+        this.notice = `Category “${name}” added.`;
         setTimeout(() => this.notice = '', 3500);
       },
       error: err => {
-        this.error = formatFriendlyError(err, 'تعذر إضافة التصنيف، يرجى مراجعة البيانات والمحاولة مجدداً.');
+        this.error = formatFriendlyError(err, 'Could not add the category. Review the details and try again.');
       }
     });
   }
@@ -261,8 +263,8 @@ export class SkillsExperienceManagerComponent implements OnInit {
     this.showSkillSuggestions = false;
 
     // Auto-select category if matching category exists
-    const matchCat = this.categories.find(c => 
-      c.name.toLowerCase().includes(item.category.toLowerCase()) || 
+    const matchCat = this.categories.find(c =>
+      c.name.toLowerCase().includes(item.category.toLowerCase()) ||
       item.category.toLowerCase().includes(c.name.toLowerCase())
     );
     if (matchCat) {
@@ -287,13 +289,13 @@ export class SkillsExperienceManagerComponent implements OnInit {
         if (res.succeeded && res.url) {
           this.customSkillIcon = res.url;
           this.detectedSkillIconDisplay = { type: 'image', value: res.url };
-          this.notice = 'تم رفع صورة أيقونة المهارة بنجاح.';
+          this.notice = 'Skill icon uploaded.';
           setTimeout(() => this.notice = '', 3000);
         }
       },
       error: () => {
         this.isUploadingSkillIcon = false;
-        this.error = 'تعذر رفع صورة الأيقونة.';
+        this.error = 'Could not upload the icon.';
       }
     });
   }
@@ -310,25 +312,25 @@ export class SkillsExperienceManagerComponent implements OnInit {
   addSkill(): void {
     const name = this.newSkillName.trim();
     if (!name) {
-      this.error = 'يرجى كتابة اسم المهارة أولاً (حقل إجباري).';
+      this.error = 'Enter a skill name first. This field is required.';
       return;
     }
     const category = this.categories.find(item => item.id === this.selectedCategoryId);
     if (!category) {
-      this.error = 'يرجى اختيار القسم أو التصنيف المطلوب لإضافة المهارة إليه أولاً.';
+      this.error = 'Choose a category for this skill first.';
       return;
     }
     this.error = '';
     const resolvedIcon = this.customSkillIcon || resolveSkillIcon(name);
-    this.api.createSkill({ 
-      name, 
-      icon: resolvedIcon, 
-      displayOrder: category.skills?.length ?? 0, 
-      skillCategoryId: category.id 
+    this.api.createSkill({
+      name,
+      icon: resolvedIcon,
+      displayOrder: category.skills?.length ?? 0,
+      skillCategoryId: category.id
     }).subscribe({
       next: response => {
         if (!response.succeeded) {
-          this.error = sanitizeTechnicalText(response.message, 'تعذر إضافة المهارة، يرجى التأكد من البيانات.');
+          this.error = sanitizeTechnicalText(response.message, 'Could not add the skill. Check the details and try again.');
           return;
         }
         registerLearnedSkill(name, resolvedIcon, category.name);
@@ -337,11 +339,11 @@ export class SkillsExperienceManagerComponent implements OnInit {
         this.showSkillSuggestions = false;
         this.detectedSkillIconDisplay = { type: 'material', value: 'code' };
         category.skills = [...(category.skills ?? []), response.data];
-        this.notice = `تمت إضافة مهارة "${name}" إلى ${category.name} بنجاح.`;
+        this.notice = `Skill “${name}” added to ${category.name}.`;
         setTimeout(() => this.notice = '', 3500);
       },
       error: err => {
-        this.error = formatFriendlyError(err, 'تعذر إضافة المهارة، يرجى المحاولة لاحقاً.');
+        this.error = formatFriendlyError(err, 'Could not add the skill. Please try again later.');
       }
     });
   }
@@ -377,10 +379,10 @@ export class SkillsExperienceManagerComponent implements OnInit {
   deleteCategory(category: SkillCategoryDto): void {
     const skillsCount = category.skills?.length || 0;
     this.openDeleteConfirm({
-      title: 'حذف قسم المهارات / Delete Category',
+      title: 'Delete Skill Category',
       itemName: category.name,
       itemType: 'Category',
-      message: `هل أنت متأكد من حذف قسم "${category.name}" وجميع المهارات التابعة له (${skillsCount} مهارة)؟`,
+      message: `Delete “${category.name}” and all ${skillsCount} skills in this category?`,
       action: () => {
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
@@ -391,7 +393,7 @@ export class SkillsExperienceManagerComponent implements OnInit {
               this.selectedCategoryId = this.categories[0]?.id ?? '';
             }
             this.closeDeleteConfirm(true);
-            this.notice = `تم حذف قسم "${category.name}" بنجاح.`;
+            this.notice = `Category “${category.name}” deleted.`;
             setTimeout(() => this.notice = '', 3000);
           },
           error: (err: any) => {
@@ -401,12 +403,12 @@ export class SkillsExperienceManagerComponent implements OnInit {
                 this.selectedCategoryId = this.categories[0]?.id ?? '';
               }
               this.closeDeleteConfirm(true);
-              this.notice = `تم حذف قسم "${category.name}" بنجاح.`;
+              this.notice = `Category “${category.name}” deleted.`;
               setTimeout(() => this.notice = '', 3000);
               return;
             }
             this.deleteModal.isDeleting = false;
-            this.deleteModal.errorMessage = 'تعذر حذف قسم المهارات. يرجى المحاولة مرة أخرى.';
+            this.deleteModal.errorMessage = 'Could not delete the skill category. Please try again.';
           }
         });
       }
@@ -477,15 +479,15 @@ export class SkillsExperienceManagerComponent implements OnInit {
     this.experienceDrawerError = '';
 
     if (!this.experienceForm.jobTitle?.trim()) {
-      this.experienceDrawerError = 'يرجى إدخال المسمى الوظيفي أولاً (حقل إجباري).';
+      this.experienceDrawerError = 'Enter a job title first. This field is required.';
       return;
     }
     if (!this.experienceForm.companyName?.trim()) {
-      this.experienceDrawerError = 'يرجى إدخال اسم الشركة أو المؤسسة أولاً (حقل إجباري).';
+      this.experienceDrawerError = 'Enter a company or organization first. This field is required.';
       return;
     }
     if (!this.experienceForm.startDate) {
-      this.experienceDrawerError = 'يرجى تحديد تاريخ بداية العمل (حقل إجباري).';
+      this.experienceDrawerError = 'Enter a start date. This field is required.';
       return;
     }
 
@@ -498,10 +500,10 @@ export class SkillsExperienceManagerComponent implements OnInit {
       next: response => {
         this.saving = false;
         if (!response.succeeded) {
-          this.experienceDrawerError = sanitizeTechnicalText(response.message, 'تعذر حفظ الخبرة، يرجى مراجعة البيانات المدخلة.');
+          this.experienceDrawerError = sanitizeTechnicalText(response.message, 'Could not save the experience. Review the details and try again.');
           return;
         }
-        this.notice = 'تم حفظ سجل الخبرة بنجاح.';
+        this.notice = 'Work experience saved.';
         setTimeout(() => this.notice = '', 3500);
         this.experiences = this.editingExperience
           ? this.experiences.map(item => item.id === response.data.id ? response.data : item)
@@ -510,24 +512,24 @@ export class SkillsExperienceManagerComponent implements OnInit {
       },
       error: err => {
         this.saving = false;
-        this.experienceDrawerError = formatFriendlyError(err, 'حدث خطأ أثناء حفظ الخبرة، يرجى المحاولة ثانية.');
+        this.experienceDrawerError = formatFriendlyError(err, 'Could not save the experience. Please try again.');
       }
     });
   }
 
   toggleExperience(item: ExperienceDto): void {
     this.api.setExperienceVisibility(item.id, !item.isVisible).subscribe({
-      next: response => response.succeeded ? item.isVisible = response.data.isVisible : this.error = sanitizeTechnicalText(response.message, 'تعذر تعديل ظهور الخبرة.'),
-      error: err => this.error = formatFriendlyError(err, 'فشل تحديث حالة الظهور.')
+      next: response => response.succeeded ? item.isVisible = response.data.isVisible : this.error = sanitizeTechnicalText(response.message, 'Could not update experience visibility.'),
+      error: err => this.error = formatFriendlyError(err, 'Could not update visibility.')
     });
   }
 
   deleteExperience(item: ExperienceDto): void {
     this.openDeleteConfirm({
-      title: 'حذف سجل الخبرة / Delete Experience',
+      title: 'Delete Work Experience',
       itemName: `${item.jobTitle} @ ${item.companyName}`,
       itemType: 'Experience',
-      message: `هل أنت متأكد من رغبتك في حذف خبرة "${item.jobTitle}" في "${item.companyName}"؟`,
+      message: `Delete “${item.jobTitle}” at “${item.companyName}”?`,
       action: () => {
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
@@ -535,19 +537,19 @@ export class SkillsExperienceManagerComponent implements OnInit {
           next: () => {
             this.experiences = this.experiences.filter(value => value.id !== item.id);
             this.closeDeleteConfirm(true);
-            this.notice = 'تم حذف سجل الخبرة بنجاح.';
+            this.notice = 'Work experience deleted.';
             setTimeout(() => this.notice = '', 3000);
           },
           error: (err: any) => {
             if (err?.status === 404) {
               this.experiences = this.experiences.filter(value => value.id !== item.id);
               this.closeDeleteConfirm(true);
-              this.notice = 'تم حذف سجل الخبرة بنجاح.';
+              this.notice = 'Work experience deleted.';
               setTimeout(() => this.notice = '', 3000);
               return;
             }
             this.deleteModal.isDeleting = false;
-            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف سجل الخبرة حالياً.');
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'Could not delete work experience right now.');
           }
         });
       }
@@ -556,10 +558,10 @@ export class SkillsExperienceManagerComponent implements OnInit {
 
   deleteEducation(item: EducationDto): void {
     this.openDeleteConfirm({
-      title: 'حذف السجل الأكاديمي / Delete Education',
+      title: 'Delete Education',
       itemName: `${item.degree} (${item.institutionName})`,
       itemType: 'Education',
-      message: `هل أنت متأكد من حذف مؤهل "${item.degree}" في "${item.institutionName}"؟`,
+      message: `Delete the “${item.degree}” qualification from “${item.institutionName}”?`,
       action: () => {
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
@@ -567,19 +569,19 @@ export class SkillsExperienceManagerComponent implements OnInit {
           next: () => {
             this.education = this.education.filter(value => value.id !== item.id);
             this.closeDeleteConfirm(true);
-            this.notice = 'تم حذف السجل الأكاديمي بنجاح.';
+            this.notice = 'Education deleted.';
             setTimeout(() => this.notice = '', 3000);
           },
           error: (err: any) => {
             if (err?.status === 404) {
               this.education = this.education.filter(value => value.id !== item.id);
               this.closeDeleteConfirm(true);
-              this.notice = 'تم حذف السجل الأكاديمي بنجاح.';
+              this.notice = 'Education deleted.';
               setTimeout(() => this.notice = '', 3000);
               return;
             }
             this.deleteModal.isDeleting = false;
-            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف السجل التعليمي حالياً.');
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'Could not delete education right now.');
           }
         });
       }
@@ -593,18 +595,34 @@ export class SkillsExperienceManagerComponent implements OnInit {
     const reordered = [...this.education];
     [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
     this.api.reorderEducations(reordered.map((value, displayOrder) => ({ id: value.id, displayOrder }))).subscribe({
-      next: result => result.succeeded ? this.education = reordered.map((value, displayOrder) => ({ ...value, displayOrder })) : this.error = sanitizeTechnicalText(result.message, 'تعذر حفظ الترتيب.'),
-      error: err => this.error = formatFriendlyError(err, 'فشل حفظ الترتيب.')
+      next: result => result.succeeded ? this.education = reordered.map((value, displayOrder) => ({ ...value, displayOrder })) : this.error = sanitizeTechnicalText(result.message, 'Could not save the order.'),
+      error: err => this.error = formatFriendlyError(err, 'Could not save the order.')
     });
+  }
+
+  openAddEducation(): void {
+    this.editingEducation = null;
+    this.educationForm = this.emptyEducation();
+    this.credentialModalType = 'education';
+    this.educationModalOpen = true;
+  }
+
+  openAddCertification(): void {
+    this.editingCertification = null;
+    this.certificationForm = this.emptyCertification();
+    this.credentialModalType = 'certification';
+    this.educationModalOpen = true;
   }
 
   editEducation(item: EducationDto): void {
     this.editingEducation = item;
     this.educationForm = {
-      institutionName: item.institutionName, degree: item.degree, fieldOfStudy: item.fieldOfStudy,
-      description: item.description, startDate: item.startDate.slice(0, 10),
-      endDate: item.endDate?.slice(0, 10) ?? null, isCurrent: item.isCurrent, displayOrder: item.displayOrder
+      institutionName: item.institutionName, degree: item.degree, fieldOfStudy: item.fieldOfStudy || '',
+      description: item.description || '', startDate: item.startDate ? item.startDate.slice(0, 10) : '',
+      endDate: item.endDate ? item.endDate.slice(0, 10) : null, isCurrent: item.isCurrent, displayOrder: item.displayOrder
     };
+    this.credentialModalType = 'education';
+    this.educationModalOpen = true;
   }
 
   saveEducation(): void {
@@ -615,35 +633,39 @@ export class SkillsExperienceManagerComponent implements OnInit {
     operation.subscribe({
       next: response => {
         if (!response.succeeded) {
-          this.error = sanitizeTechnicalText(response.message, 'تعذر حفظ البيانات التعليمية.');
+          this.error = sanitizeTechnicalText(response.message, 'Could not save education details.');
           return;
         }
-        this.notice = 'تم حفظ السجل التعليمي بنجاح.';
+        this.notice = 'Education saved.';
         setTimeout(() => this.notice = '', 3000);
         this.education = this.editingEducation
           ? this.education.map(item => item.id === response.data.id ? response.data : item)
           : [...this.education, response.data];
         this.editingEducation = null;
         this.educationForm = this.emptyEducation();
+        this.educationModalOpen = false;
       },
-      error: err => this.error = formatFriendlyError(err, 'تعذر حفظ السجل التعليمي حالياً.')
+      error: err => this.error = formatFriendlyError(err, 'Could not save education right now.')
     });
   }
 
   toggleEducation(item: EducationDto): void {
     this.api.setEducationVisibility(item.id, !item.isVisible).subscribe({
-      next: response => response.succeeded ? item.isVisible = response.data.isVisible : this.error = sanitizeTechnicalText(response.message, 'تعذر تعديل ظهور السجل.'),
-      error: err => this.error = formatFriendlyError(err, 'فشل تعديل حالة الظهور.')
+      next: response => response.succeeded ? item.isVisible = response.data.isVisible : this.error = sanitizeTechnicalText(response.message, 'Could not update record visibility.'),
+      error: err => this.error = formatFriendlyError(err, 'Could not update visibility.')
     });
   }
 
   editCertification(item: CertificationDto): void {
     this.editingCertification = item;
     this.certificationForm = {
-      name: item.name, issuingOrganization: item.issuingOrganization, issueDate: item.issueDate.slice(0, 10),
-      credentialId: item.credentialId, credentialUrl: item.credentialUrl,
-      description: item.description, displayOrder: item.displayOrder
+      name: item.name, issuingOrganization: item.issuingOrganization,
+      issueDate: item.issueDate ? item.issueDate.slice(0, 10) : '',
+      credentialId: item.credentialId || '', credentialUrl: item.credentialUrl || '',
+      description: item.description || '', displayOrder: item.displayOrder
     };
+    this.credentialModalType = 'certification';
+    this.educationModalOpen = true;
   }
 
   saveCertification(): void {
@@ -653,34 +675,35 @@ export class SkillsExperienceManagerComponent implements OnInit {
     operation.subscribe({
       next: response => {
         if (!response.succeeded) {
-          this.error = sanitizeTechnicalText(response.message, 'تعذر حفظ الشهادة المهنية.');
+          this.error = sanitizeTechnicalText(response.message, 'Could not save the certification.');
           return;
         }
-        this.notice = 'تم حفظ الشهادة المهنية بنجاح.';
+        this.notice = 'Certification saved.';
         setTimeout(() => this.notice = '', 3000);
         this.certifications = this.editingCertification
           ? this.certifications.map(item => item.id === response.data.id ? response.data : item)
           : [...this.certifications, response.data];
         this.editingCertification = null;
         this.certificationForm = this.emptyCertification();
+        this.educationModalOpen = false;
       },
-      error: err => this.error = formatFriendlyError(err, 'تعذر حفظ الشهادة المهنية حالياً.')
+      error: err => this.error = formatFriendlyError(err, 'Could not save the certification right now.')
     });
   }
 
   toggleCertification(item: CertificationDto): void {
     this.api.setCertificationVisibility(item.id, !item.isVisible).subscribe({
-      next: response => response.succeeded ? item.isVisible = response.data.isVisible : this.error = sanitizeTechnicalText(response.message, 'تعذر تعديل ظهور الشهادة.'),
-      error: err => this.error = formatFriendlyError(err, 'فشل تعديل حالة الظهور.')
+      next: response => response.succeeded ? item.isVisible = response.data.isVisible : this.error = sanitizeTechnicalText(response.message, 'Could not update certification visibility.'),
+      error: err => this.error = formatFriendlyError(err, 'Could not update visibility.')
     });
   }
 
   deleteCertification(item: CertificationDto): void {
     this.openDeleteConfirm({
-      title: 'حذف الشهادة المهنية / Delete Certification',
+      title: 'Delete Certification',
       itemName: `${item.name} (${item.issuingOrganization})`,
       itemType: 'Certification',
-      message: `هل أنت متأكد من حذف شهادة "${item.name}"؟`,
+      message: `Delete the “${item.name}” certification?`,
       action: () => {
         this.deleteModal.isDeleting = true;
         this.deleteModal.errorMessage = '';
@@ -688,19 +711,19 @@ export class SkillsExperienceManagerComponent implements OnInit {
           next: () => {
             this.certifications = this.certifications.filter(value => value.id !== item.id);
             this.closeDeleteConfirm(true);
-            this.notice = 'تم حذف الشهادة المهنية بنجاح.';
+            this.notice = 'Certification deleted.';
             setTimeout(() => this.notice = '', 3000);
           },
           error: (err: any) => {
             if (err?.status === 404) {
               this.certifications = this.certifications.filter(value => value.id !== item.id);
               this.closeDeleteConfirm(true);
-              this.notice = 'تم حذف الشهادة المهنية بنجاح.';
+              this.notice = 'Certification deleted.';
               setTimeout(() => this.notice = '', 3000);
               return;
             }
             this.deleteModal.isDeleting = false;
-            this.deleteModal.errorMessage = formatFriendlyError(err, 'تعذر حذف الشهادة المهنية حالياً.');
+            this.deleteModal.errorMessage = formatFriendlyError(err, 'Could not delete the certification right now.');
           }
         });
       }
@@ -714,8 +737,8 @@ export class SkillsExperienceManagerComponent implements OnInit {
     const reordered = [...this.certifications];
     [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
     this.api.reorderCertifications(reordered.map((value, displayOrder) => ({ id: value.id, displayOrder }))).subscribe({
-      next: result => result.succeeded ? this.certifications = reordered.map((value, displayOrder) => ({ ...value, displayOrder })) : this.error = sanitizeTechnicalText(result.message, 'تعذر حفظ الترتيب.'),
-      error: err => this.error = formatFriendlyError(err, 'فشل حفظ الترتيب.')
+      next: result => result.succeeded ? this.certifications = reordered.map((value, displayOrder) => ({ ...value, displayOrder })) : this.error = sanitizeTechnicalText(result.message, 'Could not save the order.'),
+      error: err => this.error = formatFriendlyError(err, 'Could not save the order.')
     });
   }
 

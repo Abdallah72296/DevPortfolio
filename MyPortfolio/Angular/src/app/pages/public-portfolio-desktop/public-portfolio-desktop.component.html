@@ -1,3 +1,19 @@
+<ng-container *ngIf="portfolioLoading || !portfolio; else portfolioContent">
+  <main *ngIf="portfolioLoading" class="min-h-screen grid place-items-center bg-background text-on-surface" role="status" aria-live="polite">
+    <div class="flex items-center gap-3 rounded-xl bg-surface-container px-5 py-4 shadow-lg">
+      <span class="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+      <span>Loading portfolio…</span>
+    </div>
+  </main>
+  <main *ngIf="!portfolioLoading" class="min-h-screen grid place-items-center bg-background px-6 text-on-surface" role="alert">
+    <section class="max-w-lg rounded-2xl border border-outline-variant/30 bg-surface-container p-8 text-center shadow-xl">
+      <span class="material-symbols-outlined text-4xl text-outline">block</span>
+      <h1 class="mt-3 text-2xl font-semibold">Portfolio unavailable</h1>
+      <p class="mt-2 text-on-surface-variant">{{ portfolioError || 'This portfolio does not exist or is not public.' }}</p>
+    </section>
+  </main>
+</ng-container>
+<ng-template #portfolioContent>
 <!-- Public Portfolio Desktop - DevFolio Studio Template -->
 <header class="fixed top-0 left-0 w-full z-50 bg-surface-dim/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
   <div class="h-16 max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-space-md">
@@ -133,26 +149,6 @@
 
 <main class="w-full pt-16 bg-surface min-h-[calc(100vh-16rem)]">
   <div class="flex flex-col w-full">
-    <!-- Top Ambient Telemetry Strip -->
-    <div class="w-full bg-surface-container-lowest border-b border-outline-variant/10">
-      <div class="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-12 py-space-xs flex flex-wrap items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
-        <div class="flex items-center gap-space-md">
-          <span class="flex items-center gap-space-xs text-tertiary">
-            <span class="inline-block w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.8)]"></span>
-            LIVE PRODUCTION NODE
-          </span>
-          <span class="hidden md:inline text-outline-variant">|</span>
-          <span class="hidden md:inline text-on-surface-variant">SIGNALR ACTIVE</span>
-          <span class="hidden lg:inline text-outline-variant">|</span>
-          <span class="hidden lg:inline text-secondary">ZERO-LATENCY SYNC</span>
-        </div>
-        <div class="flex items-center gap-space-sm font-label-mono text-label-mono text-outline">
-          <span>SYS_STATUS: VERIFIED</span>
-          <span class="px-space-xs py-0.5 rounded bg-surface-container-high text-primary">v2.4.0-PROD</span>
-        </div>
-      </div>
-    </div>
-
     <!-- Hero Editorial Section -->
     <section class="w-full px-4 sm:px-6 lg:px-12 py-space-xl relative overflow-hidden bg-gradient-to-b from-surface via-surface-container-lowest to-surface">
       <!-- Ambient Chromatic Glow Field -->
@@ -475,16 +471,16 @@
           <div *ngFor="let category of portfolio?.skills" class="p-space-md rounded-xl bg-surface-container shadow-md flex flex-col gap-space-md border border-surface-container-highest/40 hover:border-primary/30 transition-colors">
             <div class="flex items-center justify-between pb-space-xs border-b border-surface-container-highest/50">
               <div class="flex items-center gap-space-xs font-headline-sm text-headline-sm text-on-surface font-semibold">
-                <span class="material-symbols-outlined text-primary text-[22px]">{{ getCategoryIcon(category.name) }}</span>
+                <i class="bi text-primary text-[20px]" [ngClass]="getCategoryIcon(category.name)" aria-hidden="true"></i>
                 <span>{{ category.name }}</span>
               </div>
               <span class="text-[11px] font-label-mono text-outline px-2 py-0.5 rounded bg-surface-container-high">{{ category.skills?.length || 0 }}</span>
             </div>
             <div class="flex flex-wrap gap-2">
-              <span *ngFor="let skill of category.skills" class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-surface-container-high/90 hover:bg-surface-container-highest text-on-surface hover:text-primary transition-all font-code-sm text-code-sm border border-surface-container-highest/70 hover:border-primary/40 shadow-xs group/skill">
+              <span *ngFor="let skill of category.skills" class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-surface-container-high/90 hover:bg-surface-container-highest text-on-surface hover:text-primary transition-all font-body-sm text-body-sm font-medium border border-surface-container-highest/70 hover:border-primary/40 shadow-xs group/skill">
                 <img *ngIf="getSkillDisplay(skill).type === 'image'" [src]="resolveMediaUrl(getSkillDisplay(skill).value)" class="w-5 h-5 object-contain rounded shrink-0" alt="">
                 <i *ngIf="getSkillDisplay(skill).type === 'devicon'" [class]="getSkillDisplay(skill).value + ' text-[18px] shrink-0 leading-none group-hover/skill:scale-110 transition-transform'"></i>
-                <span *ngIf="getSkillDisplay(skill).type === 'material'" class="material-symbols-outlined text-[18px] text-secondary shrink-0 leading-none group-hover/skill:scale-110 transition-transform">{{ getSkillDisplay(skill).value }}</span>
+                <i *ngIf="getSkillDisplay(skill).type === 'material'" class="bi text-secondary text-[16px] shrink-0 leading-none group-hover/skill:scale-110 transition-transform" [ngClass]="getSkillBootstrapIcon(skill)" aria-hidden="true"></i>
                 <span class="font-medium text-xs">{{ skill.name }}</span>
               </span>
             </div>
@@ -613,9 +609,7 @@
                     <svg *ngIf="item.iconType === 'svg'" viewBox="0 0 24 24" class="w-4 h-4 fill-current shrink-0" [ngClass]="item.colorClass">
                       <path [attr.d]="getSocialSvg(item.icon)"/>
                     </svg>
-                    <span *ngIf="item.iconType === 'material'" class="material-symbols-outlined text-[20px] shrink-0" [ngClass]="item.colorClass">
-                      {{ item.icon }}
-                    </span>
+                    <i *ngIf="item.iconType === 'bootstrap'" class="bi shrink-0" [ngClass]="[item.icon, item.colorClass]" aria-hidden="true"></i>
                   </div>
                   <div class="flex flex-col truncate flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-1">
@@ -755,7 +749,7 @@
         <svg *ngIf="getSocialSvg(social)" viewBox="0 0 24 24" class="w-4 h-4 fill-current text-secondary shrink-0">
           <path [attr.d]="getSocialSvg(social)"/>
         </svg>
-        <span *ngIf="!getSocialSvg(social)" class="material-symbols-outlined text-[20px] text-secondary">{{ getSocialIcon(social) }}</span>
+        <i *ngIf="!getSocialSvg(social)" class="bi bi-link-45deg text-[20px] text-secondary" aria-hidden="true"></i>
       </a>
       <a (click)="scrollToSection('contact', 'contact', $event)" class="p-space-xs rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors cursor-pointer" title="Direct Email">
         <span class="material-symbols-outlined text-[20px]">mail</span>
@@ -772,4 +766,5 @@
     </div>
   </div>
 </footer>
+</ng-template>
 

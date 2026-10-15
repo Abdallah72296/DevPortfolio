@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { DashboardNavigationService } from '../../../core/services/dashboard-navigation.service';
 
 @Component({
   selector: 'app-dashboard-sidebar',
@@ -13,4 +14,5 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class DashboardSidebarComponent {
   readonly auth = inject(AuthService);
+  readonly navigation = inject(DashboardNavigationService);
 }

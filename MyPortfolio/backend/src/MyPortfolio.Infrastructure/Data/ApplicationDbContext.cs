@@ -13,6 +13,7 @@ namespace MyPortfolio.Infrastructure.Data;
 public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IApplicationDbContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private string? _systemUserScope;
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor)
         : base(options)
@@ -20,7 +21,15 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IApplicatio
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string? CurrentUserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    public string? CurrentUserId => _systemUserScope ?? _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    internal void SetSystemUserScope(string userId)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+            throw new ArgumentException("A user scope is required.", nameof(userId));
+
+        _systemUserScope = userId;
+    }
 
     public DbSet<PortfolioSection> PortfolioSections => Set<PortfolioSection>();
     public DbSet<SkillCategory> SkillCategories => Set<SkillCategory>();
@@ -34,12 +43,28 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IApplicatio
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<PortfolioAnalyticsEvent> PortfolioAnalyticsEvents => Set<PortfolioAnalyticsEvent>();
     public DbSet<PortfolioSiteSettings> PortfolioSiteSettings => Set<PortfolioSiteSettings>();
+    public DbSet<PendingRegistration> PendingRegistrations => Set<PendingRegistration>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        builder.Entity<PendingRegistration>(entity =>
+        {
+            entity.HasKey(registration => registration.Id);
+            entity.Property(registration => registration.Email).HasMaxLength(256).IsRequired();
+            entity.Property(registration => registration.NormalizedEmail).HasMaxLength(256).IsRequired();
+            entity.Property(registration => registration.Username).HasMaxLength(256).IsRequired();
+            entity.Property(registration => registration.NormalizedUsername).HasMaxLength(256).IsRequired();
+            entity.Property(registration => registration.FullName).HasMaxLength(256).IsRequired();
+            entity.Property(registration => registration.PasswordHash).HasMaxLength(512).IsRequired();
+            entity.Property(registration => registration.OtpHash).HasMaxLength(128).IsRequired();
+            entity.HasIndex(registration => registration.NormalizedEmail).IsUnique();
+            entity.HasIndex(registration => registration.NormalizedUsername).IsUnique();
+            entity.HasIndex(registration => registration.OtpExpiresAt);
+        });
 
         var filterMethod = GetType().GetMethod(nameof(ApplyOwnerFilter), BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var entityType in builder.Model.GetEntityTypes().Where(type => typeof(BaseEntity).IsAssignableFrom(type.ClrType)))
@@ -49,7 +74,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IApplicatio
     }
 
     private void ApplyOwnerFilter<TEntity>(ModelBuilder builder) where TEntity : BaseEntity =>
-        builder.Entity<TEntity>().HasQueryFilter(entity => CurrentUserId == null || entity.OwnerUserId == CurrentUserId);
+        builder.Entity<TEntity>().HasQueryFilter(entity => CurrentUserId != null && entity.OwnerUserId == CurrentUserId);
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

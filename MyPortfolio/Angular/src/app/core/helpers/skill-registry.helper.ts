@@ -96,7 +96,7 @@ export const BASE_SKILL_CATALOG: CatalogSkill[] = [
   { name: 'Ubuntu', category: 'DevOps & Infra', icon: 'devicon-ubuntu-plain colored', iconType: 'devicon', color: '#e95420' },
   { name: 'Nginx', category: 'DevOps & Infra', icon: 'devicon-nginx-original colored', iconType: 'devicon', color: '#009639' },
   { name: 'Apache', category: 'DevOps & Infra', icon: 'devicon-apache-plain colored', iconType: 'devicon', color: '#d22128' },
-  { name: 'CI/CD Pipelines', category: 'DevOps & Infra', icon: 'alt_route', iconType: 'material', color: '#4edea3' },
+  { name: 'CI/CD Pipelines', category: 'DevOps & Infra', icon: 'sync', iconType: 'material', color: '#4edea3' },
 
   // Tools & Observability
   { name: 'Prometheus', category: 'Observability', icon: 'devicon-prometheus-original colored', iconType: 'devicon', color: '#e6522c' },
@@ -113,7 +113,7 @@ export const BASE_SKILL_CATALOG: CatalogSkill[] = [
   { name: 'Jest', category: 'Tools', icon: 'devicon-jest-plain colored', iconType: 'devicon', color: '#c21325' },
   // Architecture & Concepts
   { name: 'Clean Architecture', category: 'Architecture', icon: 'layers', iconType: 'material', color: '#4edea3' },
-  { name: 'CQRS', category: 'Architecture', icon: 'alt_route', iconType: 'material', color: '#4cd7f6' },
+  { name: 'CQRS', category: 'Architecture', icon: 'sync', iconType: 'material', color: '#4cd7f6' },
   { name: 'MediatR', category: 'Architecture', icon: 'hub', iconType: 'material', color: '#a078ff' },
   { name: 'SOLID Principles', category: 'Architecture', icon: 'verified', iconType: 'material', color: '#4edea3' },
   { name: 'Repository Pattern', category: 'Architecture', icon: 'inventory_2', iconType: 'material', color: '#4cd7f6' },
@@ -130,7 +130,10 @@ const LEARNED_SKILLS_STORAGE_KEY = 'devfolio_learned_skills_v1';
 function getLearnedSkills(): CatalogSkill[] {
   try {
     const raw = localStorage.getItem(LEARNED_SKILLS_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed: CatalogSkill[] = JSON.parse(raw);
+      return parsed.map(s => s.icon === 'alt_route' ? { ...s, icon: 'sync' } : s);
+    }
   } catch {}
   return [];
 }
@@ -231,6 +234,7 @@ export function getSkillIconDisplay(skillOrName: any, customIcon?: string | null
   const rawIcon = (typeof skillOrName === 'object' ? skillOrName?.icon : customIcon) || customIcon;
 
   let icon = resolveSkillIcon(name, rawIcon);
+  if (icon === 'alt_route') icon = 'sync';
 
   if (icon.startsWith('http') || icon.startsWith('data:') || icon.startsWith('/uploads') || icon.startsWith('blob:')) {
     return { type: 'image', value: icon };

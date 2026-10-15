@@ -4,7 +4,7 @@
  * into clean, user-friendly messages for end users and clients.
  */
 
-export function formatFriendlyError(err: any, fallbackMessage: string = 'حدث خطأ أثناء معالجة الطلب. يرجى المحاولة مرة أخرى.'): string {
+export function formatFriendlyError(err: any, fallbackMessage: string = 'Something went wrong. Please try again.'): string {
   if (!err) return fallbackMessage;
 
   // If err is already a string
@@ -15,19 +15,19 @@ export function formatFriendlyError(err: any, fallbackMessage: string = 'حدث 
   // Handle standard HTTP statuses
   const status = err.status;
   if (status === 0) {
-    return 'تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت أو إعادة المحاولة لاحقاً.';
+    return 'Could not connect to the server. Check your internet connection and try again.';
   }
   if (status === 401) {
-    return 'انتهت صلاحية الجلسة أو يجب تسجيل الدخول مجدداً لإتمام هذا الإجراء.';
+    return 'Your session expired. Sign in again to continue.';
   }
   if (status === 403) {
-    return 'عذراً، ليس لديك الصلاحيات الكافية لتنفيذ هذا الإجراء.';
+    return 'You do not have permission to perform this action.';
   }
   if (status === 404) {
-    return 'العنصر المطلوب غير موجود أو تم حذفه مسبقاً.';
+    return 'The requested item was not found or has already been deleted.';
   }
   if (status === 409) {
-    return 'هذا الاسم أو السجل مضاف بالفعل، يرجى اختيار اسم آخر لتفادي التكرار.';
+    return 'This name or record already exists. Choose another value.';
   }
 
   // Handle ASP.NET Core ModelState / FluentValidation errors dictionary
@@ -42,7 +42,7 @@ export function formatFriendlyError(err: any, fallbackMessage: string = 'حدث 
       }
     }
     if (messages.length > 0) {
-      return sanitizeTechnicalText(messages.join(' • '), 'يرجى مراجعة الحقول المطلوبة والتأكد من صحة المدخلات.');
+      return sanitizeTechnicalText(messages.join(' • '), 'Review the required fields and check your entries.');
     }
   }
 
@@ -71,9 +71,9 @@ export function sanitizeTechnicalText(text: string, fallbackMessage: string): st
   const hasTechnical = technicalSignatures.some(sig => lower.includes(sig));
   if (hasTechnical) {
     if (lower.includes('duplicate') || lower.includes('already exists') || lower.includes('unique')) {
-      return 'هذا العنصر موجود مسبقاً، يرجى اختيار اسم أو قيمة أخرى.';
+      return 'This item already exists. Choose another name or value.';
     }
-    return 'حدث خطأ في معالجة البيانات، يرجى التحقق من المدخلات والمحاولة لاحقاً.';
+    return 'There was a problem processing the data. Check your entries and try again.';
   }
 
   return text;

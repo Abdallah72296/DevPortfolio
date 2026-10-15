@@ -6,6 +6,10 @@ public class CreateContactMessageCommandValidator : AbstractValidator<CreateCont
 {
     public CreateContactMessageCommandValidator()
     {
+        RuleFor(x => x.Username)
+            .NotEmpty().WithMessage("Portfolio username is required.")
+            .MaximumLength(256).WithMessage("Portfolio username is too long.");
+
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Sender name is required.")
             .MaximumLength(150).WithMessage("Sender name must not exceed 150 characters.");

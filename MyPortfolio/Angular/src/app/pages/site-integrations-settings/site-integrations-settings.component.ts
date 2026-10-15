@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { AdminApiService } from '../../core/services/admin-api.service';
 import { PortfolioSiteSettingsDto } from '../../core/models/admin.models';
 import { PortfolioPresentationService } from '../../core/services/portfolio-presentation.service';
+import { AuthService } from '../../core/services/auth.service';
 
 import { DashboardHeaderComponent } from '../../shared/components/dashboard-header/dashboard-header.component';
 import { DashboardSidebarComponent } from '../../shared/components/dashboard-sidebar/dashboard-sidebar.component';
@@ -17,6 +18,7 @@ import { DashboardSidebarComponent } from '../../shared/components/dashboard-sid
 })
 export class SiteIntegrationsSettingsComponent implements OnInit {
   private readonly api = inject(AdminApiService);
+  readonly auth = inject(AuthService);
   private readonly presentation = inject(PortfolioPresentationService);
   settings: Omit<PortfolioSiteSettingsDto, 'isPublished' | 'publishedAt'> = {
     themeKey: 'obsidian-dark', customDomain: '', seoTitle: '', seoDescription: '', seoKeywords: ''
@@ -67,7 +69,7 @@ export class SiteIntegrationsSettingsComponent implements OnInit {
       next: response => {
         this.savingSettings = false;
         if (!response.succeeded) { this.error = response.message || 'Settings could not be saved.'; return; }
-        this.presentation.saveTheme(this.settings.themeKey);
+        this.presentation.saveTheme(this.settings.themeKey, this.auth.getUsername() || '');
         this.notice = 'Settings saved.';
       }, error: error => { this.savingSettings = false; this.error = this.getError(error, 'Settings could not be saved.'); }
     });

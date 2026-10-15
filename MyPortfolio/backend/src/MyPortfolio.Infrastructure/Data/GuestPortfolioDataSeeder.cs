@@ -64,6 +64,12 @@ public class GuestPortfolioDataSeeder : IGuestPortfolioDataSeeder
                 }
             }
 
+            if (guestUser is null)
+                throw new InvalidOperationException("The guest account is required to seed its portfolio.");
+
+            // Startup seed data must use an explicit owner just like request-scoped writes.
+            _dbContext.SetSystemUserScope(guestUser.Id);
+
             // 2.5 Seed UserProfile tied to guest user if empty
             if (!await _dbContext.UserProfiles.AnyAsync())
             {

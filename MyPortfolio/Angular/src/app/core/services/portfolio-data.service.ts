@@ -2,7 +2,7 @@ import { environment } from '../../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { delay, map, catchError, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import {
   PersonalBio,
   SkillItem,
@@ -230,7 +230,7 @@ export class PortfolioDataService {
   private getUsernameFromUrl(): string | null {
     if (typeof window === 'undefined') return null;
     const path = window.location.pathname;
-    const match = path.match(/\/u\/([a-zA-Z0-9_\-\.]+)/);
+    const match = path.match(/\/(?:u|portfolio)\/([a-zA-Z0-9_\-\.]+)/i);
     if (match && match[1]) return match[1];
     const params = new URLSearchParams(window.location.search);
     return params.get('u');
@@ -239,9 +239,8 @@ export class PortfolioDataService {
   private readonly portfolioData$ = of(null).pipe(
     map(() => this.getUsernameFromUrl()),
     switchMap(username => {
-      const url = username
-        ? `${this.apiUrl}/api/portfolio/${encodeURIComponent(username)}`
-        : `${this.apiUrl}/api/portfolio`;
+      if (!username) return of(null);
+      const url = `${this.apiUrl}/api/portfolio/${encodeURIComponent(username)}`;
       return this.http.get<any>(url).pipe(
         catchError(() => of(null))
       );
@@ -250,10 +249,8 @@ export class PortfolioDataService {
   );
 
   getPublicPortfolio(username?: string): Observable<any> {
-    if (!username) return this.portfolioData$;
-    return this.http.get<any>(`${this.apiUrl}/api/portfolio/${encodeURIComponent(username)}`).pipe(
-      catchError(() => of(null))
-    );
+    if (!username) return of(null);
+    return this.http.get<any>(`${this.apiUrl}/api/portfolio/${encodeURIComponent(username)}`);
   }
 
   getMobilePortfolioPreview(): Observable<any> {
@@ -261,7 +258,7 @@ export class PortfolioDataService {
   }
 
   getDashboardSummary(): Observable<PortfolioDashboardSummary | null> {
-    return this.portfolioData$.pipe(
+    return this.getMobilePortfolioPreview().pipe(
       map(response => {
         const portfolio = response?.data;
         if (!portfolio) return null;

@@ -12,7 +12,7 @@ public static class PortfolioEventTypes
     public const string CvDownload = "cv_download";
 }
 
-public record TrackPortfolioEventCommand(string EventType, string? Username = null) : IRequest<Result>;
+public record TrackPortfolioEventCommand(string EventType, string? UserId = null) : IRequest<Result>;
 
 public class TrackPortfolioEventCommandHandler : IRequestHandler<TrackPortfolioEventCommand, Result>
 {
@@ -25,20 +25,11 @@ public class TrackPortfolioEventCommandHandler : IRequestHandler<TrackPortfolioE
         if (request.EventType is not (PortfolioEventTypes.PortfolioView or PortfolioEventTypes.CvDownload))
             return Result.Failure("Unsupported analytics event.");
 
-        var profiles = _context.UserProfiles.AsNoTracking();
+        var profiles = _context.UserProfiles.IgnoreQueryFilters().AsNoTracking();
         UserProfile? profile = null;
-        if (!string.IsNullOrWhiteSpace(request.Username))
-        {
-            var username = request.Username.Trim().ToLowerInvariant();
-            profile = await profiles.FirstOrDefaultAsync(p =>
-                p.Email.ToLower() == username ||
-                p.Email.ToLower().StartsWith(username + "@") ||
-                p.FullName.ToLower() == username ||
-                p.UserId.ToLower() == username,
-                cancellationToken);
-        }
+        if (!string.IsNullOrWhiteSpace(request.UserId))
+            profile = await profiles.FirstOrDefaultAsync(p => p.UserId == request.UserId, cancellationToken);
 
-        profile ??= await profiles.OrderBy(p => p.CreatedAt).FirstOrDefaultAsync(cancellationToken);
         if (profile is null)
             return Result.Failure("Portfolio profile was not found.");
 

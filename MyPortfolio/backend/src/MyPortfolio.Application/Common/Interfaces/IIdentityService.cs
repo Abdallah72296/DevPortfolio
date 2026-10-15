@@ -10,5 +10,5 @@ namespace MyPortfolio.Application.Common.Interfaces;
 public interface IIdentityService
 {
     Task<Result<AuthResponseDto>> LoginAsync(string email, string password, CancellationToken cancellationToken = default);
-    Task<Result<AuthResponseDto>> RegisterAsync(string fullName, string username, string email, string password, CancellationToken cancellationToken = default);
+    Task<Result<RegistrationResponseDto>> RegisterAsync(string fullName, string username, string email, string password, CancellationToken cancellationToken = default);
 }

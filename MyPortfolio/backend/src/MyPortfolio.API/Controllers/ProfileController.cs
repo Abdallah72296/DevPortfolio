@@ -21,12 +21,18 @@ public class ProfileController : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin,User,Guest")]
     [ProducesResponseType(typeof(Result<ProfileDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetProfile([FromQuery] string? u, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetProfile(CancellationToken cancellationToken)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var result = await _mediator.Send(new GetProfileQuery(userId, u), cancellationToken);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
+        var result = await _mediator.Send(new GetProfileQuery(userId), cancellationToken);
+        if (!result.Succeeded)
+            return NotFound(result);
+
         return Ok(result);
     }
 

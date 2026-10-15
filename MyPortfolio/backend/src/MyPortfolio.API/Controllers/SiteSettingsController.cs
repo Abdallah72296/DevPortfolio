@@ -2,7 +2,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPortfolio.Application.Common.Models;
-using MyPortfolio.Application.SiteSettings.Commands.PublishSiteSettings;
 using MyPortfolio.Application.SiteSettings.Commands.UpdateSiteSettings;
 using MyPortfolio.Application.SiteSettings.Models;
 using MyPortfolio.Application.SiteSettings.Queries.GetSiteSettings;
@@ -50,34 +49,6 @@ public sealed class SiteSettingsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("publish")]
-    [ProducesResponseType(typeof(Result<PublishSiteSettingsResult>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Publish(CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new PublishSiteSettingsCommand(), cancellationToken);
-        return Ok(result);
-    }
-}
-
-[ApiController]
-[AllowAnonymous]
-[Route("api/portfolio/site-settings")]
-public sealed class PublicSiteSettingsController : ControllerBase
-{
-    private readonly IMediator _mediator;
-
-    public PublicSiteSettingsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
-    [HttpGet]
-    [ProducesResponseType(typeof(Result<PortfolioSiteSettingsDto?>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Get(CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new GetSiteSettingsQuery(CreateIfNotExists: false), cancellationToken);
-        return Ok(result);
-    }
 }
 
 public sealed record UpdateSiteSettingsRequest(

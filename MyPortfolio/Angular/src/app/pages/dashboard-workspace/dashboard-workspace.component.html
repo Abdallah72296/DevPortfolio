@@ -1,7 +1,7 @@
 <app-dashboard-header></app-dashboard-header>
 <app-dashboard-sidebar></app-dashboard-sidebar>
-<div class="pl-64">
-  <main class="relative pt-16 w-full min-h-screen bg-background text-on-surface px-gutter-desktop py-space-lg">
+<div class="pl-0 lg:pl-56">
+  <main class="relative pt-16 w-full min-h-screen bg-background text-on-surface px-4 sm:px-gutter-desktop py-space-lg">
     <div class="flex flex-col w-full space-y-space-lg pb-space-xl">
 <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-space-md space-y-space-sm">
   <div class="flex flex-wrap items-center justify-between gap-space-sm">
@@ -15,65 +15,11 @@
     <div class="flex gap-2"><button type="button" (click)="moveSection(section, -1)" [disabled]="i === 0" aria-label="Move up">↑</button><button type="button" (click)="moveSection(section, 1)" [disabled]="i === sections.length - 1" aria-label="Move down">↓</button><button type="button" (click)="toggleSection(section)">{{ section.isVisible ? 'Hide' : 'Show' }}</button><button type="button" (click)="renameSection(section)">Rename</button><button type="button" (click)="deleteSection(section)" [disabled]="section.isSystemSection">Delete</button></div>
   </div>
 </div>
-<!-- 1. Interactive State Simulation Bar -->
-<div class="w-full bg-surface-container-lowest p-space-sm rounded-xl flex flex-wrap items-center justify-between gap-space-sm shadow-md">
-<div class="flex items-center gap-space-sm">
-<div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container-high font-label-mono text-label-mono text-secondary tracking-widest uppercase">
-<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
-        Runtime Inspector
-      </div>
-<span class="font-code-sm text-code-sm text-outline hidden md:inline">Simulate Engine &amp; Lifecycle States:</span>
-</div>
-<!-- Segmented State Buttons -->
-<div class="flex items-center gap-1 p-0.5 rounded-lg bg-surface-container overflow-x-auto max-w-full" id="state-controls">
-<button type="button" (click)="setState('published')" class="px-space-sm py-1 rounded font-code-sm text-code-sm transition-all cursor-pointer flex items-center gap-1" [class]="currentState === 'published' ? 'bg-surface-container-high text-on-surface font-medium shadow-sm' : 'text-on-surface-variant hover:text-on-surface'" id="btn-published">
-<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
-<span class="">Published (Live)</span>
-</button>
-<button type="button" (click)="setState('draft')" class="px-space-sm py-1 rounded font-code-sm text-code-sm transition-all cursor-pointer flex items-center gap-1" [class]="currentState === 'draft' ? 'bg-surface-container-high text-on-surface font-medium shadow-sm' : 'text-on-surface-variant hover:text-on-surface'" id="btn-draft">
-<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-<span class="">Draft Saved</span>
-</button>
-<button type="button" (click)="setState('saving')" class="px-space-sm py-1 rounded font-code-sm text-code-sm transition-all cursor-pointer flex items-center gap-1" [class]="currentState === 'saving' ? 'bg-surface-container-high text-on-surface font-medium shadow-sm' : 'text-on-surface-variant hover:text-on-surface'" id="btn-saving">
-<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-<span class="">Saving...</span>
-</button>
-<button type="button" (click)="setState('error')" class="px-space-sm py-1 rounded font-code-sm text-code-sm transition-all cursor-pointer flex items-center gap-1" [class]="currentState === 'error' ? 'bg-surface-container-high text-on-surface font-medium shadow-sm' : 'text-on-surface-variant hover:text-on-surface'" id="btn-error">
-<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
-<span class="">Save Error</span>
-</button>
-<button type="button" (click)="setState('empty')" class="px-space-sm py-1 rounded font-code-sm text-code-sm transition-all cursor-pointer flex items-center gap-1" [class]="currentState === 'empty' ? 'bg-surface-container-high text-on-surface font-medium shadow-sm' : 'text-on-surface-variant hover:text-on-surface'" id="btn-empty">
-<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
-<span class="">Empty State</span>
-</button>
-</div>
-</div>
-<!-- Dynamic Feedback Banner for Draft & Error States -->
-<div class="w-full transition-all duration-300" id="status-alert-banner">
-<div class="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between gap-space-md shadow-sm">
-<div class="flex items-center gap-space-sm">
-<div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
-<span class="material-symbols-outlined text-[20px]">edit_note</span>
-</div>
-<div>
-<div class="font-headline-sm text-headline-sm text-on-surface leading-tight">Unpublished Staging Delta Detected</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">You have 2 staged commits in your draft sandbox (Updated benchmark latency in <code class="text-secondary font-code-sm text-code-sm">HyperScale KV</code>).</p>
-</div>
-</div>
-<div class="flex items-center gap-space-sm">
-<button class="px-space-sm py-1.5 rounded font-code-sm text-code-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors">Discard Draft</button>
-<button class="px-space-md py-1.5 rounded bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-medium transition-all shadow-[0_0_14px_rgba(208,188,255,0.25)] flex items-center gap-1">
-<span class="material-symbols-outlined text-[16px]">publish</span>
-<span class="">Deploy to Edge</span>
-</button>
-</div>
-</div>
-</div>
 <!-- 2. Header & Welcome Section -->
 <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
 <div class="space-y-1">
 <div class="flex flex-wrap items-center gap-space-sm">
-<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Welcome back, Alex Rivera</h1>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Welcome back, {{ portfolio?.profile?.fullName || auth.getUsername() }}</h1>
 <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary/10 font-label-mono text-label-mono text-tertiary">
 <span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(78,222,163,0.6)] animate-pulse"></span>
 <span class="">PUBLISHED • v2.4.1</span>
@@ -82,11 +28,11 @@
 <div class="flex flex-wrap items-center gap-space-md text-on-surface-variant font-body-md text-body-md">
 <div class="flex items-center gap-1.5">
 <span class="material-symbols-outlined text-secondary text-[18px]">terminal</span>
-<span class="text-on-surface font-medium">Staff Distributed Systems Engineer</span>
+<span class="text-on-surface font-medium">{{ portfolio?.profile?.headlineRole || portfolio?.profile?.title || "Portfolio owner" }}</span>
 </div>
 <span class="text-outline">•</span>
-<a class="font-code-sm text-code-sm text-secondary hover:text-on-surface flex items-center gap-1 transition-colors" href="https://alexrivera.devfolio.io" target="_blank">
-<span class="">alexrivera.devfolio.io</span>
+<a class="font-code-sm text-code-sm text-secondary hover:text-on-surface flex items-center gap-1 transition-colors" href="/portfolio/{{ auth.getUsername() }}" target="_blank">
+<span class="">/portfolio/{{ auth.getUsername() }}</span>
 <span class="material-symbols-outlined text-[14px]">arrow_outward</span>
 </a>
 <span class="text-outline">•</span>
@@ -138,82 +84,86 @@
 <div class="space-y-space-md">
 <div class="flex items-center justify-between">
 <span class="font-label-mono text-label-mono text-outline uppercase tracking-wider">Completeness Score</span>
-<span class="px-2 py-0.5 rounded bg-primary/10 text-primary font-label-mono text-label-mono">High Readiness</span>
+<span class="px-2 py-0.5 rounded bg-primary/10 text-primary font-label-mono text-label-mono">{{ completenessScore >= 80 ? 'Ready to share' : 'Needs attention' }}</span>
 </div>
 <div class="flex items-center gap-space-md">
 <!-- SVG Circular Gauge -->
 <div class="relative w-20 h-20 flex-shrink-0">
 <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
 <path class="text-surface-container-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
-<path class="text-primary transition-all duration-1000 ease-out" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="92, 100" stroke-linecap="round" stroke-width="3.5"></path>
+<path class="text-primary transition-all duration-1000 ease-out" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" [attr.stroke-dasharray]="completenessScore + ', 100'" stroke-linecap="round" stroke-width="3.5"></path>
 </svg>
 <div class="absolute inset-0 flex flex-col items-center justify-center font-headline-sm text-headline-sm text-on-surface font-semibold">
-                92<span class="text-[10px] font-normal text-on-surface-variant -mt-1">%</span>
+                {{ completenessScore }}<span class="text-[10px] font-normal text-on-surface-variant -mt-1">%</span>
 </div>
 </div>
 <div class="space-y-0.5">
-<div class="font-headline-sm text-headline-sm text-on-surface">Staff Portfolio Ready</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Optimal indexing configuration reached for recruiters and engineering search.</p>
+<div class="font-headline-sm text-headline-sm text-on-surface">Profile completeness</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Calculated from your saved profile, experience, skills, and projects.</p>
 </div>
 </div>
 <!-- Actionable Checklist -->
 <div class="space-y-1.5 pt-space-xs font-body-sm text-body-sm">
 <div class="flex items-center justify-between p-2 rounded bg-surface-container-lowest">
 <div class="flex items-center gap-2 text-on-surface">
-<span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span>
-<span class="">Hero Headline &amp; Distributed Bio</span>
+<span class="material-symbols-outlined text-[18px]" [class.text-tertiary]="!!portfolio?.profile?.fullName && !!(portfolio?.profile?.headlineRole || portfolio?.profile?.title) && !!(portfolio?.profile?.summary || portfolio?.profile?.longBio)">{{ portfolio?.profile?.fullName && (portfolio?.profile?.headlineRole || portfolio?.profile?.title) && (portfolio?.profile?.summary || portfolio?.profile?.longBio) ? 'check_circle' : 'radio_button_unchecked' }}</span>
+<span class="">Name, headline &amp; bio</span>
 </div>
-<span class="font-label-mono text-label-mono text-tertiary">DONE</span>
-</div>
-<div class="flex items-center justify-between p-2 rounded bg-surface-container-lowest">
-<div class="flex items-center gap-2 text-on-surface">
-<span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span>
-<span class="">5 Deep-Dive Repositories Linked</span>
-</div>
-<span class="font-label-mono text-label-mono text-tertiary">DONE</span>
+<span class="font-label-mono text-label-mono" [class.text-tertiary]="!!portfolio?.profile?.fullName && !!(portfolio?.profile?.headlineRole || portfolio?.profile?.title) && !!(portfolio?.profile?.summary || portfolio?.profile?.longBio)">{{ portfolio?.profile?.fullName && (portfolio?.profile?.headlineRole || portfolio?.profile?.title) && (portfolio?.profile?.summary || portfolio?.profile?.longBio) ? 'DONE' : 'ADD' }}</span>
 </div>
 <div class="flex items-center justify-between p-2 rounded bg-surface-container-lowest">
 <div class="flex items-center gap-2 text-on-surface">
-<span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span>
-<span class="">Full Career Architecture Log</span>
+<span class="material-symbols-outlined text-[18px]" [class.text-tertiary]="(portfolio?.projects?.length ?? 0) > 0">{{ (portfolio?.projects?.length ?? 0) > 0 ? 'check_circle' : 'radio_button_unchecked' }}</span>
+<span class="">Projects ({{ portfolio?.projects?.length ?? 0 }})</span>
 </div>
-<span class="font-label-mono text-label-mono text-tertiary">DONE</span>
+<span class="font-label-mono text-label-mono" [class.text-tertiary]="(portfolio?.projects?.length ?? 0) > 0">{{ (portfolio?.projects?.length ?? 0) > 0 ? 'DONE' : 'ADD' }}</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-container-lowest">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-[18px]" [class.text-tertiary]="(portfolio?.experiences?.length ?? 0) > 0">{{ (portfolio?.experiences?.length ?? 0) > 0 ? 'check_circle' : 'radio_button_unchecked' }}</span>
+<span class="">Experience ({{ portfolio?.experiences?.length ?? 0 }})</span>
+</div>
+<span class="font-label-mono text-label-mono" [class.text-tertiary]="(portfolio?.experiences?.length ?? 0) > 0">{{ (portfolio?.experiences?.length ?? 0) > 0 ? 'DONE' : 'ADD' }}</span>
 </div>
 <div class="flex items-center justify-between p-2 rounded bg-surface-container hover:bg-surface-container-high transition-colors cursor-pointer group">
-<div class="flex items-center gap-2 text-secondary">
-<span class="material-symbols-outlined text-[18px]">error</span>
-<span class="">Custom OpenGraph Social Card</span>
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-[18px]" [class.text-tertiary]="(portfolio?.skills?.length ?? 0) > 0">{{ (portfolio?.skills?.length ?? 0) > 0 ? 'check_circle' : 'radio_button_unchecked' }}</span>
+<span class="">Skill categories ({{ portfolio?.skills?.length ?? 0 }})</span>
 </div>
-<span class="font-label-mono text-label-mono text-secondary group-hover:underline">+8% BOOST</span>
+<span class="font-label-mono text-label-mono" [class.text-tertiary]="(portfolio?.skills?.length ?? 0) > 0">{{ (portfolio?.skills?.length ?? 0) > 0 ? 'DONE' : 'ADD' }}</span>
 </div>
 </div>
 </div>
 <div class="mt-space-md pt-space-sm bg-surface-container-lowest -mx-space-lg -mb-space-lg p-space-md rounded-b-xl flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
 <div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[16px] text-tertiary">lock</span>
-<span class="">Let's Encrypt TLS v1.3</span>
+<span class="material-symbols-outlined text-[16px]" [class.text-tertiary]="apiState === 'online'">{{ apiState === 'online' ? 'check_circle' : 'info' }}</span>
+<span class="">API: {{ apiState === 'checking' ? 'Checking…' : apiState === 'online' ? 'Online' : 'Unavailable' }}</span>
 </div>
-<span class="text-tertiary">Valid until Nov 2025</span>
+<span>{{ apiFramework }}</span>
 </div>
 </div>
 <!-- Infrastructure & Subdomain Details -->
 <div class="bg-surface-container-low p-space-md rounded-xl space-y-space-sm shadow-md">
 <div class="flex items-center justify-between">
-<span class="font-label-mono text-label-mono text-outline uppercase tracking-wider">Cloud Network Route</span>
-<span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_6px_rgba(78,222,163,0.5)]"></span>
+<span class="font-label-mono text-label-mono text-outline uppercase tracking-wider">Platform Status</span>
+<span class="w-2 h-2 rounded-full" [class.bg-tertiary]="apiState === 'online' && databaseState === 'connected'" [class.bg-error]="apiState === 'offline' || databaseState === 'offline'" [class.bg-secondary]="apiState === 'checking' || databaseState === 'checking'"></span>
 </div>
 <div class="bg-surface-container-lowest p-space-sm rounded-lg font-code-sm text-code-sm space-y-1">
 <div class="flex items-center justify-between">
-<span class="text-on-surface-variant">CNAME Target</span>
-<span class="text-secondary">edge.devfolio.io</span>
+<span class="text-on-surface-variant">Portfolio URL</span>
+<span class="text-secondary truncate ml-2">/portfolio/{{ auth.getUsername() }}</span>
 </div>
 <div class="flex items-center justify-between">
-<span class="text-on-surface-variant">Apex Status</span>
-<span class="text-on-surface">A Record &#64; 76.76.21.21</span>
+<span class="text-on-surface-variant">Application API</span>
+<span [class.text-tertiary]="apiState === 'online'" [class.text-error]="apiState === 'offline'">{{ apiState === 'checking' ? 'Checking…' : apiState === 'online' ? 'Online' : 'Offline' }}</span>
 </div>
 <div class="flex items-center justify-between">
-<span class="text-on-surface-variant">Global CDN Hit Ratio</span>
-<span class="text-tertiary">98.4% (Cloudflare)</span>
+<span class="text-on-surface-variant">Database</span>
+<span [class.text-tertiary]="databaseState === 'connected'" [class.text-error]="databaseState === 'offline'">{{ databaseState === 'checking' ? 'Checking…' : databaseState === 'connected' ? 'Connected' : 'Unavailable' }}</span>
+</div>
+<div class="flex items-center justify-between border-t border-outline-variant/30 pt-1">
+<span class="text-on-surface-variant">CDN metrics</span>
+<span class="text-outline">Provider not connected</span>
 </div>
 </div>
 </div>
@@ -230,217 +180,128 @@
 </div>
 <div class="hidden sm:flex items-center gap-2 px-space-sm py-1 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant">
 <span class="material-symbols-outlined text-[14px] text-tertiary">lock</span>
-<span class="">https://alexrivera.devfolio.io</span>
+<span class="">/portfolio/{{ auth.getUsername() }}</span>
 </div>
 </div>
 <!-- Viewport Switchers -->
 <div class="flex items-center gap-2">
 <div class="flex items-center bg-surface-container p-0.5 rounded-lg text-on-surface-variant font-code-sm text-code-sm">
-<button class="px-2 py-1 rounded bg-surface-container-high text-on-surface flex items-center gap-1 transition-all" id="vp-desktop">
+<button type="button" (click)="setViewport('desktop')" [ngClass]="viewportMode === 'desktop' ? 'bg-surface-container-high text-on-surface' : 'hover:text-on-surface'" class="px-2 py-1 rounded flex items-center gap-1 transition-all" id="vp-desktop">
 <span class="material-symbols-outlined text-[16px]">desktop_windows</span>
 <span class="hidden md:inline">Desktop</span>
 </button>
-<button class="px-2 py-1 rounded hover:text-on-surface flex items-center gap-1 transition-all" id="vp-tablet">
+<button type="button" (click)="setViewport('tablet')" [ngClass]="viewportMode === 'tablet' ? 'bg-surface-container-high text-on-surface' : 'hover:text-on-surface'" class="px-2 py-1 rounded flex items-center gap-1 transition-all" id="vp-tablet">
 <span class="material-symbols-outlined text-[16px]">tablet</span>
 <span class="hidden md:inline">Tablet</span>
 </button>
-<button class="px-2 py-1 rounded hover:text-on-surface flex items-center gap-1 transition-all" id="vp-mobile">
+<button type="button" (click)="setViewport('mobile')" [ngClass]="viewportMode === 'mobile' ? 'bg-surface-container-high text-on-surface' : 'hover:text-on-surface'" class="px-2 py-1 rounded flex items-center gap-1 transition-all" id="vp-mobile">
 <span class="material-symbols-outlined text-[16px]">smartphone</span>
 <span class="hidden md:inline">Mobile</span>
 </button>
 </div>
-<a class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" href="#" title="Open full sandbox">
+<a class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" [routerLink]="['/portfolio', auth.getUsername()]" title="Open public portfolio">
 <span class="material-symbols-outlined text-[18px]">open_in_new</span>
 </a>
 </div>
 </div>
-<!-- Preview Canvas Body -->
-<div class="p-space-lg bg-surface-dim flex-1 flex flex-col justify-center items-center transition-all duration-300" id="preview-wrapper">
-<div class="w-full max-w-4xl bg-surface-container-lowest rounded-xl p-space-lg shadow-2xl space-y-space-lg transition-all duration-300" id="preview-viewport">
-<!-- Portfolio Internal Nav -->
-<div class="flex items-center justify-between pb-space-sm">
-<div class="flex items-center gap-space-sm">
-<div class="w-8 h-8 rounded-lg bg-primary-container/20 flex items-center justify-center font-headline-sm text-headline-sm text-primary font-bold">AR</div>
-<div>
-<div class="font-headline-sm text-headline-sm text-on-surface font-semibold leading-tight">Alex Rivera</div>
-<div class="font-code-sm text-code-sm text-outline">Systems Architect &amp; Distributed Core</div>
+<!-- Live preview uses the authenticated user's saved portfolio, including unpublished drafts. -->
+<div class="p-space-md bg-surface-dim flex-1 flex flex-col items-center transition-all duration-300 overflow-auto" id="preview-wrapper">
+  <div class="shrink-0 overflow-hidden rounded-xl border border-outline-variant bg-background shadow-2xl transition-[width] duration-300"
+       [style.width.px]="viewportMode === 'desktop' ? 1000 : viewportMode === 'tablet' ? 768 : 390">
+    <div class="flex items-center justify-between bg-surface-container-lowest px-space-sm py-1.5 font-code-sm text-code-sm text-on-surface-variant">
+      <span class="truncate">/portfolio/{{ auth.getUsername() }} · {{ viewportMode | titlecase }} preview</span>
+      <span class="material-symbols-outlined text-[14px] text-tertiary">lock</span>
+    </div>
+    <iframe *ngIf="portfolioPreviewUrl; else portfolioPreviewUnavailable"
+            [src]="portfolioPreviewUrl"
+            [style.width.px]="viewportMode === 'desktop' ? 1000 : viewportMode === 'tablet' ? 768 : 390"
+            class="block h-[680px] border-0 bg-background"
+            title="Live preview of your saved portfolio"
+            loading="eager"></iframe>
+  </div>
+  <ng-template #portfolioPreviewUnavailable>
+    <div class="flex min-h-[420px] w-full flex-col items-center justify-center gap-2 text-center text-on-surface-variant">
+      <span class="material-symbols-outlined text-[32px]">preview</span>
+      <p>{{ previewLoading ? 'Loading your portfolio preview…' : previewError }}</p>
+    </div>
+  </ng-template>
 </div>
-</div>
-<div class="hidden sm:flex items-center gap-space-md font-body-sm text-body-sm text-on-surface-variant">
-<span class="text-on-surface font-medium hover:text-secondary cursor-pointer">Projects</span>
-<span class="hover:text-secondary cursor-pointer">Architecture</span>
-<span class="hover:text-secondary cursor-pointer">Writing</span>
-<span class="hover:text-secondary cursor-pointer">Contact</span>
-</div>
-</div>
-<!-- Hero in Portfolio -->
-<div class="flex flex-col md:flex-row items-start md:items-center gap-space-lg max-w-4xl"><div class="relative flex-shrink-0 group"><div class="w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden shadow-2xl bg-surface-container-high border-2 border-primary/20 relative"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&amp;fit=crop&amp;w=400&amp;q=80" alt="Alex Rivera" class="w-full h-full object-cover"><div class="absolute inset-0 bg-primary/10 mix-blend-overlay pointer-events-none"></div></div><div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface-container-lowest flex items-center justify-center p-0.5 shadow-md"><span class="w-3.5 h-3.5 rounded-full bg-tertiary flex items-center justify-center shadow-[0_0_8px_rgba(78,222,163,0.6)]"></span></div></div><div class="space-y-space-sm flex-1"><div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-secondary/10 font-label-mono text-label-mono text-secondary"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>CORE SYSTEMS &amp; TELEMETRY INFRASTRUCTURE</div><h2 class="font-headline-lg text-headline-lg text-on-surface leading-tight font-semibold">Architecting ultra-low latency distributed state engines &amp; real-time telemetry pipelines.</h2><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">Specialized in Raft consensus implementations, high-throughput asynchronous network runtimes, and high-density container orchestration. Currently leading infrastructure telemetry at high scale.</p></div></div>
-<!-- Tech Stack Tags in Portfolio -->
-<div class="flex flex-wrap items-center gap-1.5">
-<span class="h-6 px-2.5 rounded bg-surface-container-high font-code-sm text-code-sm text-secondary flex items-center">RUST / TOKIO</span>
-<span class="h-6 px-2.5 rounded bg-surface-container-high font-code-sm text-code-sm text-secondary flex items-center">GO GOROUTINES</span>
-<span class="h-6 px-2.5 rounded bg-surface-container-high font-code-sm text-code-sm text-secondary flex items-center">KUBERNETES CRDS</span>
-<span class="h-6 px-2.5 rounded bg-surface-container-high font-code-sm text-code-sm text-secondary flex items-center">ASP.NET CORE v8</span>
-<span class="h-6 px-2.5 rounded bg-surface-container-high font-code-sm text-code-sm text-secondary flex items-center">APACHE KAFKA</span>
-</div>
-<!-- Project Showcase Cards (Portfolio Child Items) -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md pt-space-xs" id="preview-projects-container">
-<!-- Project 1 -->
-<div class="bg-surface-container p-space-md rounded-lg space-y-space-sm hover:bg-surface-container-high transition-colors">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-secondary text-[18px]">database</span>
-<span class="font-headline-sm text-headline-sm text-on-surface font-medium">HyperScale KV Store</span>
-</div>
-<span class="font-label-mono text-label-mono text-tertiary">120k QPS</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
-                Distributed LSM-tree key-value storage engine engineered with consensus-backed partition failovers in sub-5ms SLA.
-              </p>
-<div class="flex items-center justify-between pt-1 font-code-sm text-code-sm text-outline">
-<span class="">Raft Protocol • Tokio • gRPC</span>
-<span class="text-secondary flex items-center">View →</span>
-</div>
-</div>
-<!-- Project 2 -->
-<div class="bg-surface-container p-space-md rounded-lg space-y-space-sm hover:bg-surface-container-high transition-colors">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-[18px]">hub</span>
-<span class="font-headline-sm text-headline-sm text-on-surface font-medium">CloudNative Ingress</span>
-</div>
-<span class="font-label-mono text-label-mono text-secondary">ACTIVE OSS</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
-                Envoy-compatible programmable proxy controller providing automated zero-trust mutual TLS mTLS rotation.
-              </p>
-<div class="flex items-center justify-between pt-1 font-code-sm text-code-sm text-outline">
-<span class="">Go • eBPF • Envoy Gateway</span>
-<span class="text-secondary flex items-center">View →</span>
-</div>
-</div>
-</div>
-<!-- Empty State Container (Hidden by default, used in simulation) -->
-<div class="hidden p-space-lg text-center space-y-2 bg-surface-container rounded-lg" id="preview-empty-state">
-<span class="material-symbols-outlined text-outline text-[32px]">folder_off</span>
-<div class="font-headline-sm text-headline-sm text-on-surface">No Projects Staged</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Connect your GitHub repositories to populate live engineering projects.</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- 5. Realistic Portfolio Analytics -->
+</div><!-- 5. Realistic Portfolio Analytics -->
 <div class="space-y-space-md">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-space-sm">
 <h3 class="font-headline-md text-headline-md text-on-surface">Traffic Telemetry &amp; Recruiter Analytics</h3>
-<span class="px-2 py-0.5 rounded bg-surface-container-high font-label-mono text-label-mono text-on-surface-variant uppercase">30-Day Window</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high font-label-mono text-label-mono text-on-surface-variant uppercase">{{ analyticsSummary?.periodStartUtc ? ('Since ' + (analyticsSummary?.periodStartUtc | date:'MMM d')) : 'This month' }}</span>
 </div>
-<a class="font-body-sm text-body-sm text-secondary hover:text-on-surface transition-colors flex items-center gap-1" href="#">
-<span class="">Deep Analytics Dashboard</span>
-<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
-</a>
+<span class="font-code-sm text-code-sm text-outline">{{ analyticsLoading ? 'Loading…' : analyticsSummary ? 'Live account totals' : 'Analytics unavailable' }}</span>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md">
 <!-- Metric 1: Visitors -->
 <div class="bg-surface-container-low p-space-md rounded-xl space-y-space-sm shadow-md">
 <div class="flex items-center justify-between text-on-surface-variant">
-<span class="font-body-sm text-body-sm">Unique Engineering Visitors</span>
+<span class="font-body-sm text-body-sm">Portfolio views</span>
 <span class="material-symbols-outlined text-secondary text-[20px]">group</span>
 </div>
 <div class="flex items-baseline justify-between">
-<div class="font-headline-lg text-headline-lg text-on-surface font-semibold">4,892</div>
-<div class="font-code-sm text-code-sm text-tertiary flex items-center">
-<span class="material-symbols-outlined text-[16px]">trending_up</span>
-<span class="">+18.4%</span>
-</div>
+<div class="font-headline-lg text-headline-lg text-on-surface font-semibold">{{ analyticsLoading ? '…' : (analyticsSummary?.monthlyPortfolioViews ?? '—') }}</div>
+<div class="font-code-sm text-code-sm text-outline">This month</div>
 </div>
 <!-- Sparkline SVG -->
 <div class="h-10 w-full pt-1">
 <svg class="w-full h-full text-secondary" fill="none" viewBox="0 0 100 24">
-<path d="M0 20 L15 17 L30 19 L45 12 L60 14 L75 7 L90 10 L100 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-<path d="M0 20 L15 17 L30 19 L45 12 L60 14 L75 7 L90 10 L100 3 L100 24 L0 24 Z" fill="currentColor" fill-opacity="0.08"></path>
+<path d="M0 20 L100 20" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
 </svg>
 </div>
 </div>
 <!-- Metric 2: Recruiter Inquiries -->
 <div class="bg-surface-container-low p-space-md rounded-xl space-y-space-sm shadow-md">
 <div class="flex items-center justify-between text-on-surface-variant">
-<span class="font-body-sm text-body-sm">Inbound Recruiter Outreach</span>
+<span class="font-body-sm text-body-sm">Contact messages</span>
 <span class="material-symbols-outlined text-primary text-[20px]">forward_to_inbox</span>
 </div>
 <div class="flex items-baseline justify-between">
-<div class="font-headline-lg text-headline-lg text-on-surface font-semibold">34</div>
-<div class="font-code-sm text-code-sm text-tertiary flex items-center">
-<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
-<span class="">+6 this week</span>
-</div>
+<div class="font-headline-lg text-headline-lg text-on-surface font-semibold">{{ analyticsLoading ? '…' : (analyticsSummary?.monthlyContactMessages ?? '—') }}</div>
+<div class="font-code-sm text-code-sm text-outline">This month</div>
 </div>
 <div class="h-10 w-full flex items-center">
 <div class="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden flex">
-<div class="bg-primary h-full" style="width: 68%" title="Staff+ Roles"></div>
-<div class="bg-secondary h-full" style="width: 32%" title="Founding Eng"></div>
+<div class="bg-primary h-full" [style.width.%]="analyticsSummary && analyticsSummary.totalContactMessages > 0 ? (analyticsSummary.unreadContactMessages / analyticsSummary.totalContactMessages * 100) : 0" title="Unread messages"></div>
+<div class="bg-secondary h-full" [style.width.%]="analyticsSummary && analyticsSummary.totalContactMessages > 0 ? ((analyticsSummary.totalContactMessages - analyticsSummary.unreadContactMessages) / analyticsSummary.totalContactMessages * 100) : 0" title="Read messages"></div>
 </div>
 </div>
 <div class="flex justify-between font-code-sm text-code-sm text-outline">
-<span class="">68% Principal/Staff Level</span>
-<span class="">32% Lead Roles</span>
+<span class="">{{ analyticsSummary?.unreadContactMessages ?? '—' }} unread</span>
+<span class="">{{ analyticsSummary?.totalContactMessages ?? '—' }} total</span>
 </div>
 </div>
 <!-- Metric 3: Resume Fetches -->
 <div class="bg-surface-container-low p-space-md rounded-xl space-y-space-sm shadow-md">
 <div class="flex items-center justify-between text-on-surface-variant">
-<span class="font-body-sm text-body-sm">Curriculum Vitae Fetches</span>
+<span class="font-body-sm text-body-sm">CV downloads</span>
 <span class="material-symbols-outlined text-tertiary text-[20px]">download</span>
 </div>
 <div class="flex items-baseline justify-between">
-<div class="font-headline-lg text-headline-lg text-on-surface font-semibold">412</div>
-<span class="font-label-mono text-label-mono text-outline">v4.2.1 PDF</span>
+<div class="font-headline-lg text-headline-lg text-on-surface font-semibold">{{ analyticsLoading ? '…' : (analyticsSummary?.monthlyCvDownloads ?? '—') }}</div>
+<span class="font-label-mono text-label-mono text-outline">This month</span>
 </div>
 <!-- Mini Bar Visualization -->
 <div class="h-10 w-full flex items-end gap-1.5 pt-2">
-<div class="w-1/6 bg-surface-container-high rounded-t h-[40%]"></div>
-<div class="w-1/6 bg-surface-container-high rounded-t h-[60%]"></div>
-<div class="w-1/6 bg-surface-container-high rounded-t h-[35%]"></div>
-<div class="w-1/6 bg-surface-container-high rounded-t h-[75%]"></div>
-<div class="w-1/6 bg-surface-container-high rounded-t h-[55%]"></div>
-<div class="w-1/6 bg-tertiary rounded-t h-[100%]"></div>
+<div class="h-2 w-full rounded bg-surface-container-high"><div class="h-2 rounded bg-tertiary" [style.width.%]="analyticsSummary && analyticsSummary.monthlyCvDownloads > 0 ? 100 : 0"></div></div>
 </div>
 </div>
 <!-- Metric 4: Inbound Origin Channels -->
 <div class="bg-surface-container-low p-space-md rounded-xl space-y-space-xs shadow-md">
 <div class="flex items-center justify-between text-on-surface-variant">
-<span class="font-body-sm text-body-sm">Traffic Acquisition Channels</span>
+<span class="font-body-sm text-body-sm">Message inbox</span>
 <span class="material-symbols-outlined text-outline text-[20px]">share</span>
 </div>
 <div class="space-y-1.5 pt-1 font-code-sm text-code-sm">
 <div>
 <div class="flex justify-between text-on-surface mb-0.5">
-<span class="">GitHub Organizations</span>
-<span class="font-medium text-secondary">54%</span>
+<span class="">Total received</span>
+<span class="font-medium text-secondary">{{ analyticsSummary?.totalContactMessages ?? '—' }}</span>
 </div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5">
-<div class="bg-secondary rounded-full h-1.5" style="width: 54%"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between text-on-surface mb-0.5">
-<span class="">LinkedIn Tech Network</span>
-<span class="font-medium text-primary">28%</span>
-</div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5">
-<div class="bg-primary rounded-full h-1.5" style="width: 28%"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between text-on-surface mb-0.5">
-<span class="">Direct DNS / Bookmarks</span>
-<span class="font-medium text-tertiary">18%</span>
-</div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5">
-<div class="bg-tertiary rounded-full h-1.5" style="width: 18%"></div>
-</div>
+<div class="text-outline">Count of messages sent through your portfolio contact form.</div>
 </div>
 </div>
 </div>
@@ -565,4 +426,4 @@
 </div>
 </div>
 
-</div></main></div>
+</div></div></main></div>

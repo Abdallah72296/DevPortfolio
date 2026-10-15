@@ -3,6 +3,8 @@ export interface ApiResponse<T> {
   succeeded: boolean;
   message: string;
   errors: string[];
+  pagination?: { pageNumber: number; pageSize: number; totalCount: number; totalPages: number };
+  summary?: { totalUsers: number; activeUsers: number; lockedUsers: number; adminUsers: number; standardUsers: number; availableForHireUsers: number };
 }
 
 export interface PaginatedResult<T> {
@@ -300,6 +302,14 @@ export interface CvPersonalInfoDraft {
   name: string | null;
   jobTitle: string | null;
   about: string | null;
+  email: string | null;
+  phone: string | null;
+  location: string | null;
+}
+
+export interface RegistrationResponseDto {
+  email: string;
+  confirmationEmailSent: boolean;
 }
 
 export interface CvSkillDraft {

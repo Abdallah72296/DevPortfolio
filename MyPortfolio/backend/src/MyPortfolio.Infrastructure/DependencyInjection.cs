@@ -14,11 +14,12 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
+        services.AddHttpClient();
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         // Register EF Core DbContext with SQL Server
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContextFactory<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure(
@@ -37,6 +38,10 @@ public static class DependencyInjection
             options.Password.RequireUppercase = true;
             options.Password.RequireLowercase = true;
 
+            options.Lockout.AllowedForNewUsers = true;
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+
             // User policy
             options.User.RequireUniqueEmail = true;
         })
@@ -48,9 +53,15 @@ public static class DependencyInjection
 
         // Register Generic Repository pattern
         services.AddScoped(typeof(IGenericRepository<>), typeof(Data.Repositories.GenericRepository<>));
+        services.AddScoped<
+            Application.Portfolio.Queries.GetPublicPortfolio.IPublicPortfolioQueryRepository,
+            Data.Repositories.PublicPortfolioQueryRepository>();
 
         // Register Authentication & Token services
         services.AddScoped<Authentication.ITokenService, Authentication.TokenService>();
+        services.AddScoped<IEmailSender, Authentication.ConfiguredEmailSender>();
+        services.AddScoped<IEmailConfirmationService, Authentication.EmailConfirmationService>();
+        services.AddScoped<IAdminUserManagementService, Authentication.AdminUserManagementService>();
         services.AddScoped<IIdentityService, Authentication.IdentityService>();
         services.AddScoped<Authentication.IIdentityDataSeeder, Authentication.IdentityDataSeeder>();
         services.AddScoped<Data.IGuestPortfolioDataSeeder, Data.GuestPortfolioDataSeeder>();

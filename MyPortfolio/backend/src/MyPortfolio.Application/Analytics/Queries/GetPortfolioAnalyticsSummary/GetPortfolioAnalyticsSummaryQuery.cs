@@ -6,7 +6,7 @@ using MyPortfolio.Application.Common.Models;
 
 namespace MyPortfolio.Application.Analytics.Queries.GetPortfolioAnalyticsSummary;
 
-public record GetPortfolioAnalyticsSummaryQuery : IRequest<Result<PortfolioAnalyticsSummaryDto>>;
+public record GetPortfolioAnalyticsSummaryQuery(string OwnerUserId) : IRequest<Result<PortfolioAnalyticsSummaryDto>>;
 
 public class GetPortfolioAnalyticsSummaryQueryHandler
     : IRequestHandler<GetPortfolioAnalyticsSummaryQuery, Result<PortfolioAnalyticsSummaryDto>>
@@ -21,9 +21,12 @@ public class GetPortfolioAnalyticsSummaryQueryHandler
     {
         var now = DateTime.UtcNow;
         var periodStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        if (string.IsNullOrWhiteSpace(request.OwnerUserId))
+            return Result<PortfolioAnalyticsSummaryDto>.Failure("Portfolio owner was not found.");
+
         var profileId = await _context.UserProfiles
             .AsNoTracking()
-            .OrderBy(profile => profile.CreatedAt)
+            .Where(profile => profile.OwnerUserId == request.OwnerUserId)
             .Select(profile => (Guid?)profile.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -35,7 +38,7 @@ public class GetPortfolioAnalyticsSummaryQueryHandler
 
         var monthEvents = _context.PortfolioAnalyticsEvents
             .AsNoTracking()
-            .Where(item => item.ProfileId == profileId && item.CreatedAt >= periodStart);
+            .Where(item => item.OwnerUserId == request.OwnerUserId && item.ProfileId == profileId && item.CreatedAt >= periodStart);
 
         var monthlyViews = await monthEvents.CountAsync(
             item => item.EventType == "portfolio_view", cancellationToken);
@@ -43,13 +46,13 @@ public class GetPortfolioAnalyticsSummaryQueryHandler
             item => item.EventType == "cv_download", cancellationToken);
         var monthlyMessages = await _context.ContactMessages
             .AsNoTracking()
-            .CountAsync(message => message.CreatedAt >= periodStart, cancellationToken);
+            .CountAsync(message => message.OwnerUserId == request.OwnerUserId && message.CreatedAt >= periodStart, cancellationToken);
         var totalMessages = await _context.ContactMessages
             .AsNoTracking()
-            .CountAsync(cancellationToken);
+            .CountAsync(message => message.OwnerUserId == request.OwnerUserId, cancellationToken);
         var unreadMessages = await _context.ContactMessages
             .AsNoTracking()
-            .CountAsync(message => !message.IsRead, cancellationToken);
+            .CountAsync(message => message.OwnerUserId == request.OwnerUserId && !message.IsRead, cancellationToken);
 
         return Result<PortfolioAnalyticsSummaryDto>.Success(
             new PortfolioAnalyticsSummaryDto(

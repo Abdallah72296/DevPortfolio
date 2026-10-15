@@ -1,6 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/vendor/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Material Symbols Outlined Fallback';
+  src: url('/assets/vendor/fonts/material-symbols-outlined-subset.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+}
 
 @layer base {
 
@@ -42,71 +60,463 @@
 }
 
 .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', 'Material Symbols Outlined Fallback', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Shared palette tokens keep every portfolio surface and both studio top bars in sync. */
-body[data-portfolio-theme="obsidian-dark"] { --pt-page:#0f131c; --pt-topbar:#0f131c; --pt-lowest:#0a0e16; --pt-low:#181c24; --pt-surface:#1c2028; --pt-high:#262a33; --pt-highest:#31353e; --pt-ink:#dfe2ee; --pt-muted:#cbc3d7; --pt-primary:#d0bcff; --pt-on-primary:#3c0091; --pt-secondary:#4cd7f6; --pt-on-secondary:#003640; --pt-tertiary:#4edea3; --pt-on-tertiary:#003824; --pt-border:#494454; }
-body[data-portfolio-theme="light"] { --pt-page:#f7f8fc; --pt-topbar:#fff; --pt-lowest:#fff; --pt-low:#eef0f6; --pt-surface:#eef0f6; --pt-high:#e5e8f0; --pt-highest:#d9deea; --pt-ink:#20212a; --pt-muted:#505563; --pt-primary:#7048d8; --pt-on-primary:#fff; --pt-secondary:#6038bd; --pt-on-secondary:#fff; --pt-tertiary:#24794b; --pt-on-tertiary:#fff; --pt-border:#c8cbd5; }
-body[data-portfolio-theme="midnight"] { --pt-page:#080d19; --pt-topbar:#0b1120; --pt-lowest:#050914; --pt-low:#0c1424; --pt-surface:#10192b; --pt-high:#121d31; --pt-highest:#1c2b44; --pt-ink:#e1e7ff; --pt-muted:#b5c1df; --pt-primary:#91aaff; --pt-on-primary:#101e4a; --pt-secondary:#72d4ff; --pt-on-secondary:#102441; --pt-tertiary:#63dfbb; --pt-on-tertiary:#09392e; --pt-border:#354462; }
-body[data-portfolio-theme="emerald"] { --pt-page:#0b1512; --pt-topbar:#0d1914; --pt-lowest:#07100d; --pt-low:#101c17; --pt-surface:#142019; --pt-high:#17251f; --pt-highest:#22352c; --pt-ink:#e1f4ea; --pt-muted:#bbd4c6; --pt-primary:#65e6ad; --pt-on-primary:#063b28; --pt-secondary:#63d6c2; --pt-on-secondary:#063b35; --pt-tertiary:#f1cb70; --pt-on-tertiary:#3b2b08; --pt-border:#395348; }
-body[data-portfolio-theme="rose"] { --pt-page:#191117; --pt-topbar:#20141d; --pt-lowest:#110b10; --pt-low:#21151d; --pt-surface:#261923; --pt-high:#2b1b26; --pt-highest:#3b2634; --pt-ink:#f8e8ef; --pt-muted:#dcc3d0; --pt-primary:#ff9fc8; --pt-on-primary:#40152b; --pt-secondary:#e6a8e7; --pt-on-secondary:#3e1742; --pt-tertiary:#ffc080; --pt-on-tertiary:#42230a; --pt-border:#604453; }
-body[data-portfolio-theme="ocean"] { --pt-page:#0b1419; --pt-topbar:#0d1b21; --pt-lowest:#071014; --pt-low:#101d22; --pt-surface:#122229; --pt-high:#14262d; --pt-highest:#203740; --pt-ink:#e3f2f4; --pt-muted:#bad0d5; --pt-primary:#5ee6e0; --pt-on-primary:#063532; --pt-secondary:#77c5ff; --pt-on-secondary:#102b48; --pt-tertiary:#a6de77; --pt-on-tertiary:#263b12; --pt-border:#35545d; }
-body[data-portfolio-theme="graphite"] { --pt-page:#101112; --pt-topbar:#17191a; --pt-lowest:#090a0b; --pt-low:#191b1d; --pt-surface:#202224; --pt-high:#252729; --pt-highest:#333638; --pt-ink:#f0f0f0; --pt-muted:#c2c4c6; --pt-primary:#f0f0f0; --pt-on-primary:#111; --pt-secondary:#c2c4c6; --pt-on-secondary:#111; --pt-tertiary:#f6c56c; --pt-on-tertiary:#34280f; --pt-border:#4b4e50; }
-body[data-portfolio-theme="sunset"] { --pt-page:#1b1212; --pt-topbar:#251715; --pt-lowest:#120c0c; --pt-low:#241816; --pt-surface:#2a1c19; --pt-high:#30201d; --pt-highest:#432c27; --pt-ink:#fff0e9; --pt-muted:#e2c7ba; --pt-primary:#ff9b75; --pt-on-primary:#421b0f; --pt-secondary:#ffd17b; --pt-on-secondary:#422b09; --pt-tertiary:#98d7b7; --pt-on-tertiary:#153c2c; --pt-border:#62443a; }
-body[data-portfolio-theme="lavender"] { --pt-page:#15121f; --pt-topbar:#1c172a; --pt-lowest:#0e0b17; --pt-low:#1e192b; --pt-surface:#241e32; --pt-high:#282238; --pt-highest:#39304f; --pt-ink:#f0eaff; --pt-muted:#cec2e8; --pt-primary:#c5a7ff; --pt-on-primary:#281440; --pt-secondary:#e3a6fa; --pt-on-secondary:#3e1649; --pt-tertiary:#95dfc5; --pt-on-tertiary:#103a2b; --pt-border:#51446c; }
-body[data-portfolio-theme="paper"] { --pt-page:#f7f3eb; --pt-topbar:#fffdf8; --pt-lowest:#fffdf8; --pt-low:#f0eade; --pt-surface:#eee7db; --pt-high:#e9e2d6; --pt-highest:#dcd2c3; --pt-ink:#29251f; --pt-muted:#62594f; --pt-primary:#a14d2b; --pt-on-primary:#fffaf3; --pt-secondary:#315e70; --pt-on-secondary:#fffaf3; --pt-tertiary:#427a54; --pt-on-tertiary:#fff; --pt-border:#c9bdab; }
-body[data-portfolio-theme="ecosync"] { --pt-page:#f8fafc; --pt-topbar:#ffffff; --pt-lowest:#ffffff; --pt-low:#f1f5f9; --pt-surface:#ffffff; --pt-high:#e2e8f0; --pt-highest:#cbd5e1; --pt-ink:#0f172a; --pt-muted:#64748b; --pt-primary:#005a36; --pt-on-primary:#ffffff; --pt-secondary:#0066ff; --pt-on-secondary:#ffffff; --pt-tertiary:#00df81; --pt-on-tertiary:#032b1a; --pt-border:#e2e8f0; }
-body[data-portfolio-theme="ecosync-dark"] { --pt-page:#0b111e; --pt-topbar:#0b111e; --pt-lowest:#070c15; --pt-low:#0e1726; --pt-surface:#111c2d; --pt-high:#18283f; --pt-highest:#213654; --pt-ink:#f1f5f9; --pt-muted:#94a3b8; --pt-primary:#00df81; --pt-on-primary:#032b1a; --pt-secondary:#0066ff; --pt-on-secondary:#ffffff; --pt-tertiary:#38bdf8; --pt-on-tertiary:#082f49; --pt-border:#1e293b; }
+:root[data-portfolio-theme="obsidian-dark"],
+body[data-portfolio-theme="obsidian-dark"] {
+  --pt-page: #0f131c;
+  --pt-topbar: #0f131c;
+  --pt-lowest: #0a0e16;
+  --pt-low: #181c24;
+  --pt-surface: #1c2028;
+  --pt-high: #262a33;
+  --pt-highest: #31353e;
+  --pt-ink: #dfe2ee;
+  --pt-muted: #cbc3d7;
+  --pt-primary: #d0bcff;
+  --pt-on-primary: #3c0091;
+  --pt-secondary: #4cd7f6;
+  --pt-on-secondary: #003640;
+  --pt-tertiary: #4edea3;
+  --pt-on-tertiary: #003824;
+  --pt-border: #494454;
+}
+
+:root[data-portfolio-theme="light"],
+body[data-portfolio-theme="light"] {
+  --pt-page: #f7f8fc;
+  --pt-topbar: #fff;
+  --pt-lowest: #fff;
+  --pt-low: #eef0f6;
+  --pt-surface: #eef0f6;
+  --pt-high: #e5e8f0;
+  --pt-highest: #d9deea;
+  --pt-ink: #20212a;
+  --pt-muted: #505563;
+  --pt-primary: #7048d8;
+  --pt-on-primary: #fff;
+  --pt-secondary: #6038bd;
+  --pt-on-secondary: #fff;
+  --pt-tertiary: #24794b;
+  --pt-on-tertiary: #fff;
+  --pt-border: #c8cbd5;
+}
+
+:root[data-portfolio-theme="midnight"],
+body[data-portfolio-theme="midnight"] {
+  --pt-page: #080d19;
+  --pt-topbar: #0b1120;
+  --pt-lowest: #050914;
+  --pt-low: #0c1424;
+  --pt-surface: #10192b;
+  --pt-high: #121d31;
+  --pt-highest: #1c2b44;
+  --pt-ink: #e1e7ff;
+  --pt-muted: #b5c1df;
+  --pt-primary: #91aaff;
+  --pt-on-primary: #101e4a;
+  --pt-secondary: #72d4ff;
+  --pt-on-secondary: #102441;
+  --pt-tertiary: #63dfbb;
+  --pt-on-tertiary: #09392e;
+  --pt-border: #354462;
+}
+
+:root[data-portfolio-theme="emerald"],
+body[data-portfolio-theme="emerald"] {
+  --pt-page: #0b1512;
+  --pt-topbar: #0d1914;
+  --pt-lowest: #07100d;
+  --pt-low: #101c17;
+  --pt-surface: #142019;
+  --pt-high: #17251f;
+  --pt-highest: #22352c;
+  --pt-ink: #e1f4ea;
+  --pt-muted: #bbd4c6;
+  --pt-primary: #65e6ad;
+  --pt-on-primary: #063b28;
+  --pt-secondary: #63d6c2;
+  --pt-on-secondary: #063b35;
+  --pt-tertiary: #f1cb70;
+  --pt-on-tertiary: #3b2b08;
+  --pt-border: #395348;
+}
+
+:root[data-portfolio-theme="rose"],
+body[data-portfolio-theme="rose"] {
+  --pt-page: #191117;
+  --pt-topbar: #20141d;
+  --pt-lowest: #110b10;
+  --pt-low: #21151d;
+  --pt-surface: #261923;
+  --pt-high: #2b1b26;
+  --pt-highest: #3b2634;
+  --pt-ink: #f8e8ef;
+  --pt-muted: #dcc3d0;
+  --pt-primary: #ff9fc8;
+  --pt-on-primary: #40152b;
+  --pt-secondary: #e6a8e7;
+  --pt-on-secondary: #3e1742;
+  --pt-tertiary: #ffc080;
+  --pt-on-tertiary: #42230a;
+  --pt-border: #604453;
+}
+
+:root[data-portfolio-theme="ocean"],
+body[data-portfolio-theme="ocean"] {
+  --pt-page: #0b1419;
+  --pt-topbar: #0d1b21;
+  --pt-lowest: #071014;
+  --pt-low: #101d22;
+  --pt-surface: #122229;
+  --pt-high: #14262d;
+  --pt-highest: #203740;
+  --pt-ink: #e3f2f4;
+  --pt-muted: #bad0d5;
+  --pt-primary: #5ee6e0;
+  --pt-on-primary: #063532;
+  --pt-secondary: #77c5ff;
+  --pt-on-secondary: #102b48;
+  --pt-tertiary: #a6de77;
+  --pt-on-tertiary: #263b12;
+  --pt-border: #35545d;
+}
+
+:root[data-portfolio-theme="graphite"],
+body[data-portfolio-theme="graphite"] {
+  --pt-page: #101112;
+  --pt-topbar: #17191a;
+  --pt-lowest: #090a0b;
+  --pt-low: #191b1d;
+  --pt-surface: #202224;
+  --pt-high: #252729;
+  --pt-highest: #333638;
+  --pt-ink: #f0f0f0;
+  --pt-muted: #c2c4c6;
+  --pt-primary: #f0f0f0;
+  --pt-on-primary: #111;
+  --pt-secondary: #c2c4c6;
+  --pt-on-secondary: #111;
+  --pt-tertiary: #f6c56c;
+  --pt-on-tertiary: #34280f;
+  --pt-border: #4b4e50;
+}
+
+:root[data-portfolio-theme="sunset"],
+body[data-portfolio-theme="sunset"] {
+  --pt-page: #1b1212;
+  --pt-topbar: #251715;
+  --pt-lowest: #120c0c;
+  --pt-low: #241816;
+  --pt-surface: #2a1c19;
+  --pt-high: #30201d;
+  --pt-highest: #432c27;
+  --pt-ink: #fff0e9;
+  --pt-muted: #e2c7ba;
+  --pt-primary: #ff9b75;
+  --pt-on-primary: #421b0f;
+  --pt-secondary: #ffd17b;
+  --pt-on-secondary: #422b09;
+  --pt-tertiary: #98d7b7;
+  --pt-on-tertiary: #153c2c;
+  --pt-border: #62443a;
+}
+
+:root[data-portfolio-theme="lavender"],
+body[data-portfolio-theme="lavender"] {
+  --pt-page: #15121f;
+  --pt-topbar: #1c172a;
+  --pt-lowest: #0e0b17;
+  --pt-low: #1e192b;
+  --pt-surface: #241e32;
+  --pt-high: #282238;
+  --pt-highest: #39304f;
+  --pt-ink: #f0eaff;
+  --pt-muted: #cec2e8;
+  --pt-primary: #c5a7ff;
+  --pt-on-primary: #281440;
+  --pt-secondary: #e3a6fa;
+  --pt-on-secondary: #3e1649;
+  --pt-tertiary: #95dfc5;
+  --pt-on-tertiary: #103a2b;
+  --pt-border: #51446c;
+}
+
+:root[data-portfolio-theme="paper"],
+body[data-portfolio-theme="paper"] {
+  --pt-page: #f7f3eb;
+  --pt-topbar: #fffdf8;
+  --pt-lowest: #fffdf8;
+  --pt-low: #f0eade;
+  --pt-surface: #eee7db;
+  --pt-high: #e9e2d6;
+  --pt-highest: #dcd2c3;
+  --pt-ink: #29251f;
+  --pt-muted: #62594f;
+  --pt-primary: #a14d2b;
+  --pt-on-primary: #fffaf3;
+  --pt-secondary: #315e70;
+  --pt-on-secondary: #fffaf3;
+  --pt-tertiary: #427a54;
+  --pt-on-tertiary: #fff;
+  --pt-border: #c9bdab;
+}
+
+:root[data-portfolio-theme="ecosync"],
+body[data-portfolio-theme="ecosync"] {
+  --pt-page: #f8fafc;
+  --pt-topbar: #ffffff;
+  --pt-lowest: #ffffff;
+  --pt-low: #f1f5f9;
+  --pt-surface: #ffffff;
+  --pt-high: #e2e8f0;
+  --pt-highest: #cbd5e1;
+  --pt-ink: #0f172a;
+  --pt-muted: #64748b;
+  --pt-primary: #005a36;
+  --pt-on-primary: #ffffff;
+  --pt-secondary: #0066ff;
+  --pt-on-secondary: #ffffff;
+  --pt-tertiary: #00df81;
+  --pt-on-tertiary: #032b1a;
+  --pt-border: #e2e8f0;
+}
+
+:root[data-portfolio-theme="ecosync-dark"],
+body[data-portfolio-theme="ecosync-dark"] {
+  --pt-page: #0b111e;
+  --pt-topbar: #0b111e;
+  --pt-lowest: #070c15;
+  --pt-low: #0e1726;
+  --pt-surface: #111c2d;
+  --pt-high: #18283f;
+  --pt-highest: #213654;
+  --pt-ink: #f1f5f9;
+  --pt-muted: #94a3b8;
+  --pt-primary: #00df81;
+  --pt-on-primary: #032b1a;
+  --pt-secondary: #0066ff;
+  --pt-on-secondary: #ffffff;
+  --pt-tertiary: #38bdf8;
+  --pt-on-tertiary: #082f49;
+  --pt-border: #1e293b;
+}
 
 body[data-portfolio-theme] app-public-portfolio-desktop,
-body[data-portfolio-theme] app-public-portfolio-mobile { background-color: var(--pt-page) !important; color: var(--pt-ink) !important; }
+body[data-portfolio-theme] app-public-portfolio-mobile {
+  background-color: var(--pt-page) !important;
+  color: var(--pt-ink) !important;
+}
+
 body[data-portfolio-theme] app-public-portfolio-desktop main,
-body[data-portfolio-theme] app-public-portfolio-mobile main { background-color: var(--pt-page) !important; color: var(--pt-ink) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-background"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-background"] { background-color: var(--pt-page) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/80"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/80"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/90"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/90"] { background-color: var(--pt-topbar) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface"] { background-color: var(--pt-page) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container"] { background-color: var(--pt-surface) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest"] { background-color: var(--pt-lowest) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-low"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-low"] { background-color: var(--pt-low) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high"] { background-color: var(--pt-high) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-highest"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-highest"] { background-color: var(--pt-highest) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary"] { background-color: var(--pt-primary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary-container"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary-container"] { background-color: color-mix(in srgb, var(--pt-primary) 20%, var(--pt-page)) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary-container/10"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary-container/10"] { background-color: color-mix(in srgb, var(--pt-primary) 10%, transparent) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary/30"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary/30"] { background-color: color-mix(in srgb, var(--pt-primary) 30%, transparent) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-secondary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-secondary"] { background-color: var(--pt-secondary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-secondary/10"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-secondary/10"] { background-color: color-mix(in srgb, var(--pt-secondary) 10%, transparent) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-tertiary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-tertiary"] { background-color: var(--pt-tertiary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-tertiary-container/20"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-tertiary-container/20"] { background-color: color-mix(in srgb, var(--pt-tertiary) 20%, transparent) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface/80"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface/80"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface/85"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface/85"] { background-color: var(--pt-page) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/60"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/60"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/80"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/80"] { background-color: var(--pt-lowest) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high/60"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high/60"] { background-color: var(--pt-high) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-primary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-primary"] { color: var(--pt-on-primary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-primary-container"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-primary-container"] { color: var(--pt-ink) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-secondary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-secondary"] { color: var(--pt-on-secondary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-tertiary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-tertiary"] { color: var(--pt-on-tertiary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-surface"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-surface"] { color: var(--pt-ink) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-surface-variant"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-surface-variant"] { color: var(--pt-muted) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-outline"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-outline"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-outline-variant"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-outline-variant"] { color: var(--pt-muted) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-primary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-primary"] { color: var(--pt-primary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-secondary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-secondary"] { color: var(--pt-secondary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-secondary-fixed-dim"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-secondary-fixed-dim"] { color: var(--pt-secondary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-tertiary"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-tertiary"] { color: var(--pt-tertiary) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant"] { border-color: var(--pt-border) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/20"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/20"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/30"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/30"],
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/40"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/40"] { border-color: color-mix(in srgb, var(--pt-border) 50%, transparent) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-primary/40"], body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-primary/40"] { border-color: color-mix(in srgb, var(--pt-primary) 40%, transparent) !important; }
-body[data-portfolio-theme] app-public-portfolio-desktop [class*="bg-gradient-to-"], body[data-portfolio-theme] app-public-portfolio-mobile [class*="bg-gradient-to-"] { background-image: linear-gradient(to bottom, var(--pt-page), var(--pt-low), var(--pt-page)) !important; }
+body[data-portfolio-theme] app-public-portfolio-mobile main {
+  background-color: var(--pt-page) !important;
+  color: var(--pt-ink) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-background"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-background"] {
+  background-color: var(--pt-page) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/80"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/80"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/90"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/90"] {
+  background-color: var(--pt-topbar) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface"] {
+  background-color: var(--pt-page) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container"] {
+  background-color: var(--pt-surface) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest"] {
+  background-color: var(--pt-lowest) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-low"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-low"] {
+  background-color: var(--pt-low) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high"] {
+  background-color: var(--pt-high) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-highest"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-highest"] {
+  background-color: var(--pt-highest) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary"] {
+  background-color: var(--pt-primary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary-container"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary-container"] {
+  background-color: color-mix(in srgb, var(--pt-primary) 20%, var(--pt-page)) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary-container/10"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary-container/10"] {
+  background-color: color-mix(in srgb, var(--pt-primary) 10%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-primary/30"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-primary/30"] {
+  background-color: color-mix(in srgb, var(--pt-primary) 30%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-secondary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-secondary"] {
+  background-color: var(--pt-secondary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-secondary/10"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-secondary/10"] {
+  background-color: color-mix(in srgb, var(--pt-secondary) 10%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-tertiary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-tertiary"] {
+  background-color: var(--pt-tertiary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-tertiary-container/20"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-tertiary-container/20"] {
+  background-color: color-mix(in srgb, var(--pt-tertiary) 20%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface/80"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface/80"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface/85"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface/85"] {
+  background-color: var(--pt-page) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/60"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/60"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-lowest/80"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-lowest/80"] {
+  background-color: var(--pt-lowest) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-high/60"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-high/60"] {
+  background-color: var(--pt-high) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-primary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-primary"] {
+  color: var(--pt-on-primary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-primary-container"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-primary-container"] {
+  color: var(--pt-ink) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-secondary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-secondary"] {
+  color: var(--pt-on-secondary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-tertiary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-tertiary"] {
+  color: var(--pt-on-tertiary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-surface"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-surface"] {
+  color: var(--pt-ink) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-on-surface-variant"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-on-surface-variant"] {
+  color: var(--pt-muted) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-outline"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-outline"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-outline-variant"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-outline-variant"] {
+  color: var(--pt-muted) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-primary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-primary"] {
+  color: var(--pt-primary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-secondary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-secondary"] {
+  color: var(--pt-secondary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-secondary-fixed-dim"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-secondary-fixed-dim"] {
+  color: var(--pt-secondary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="text-tertiary"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="text-tertiary"] {
+  color: var(--pt-tertiary) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant"] {
+  border-color: var(--pt-border) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/20"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/20"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/30"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/30"],
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-outline-variant/40"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-outline-variant/40"] {
+  border-color: color-mix(in srgb, var(--pt-border) 50%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="border-primary/40"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="border-primary/40"] {
+  border-color: color-mix(in srgb, var(--pt-primary) 40%, transparent) !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop [class*="bg-gradient-to-"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class*="bg-gradient-to-"] {
+  background-image: linear-gradient(to bottom, var(--pt-page), var(--pt-low), var(--pt-page)) !important;
+}
+
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/80"],
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-dim/90"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/80"],
-body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/90"] { background-color: var(--pt-topbar) !important; }
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/90"] {
+  background-color: var(--pt-topbar) !important;
+}
 
 /* ==========================================================================
    Portfolio Navigation Items - Instant Hover & Active System
@@ -174,57 +584,75 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-dim/9
 }
 
 /* Specific theme refinements for calm, eye-friendly contrast */
+:root[data-portfolio-theme="light"],
 body[data-portfolio-theme="light"] .project-tech-badge {
   background-color: color-mix(in srgb, var(--pt-secondary) 5%, #ffffff);
   border-color: color-mix(in srgb, var(--pt-secondary) 18%, transparent);
   color: color-mix(in srgb, var(--pt-secondary) 85%, #20212a);
   font-weight: 500;
 }
+
+:root[data-portfolio-theme="paper"],
 body[data-portfolio-theme="paper"] .project-tech-badge {
   background-color: color-mix(in srgb, var(--pt-secondary) 6%, #fffdf8);
   border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
   color: color-mix(in srgb, var(--pt-secondary) 85%, #29251f);
   font-weight: 500;
 }
+
+:root[data-portfolio-theme="emerald"],
 body[data-portfolio-theme="emerald"] .project-tech-badge {
   background-color: color-mix(in srgb, var(--pt-secondary) 7%, #142019);
   border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
   color: color-mix(in srgb, var(--pt-secondary) 80%, #bbd4c6);
 }
+
+:root[data-portfolio-theme="rose"],
 body[data-portfolio-theme="rose"] .project-tech-badge {
   background-color: color-mix(in srgb, var(--pt-secondary) 7%, #261923);
   border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
   color: color-mix(in srgb, var(--pt-secondary) 80%, #dcc3d0);
 }
+
+:root[data-portfolio-theme="ocean"],
 body[data-portfolio-theme="ocean"] .project-tech-badge {
   background-color: color-mix(in srgb, var(--pt-secondary) 7%, #122229);
   border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
   color: color-mix(in srgb, var(--pt-secondary) 80%, #bad0d5);
 }
+
+:root[data-portfolio-theme="sunset"],
 body[data-portfolio-theme="sunset"] .project-tech-badge {
   background-color: color-mix(in srgb, var(--pt-secondary) 7%, #2a1c19);
   border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
   color: color-mix(in srgb, var(--pt-secondary) 80%, #e2c7ba);
 }
+
+:root[data-portfolio-theme="lavender"],
 body[data-portfolio-theme="lavender"] .project-tech-badge {
   background-color: color-mix(in srgb, var(--pt-secondary) 7%, #241e32);
   border-color: color-mix(in srgb, var(--pt-secondary) 20%, transparent);
   color: color-mix(in srgb, var(--pt-secondary) 80%, #cec2e8);
 }
+
+:root[data-portfolio-theme="graphite"],
 body[data-portfolio-theme="graphite"] .project-tech-badge {
   background-color: color-mix(in srgb, var(--pt-secondary) 6%, #202224);
   border-color: color-mix(in srgb, var(--pt-secondary) 18%, transparent);
   color: var(--pt-muted);
 }
+
+:root[data-portfolio-theme="ecosync"],
 body[data-portfolio-theme="ecosync"] .project-tech-badge {
   background-color: color-mix(in srgb, #0066ff 6%, #ffffff);
   border-color: color-mix(in srgb, #0066ff 20%, transparent);
   color: #0066ff;
   font-weight: 500;
 }
+
+:root[data-portfolio-theme="ecosync-dark"],
 body[data-portfolio-theme="ecosync-dark"] .project-tech-badge {
   background-color: color-mix(in srgb, #00df81 8%, #111c2d);
   border-color: color-mix(in srgb, #00df81 22%, transparent);
   color: #00df81;
 }
-

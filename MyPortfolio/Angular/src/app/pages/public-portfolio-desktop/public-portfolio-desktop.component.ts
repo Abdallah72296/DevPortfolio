@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { MockDataService } from '../../core/services/mock-data.service';
 import { AdminApiService } from '../../core/services/admin-api.service';
 import { PortfolioDataService } from '../../core/services/portfolio-data.service';
 import { PortfolioPresentationService } from '../../core/services/portfolio-presentation.service';
@@ -26,10 +25,6 @@ export class PublicPortfolioDesktopComponent implements OnInit {
   private readonly portfolioData = inject(PortfolioDataService);
   readonly route = inject(ActivatedRoute);
   private readonly presentation = inject(PortfolioPresentationService);
-  private mockData = inject(MockDataService);
-  profile = this.mockData.profile;
-  projects = this.mockData.projects;
-  experiences = this.mockData.experience;
   portfolio: any = null;
   portfolioLoading = true;
   portfolioError = '';
@@ -98,7 +93,7 @@ export class PublicPortfolioDesktopComponent implements OnInit {
     label: string;
     value: string;
     href?: string | null;
-    iconType: 'material' | 'svg';
+    iconType: 'bootstrap' | 'svg';
     icon: string;
     colorClass: string;
     isExternal?: boolean;
@@ -108,7 +103,7 @@ export class PublicPortfolioDesktopComponent implements OnInit {
       label: string;
       value: string;
       href?: string | null;
-      iconType: 'material' | 'svg';
+      iconType: 'bootstrap' | 'svg';
       icon: string;
       colorClass: string;
       isExternal?: boolean;
@@ -123,8 +118,8 @@ export class PublicPortfolioDesktopComponent implements OnInit {
         label: 'DIRECT INBOX',
         value: prof.email,
         href: `mailto:${prof.email}`,
-        iconType: 'material',
-        icon: 'mark_email_read',
+        iconType: 'bootstrap',
+        icon: 'bi-envelope-check',
         colorClass: 'text-secondary'
       });
     }
@@ -151,8 +146,8 @@ export class PublicPortfolioDesktopComponent implements OnInit {
         label: 'DIRECT MOBILE',
         value: prof.phone,
         href: `tel:${prof.phone}`,
-        iconType: 'material',
-        icon: 'call',
+        iconType: 'bootstrap',
+        icon: 'bi-telephone',
         colorClass: 'text-secondary'
       });
     }
@@ -164,8 +159,8 @@ export class PublicPortfolioDesktopComponent implements OnInit {
         label: 'LOCATION / BASE',
         value: prof.location,
         href: null,
-        iconType: 'material',
-        icon: 'location_on',
+        iconType: 'bootstrap',
+        icon: 'bi-geo-alt',
         colorClass: 'text-tertiary'
       });
     }
@@ -182,8 +177,8 @@ export class PublicPortfolioDesktopComponent implements OnInit {
           label: `${(social.platform || 'NETWORK').toUpperCase()} PROFILE`,
           value: cleanVal || social.platform,
           href: social.url,
-          iconType: this.getSocialSvg(social) ? 'svg' : 'material',
-          icon: this.getSocialSvg(social) ? social.platform : this.getSocialIcon(social),
+          iconType: this.getSocialSvg(social) ? 'svg' : 'bootstrap',
+          icon: this.getSocialSvg(social) ? social.platform : 'bi-link-45deg',
           colorClass: 'text-secondary',
           isExternal: true
         });
@@ -197,8 +192,8 @@ export class PublicPortfolioDesktopComponent implements OnInit {
         label: 'RESPONSE SLA',
         value: '< 24 hours (Guaranteed)',
         href: null,
-        iconType: 'material',
-        icon: 'schedule',
+        iconType: 'bootstrap',
+        icon: 'bi-clock',
         colorClass: 'text-tertiary'
       });
     }
@@ -210,8 +205,8 @@ export class PublicPortfolioDesktopComponent implements OnInit {
         label: 'LOCATION / BASE',
         value: 'Worldwide • Remote Available',
         href: null,
-        iconType: 'material',
-        icon: 'location_on',
+        iconType: 'bootstrap',
+        icon: 'bi-geo-alt',
         colorClass: 'text-tertiary'
       });
     }
@@ -316,19 +311,38 @@ export class PublicPortfolioDesktopComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.presentation.loadPublicSettings();
     this.route.paramMap.subscribe(params => {
-      const username = params.get('username') ?? undefined;
-      this.adminApi.trackPortfolioEvent('portfolio_view', username).subscribe({ error: () => undefined });
+      const username = params.get('username') 
+        || this.route.snapshot.queryParamMap.get('u')
+        || this.authService.getUsername()
+        || undefined;
+      const isDashboardPreview = this.route.snapshot.queryParamMap.get('preview') === 'dashboard'
+        && this.authService.isAuthenticated();
+
+      this.presentation.preparePublicTheme(username);
+      this.portfolio = null;
       this.portfolioLoading = true;
       this.portfolioError = '';
-      this.portfolioData.getPublicPortfolio(username).subscribe({
-      next: result => {
-        this.portfolio = result?.data ?? null;
-        this.portfolioLoading = false;
-        if (!this.portfolio) this.portfolioError = 'This portfolio could not be found.';
-      },
-      error: () => { this.portfolioLoading = false; this.portfolioError = 'Portfolio content is temporarily unavailable.'; }
+      const portfolioRequest = isDashboardPreview
+        ? this.portfolioData.getMobilePortfolioPreview()
+        : this.portfolioData.getPublicPortfolio(username);
+      portfolioRequest.subscribe({
+        next: result => {
+          this.portfolio = result?.succeeded ? result.data ?? null : null;
+          this.portfolioLoading = false;
+          if (this.portfolio) {
+            this.presentation.applyPublicSettings(this.portfolio, username);
+            if (username && !isDashboardPreview) this.trackPublicViewOnce(username);
+          } else {
+            this.portfolioError = result?.message || 'This portfolio does not exist or is not public.';
+          }
+        },
+        error: error => {
+          this.portfolioLoading = false;
+          this.portfolioError = error?.status === 404
+            ? 'This portfolio does not exist or is not public.'
+            : 'Portfolio content is temporarily unavailable. Please try again.';
+        }
       });
     });
     this.updateActiveSectionOnScroll();
@@ -367,6 +381,27 @@ export class PublicPortfolioDesktopComponent implements OnInit {
     navigator.clipboard.writeText(url).then(() => {
       this.linkCopied = true;
       setTimeout(() => this.linkCopied = false, 2000);
+    });
+  }
+
+  private trackPublicViewOnce(username: string): void {
+    const normalizedUsername = username.trim().toLowerCase();
+    if (!normalizedUsername || (this.authService.isAuthenticated() && this.authService.getUsername() === normalizedUsername)) return;
+
+    // Count unique browser visitors per portfolio each month, rather than every refresh.
+    const month = new Date().toISOString().slice(0, 7);
+    const key = `myportfolio:portfolio-view:${normalizedUsername}:${month}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+    } catch {
+      // Continue tracking when storage is unavailable; the backend event remains best-effort.
+    }
+
+    this.adminApi.trackPortfolioEvent('portfolio_view', normalizedUsername).subscribe({
+      error: () => {
+        try { localStorage.removeItem(key); } catch { /* Storage may be unavailable. */ }
+      }
     });
   }
 
@@ -612,6 +647,20 @@ export class PublicPortfolioDesktopComponent implements OnInit {
     return getSkillIconDisplay(skill);
   }
 
+  getSkillBootstrapIcon(skill: any): string {
+    const display = this.getSkillDisplay(skill);
+    if (display.type !== 'material') return 'bi-code-slash';
+    const icons: Record<string, string> = {
+      dns: 'bi-hdd-network', hub: 'bi-diagram-3', device_hub: 'bi-diagram-3',
+      sync_alt: 'bi-arrow-repeat', sensors: 'bi-broadcast', cable: 'bi-ethernet',
+      alt_route: 'bi-signpost-split', visibility: 'bi-eye', monitor_heart: 'bi-heart-pulse',
+      layers: 'bi-layers', verified: 'bi-patch-check', inventory_2: 'bi-box-seam',
+      task_alt: 'bi-check2-circle', architecture: 'bi-diagram-3', filter_alt: 'bi-funnel',
+      calendar_month: 'bi-calendar3', category: 'bi-collection', code: 'bi-code-slash'
+    };
+    return icons[display.value] || 'bi-code-slash';
+  }
+
   getBullets(description: string | null | undefined): string[] {
     if (!description) return [];
     const lines = description.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
@@ -662,12 +711,13 @@ export class PublicPortfolioDesktopComponent implements OnInit {
 
   getCategoryIcon(categoryName: string): string {
     const name = (categoryName || '').toLowerCase();
-    if (name.includes('lang') || name.includes('backend') || name.includes('code')) return 'code';
-    if (name.includes('cloud') || name.includes('arch') || name.includes('distrib')) return 'hub';
-    if (name.includes('front') || name.includes('ui') || name.includes('web')) return 'layers';
-    if (name.includes('devops') || name.includes('infra') || name.includes('sys') || name.includes('observ')) return 'terminal';
-    if (name.includes('data') || name.includes('db') || name.includes('sql')) return 'database';
-    return 'category';
+    if (name.includes('security') || name.includes('tool')) return 'bi-shield-lock';
+    if (name.includes('database') || name.includes('messag') || name.includes('data') || name.includes('db') || name.includes('sql')) return 'bi-database';
+    if (name.includes('architecture') || name.includes('cloud') || name.includes('distrib')) return 'bi-diagram-3';
+    if (name.includes('devops') || name.includes('infra') || name.includes('system') || name.includes('observ')) return 'bi-terminal';
+    if (name.includes('front') || name.includes('ui') || name.includes('web')) return 'bi-window';
+    if (name.includes('lang') || name.includes('backend') || name.includes('code')) return 'bi-code-slash';
+    return 'bi-collection';
   }
 
   avatarImageFailed = false;

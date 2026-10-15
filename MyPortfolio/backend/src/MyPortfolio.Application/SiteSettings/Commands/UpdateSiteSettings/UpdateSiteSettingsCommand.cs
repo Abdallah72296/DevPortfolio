@@ -48,6 +48,7 @@ public class UpdateSiteSettingsCommandHandler : IRequestHandler<UpdateSiteSettin
             request.SeoTitle ?? string.Empty,
             request.SeoDescription ?? string.Empty,
             request.SeoKeywords ?? string.Empty);
+        settings.MarkPublished();
 
         _repository.Update(settings);
         await _repository.SaveChangesAsync(cancellationToken);

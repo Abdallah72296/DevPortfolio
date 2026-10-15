@@ -151,7 +151,6 @@ export class PublicPortfolioMobileComponent implements OnInit {
   ngOnInit(): void {
     this.presentation.loadPublicSettings();
     this.route.paramMap.subscribe(params => {
-      this.adminApi.trackPortfolioEvent('portfolio_view').subscribe({ error: () => undefined });
       this.portfolioLoading = true;
       this.portfolioData.getMobilePortfolioPreview().subscribe({
       next: result => {

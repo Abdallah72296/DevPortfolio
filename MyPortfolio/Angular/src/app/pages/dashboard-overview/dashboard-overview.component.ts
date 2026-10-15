@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DashboardHeaderComponent } from '../../shared/components/dashboard-header/dashboard-header.component';
 import { DashboardSidebarComponent } from '../../shared/components/dashboard-sidebar/dashboard-sidebar.component';
 import { AdminApiService } from '../../core/services/admin-api.service';
@@ -18,7 +19,8 @@ import { ContactMessageDto, PortfolioAnalyticsSummary } from '../../core/models/
 export class DashboardOverviewComponent implements OnInit {
   private readonly adminApi = inject(AdminApiService);
   private readonly portfolioData = inject(PortfolioDataService);
-  private readonly auth = inject(AuthService);
+  private readonly sanitizer = inject(DomSanitizer);
+  readonly auth = inject(AuthService);
 
   viewportMode: 'desktop' | 'tablet' | 'mobile' = 'desktop';
   checkingHealth = false;
@@ -34,6 +36,7 @@ export class DashboardOverviewComponent implements OnInit {
   unreadContactMessageCount = 0;
   analyticsSummary: PortfolioAnalyticsSummary | null = null;
   isAuthenticated = false;
+  portfolioPreviewUrl: SafeResourceUrl | null = null;
 
   ngOnInit(): void {
     this.refreshHealth();
@@ -43,6 +46,12 @@ export class DashboardOverviewComponent implements OnInit {
     });
 
     this.isAuthenticated = this.auth.isAuthenticated();
+    const username = this.auth.getUsername();
+    if (this.isAuthenticated && username) {
+      this.portfolioPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        `/portfolio/${encodeURIComponent(username)}?preview=dashboard`
+      );
+    }
     if (this.isAuthenticated) {
       this.loadContactMessages();
       this.adminApi.getAnalyticsSummary().subscribe({

@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -28,13 +27,16 @@ public class GeminiCvParser : ICvParser
         7. NEVER invent or guess URLs (e.g. GitHub, LinkedIn, portfolio sites) unless they explicitly appear in the document.
         8. Do NOT turn generic technology mentions or keywords into fake projects.
         9. Do NOT create information just to fill empty or missing fields.
-        10. If a field or detail cannot be confidently extracted, leave it null or empty.
-        11. ALWAYS format all dates as strict ISO-8601 'yyyy-MM-dd' (e.g. '2024-12-01' for Dec 2024, '2020-10-01' for Oct 2020, '2020-01-01' if only year 2020 is given). If current job or study, set isCurrent=true and endDate=null.
-        12. Extract ALL educational backgrounds (degrees, universities, graduation projects) into the 'education' array.
-        13. Extract ALL work experiences, jobs, internships, freelance, or teaching roles into the 'experiences' array with descriptive responsibilities.
-        14. Map ONLY to the supported sections: PersonalInfo (Hero/About), Skills, Experiences, Projects, Education, Certifications, SocialLinks.
-        15. Output MUST strictly adhere to the provided JSON schema.
-        16. personalInfo.jobTitle MUST be a short, concise professional title (e.g. '.NET Backend Developer', 'Full Stack Developer', 'Software Engineer', max 3-5 words). NEVER put an executive summary, bio, or sentences into jobTitle. All summary and description text MUST go into personalInfo.about.
+        10. If a field or detail cannot be confidently extracted, leave it null or empty. Never substitute today's date or placeholder text.
+        11. Search the entire CV, especially the header, contact block, and footer, for contact details. Extract a complete email address and phone/mobile number when present, including international prefixes, spaces, parentheses, and hyphens; preserve the number as written. Treat labels such as Phone, Mobile, Telephone, Cell, WhatsApp, Contact, Address, Location, Based in, and City as clues to the corresponding field. Put a city/country or explicitly stated work location in location; do not mistake an employer or university address for the candidate's location, and never infer location from a phone number or country code. If a value is absent or ambiguous, return null.
+        12. Format known dates as strict ISO-8601 'yyyy-MM-dd'; use the first day of the stated month, or January 1 when only a year is known. If a date is absent, return null. If current job or study is explicit, set isCurrent=true and endDate=null.
+        13. Extract all education, including degree, institution, field of study, and relevant graduation project details in the description. Do not create a graduation project as a separate project unless the CV describes it as one.
+        14. Extract all work experiences, including jobs, internships, freelance, and teaching roles, with responsibilities only when stated.
+        15. Extract projects only when the CV identifies an actual project; technologies and URLs must be explicitly associated with that project.
+        16. Extract skills, certifications, and professional profile links (such as GitHub and LinkedIn) only when stated in the CV.
+        17. Map ONLY to the supported sections: PersonalInfo (name, title, summary, email, phone, location), Skills, Experiences, Projects, Education, Certifications, SocialLinks.
+        18. Output MUST strictly adhere to the provided JSON schema.
+        19. personalInfo.jobTitle MUST be a short, concise professional title (e.g. '.NET Backend Developer', 'Full Stack Developer', 'Software Engineer', max 3-5 words). NEVER put an executive summary, bio, or sentences into jobTitle. All summary and description text MUST go into personalInfo.about.
         """;
 
     private const string JsonSchema = """
@@ -46,9 +48,12 @@ public class GeminiCvParser : ICvParser
               "properties": {
                 "name": { "type": ["string", "null"] },
                 "jobTitle": { "type": ["string", "null"] },
-                "about": { "type": ["string", "null"] }
+                "about": { "type": ["string", "null"] },
+                "email": { "type": ["string", "null"] },
+                "phone": { "type": ["string", "null"] },
+                "location": { "type": ["string", "null"] }
               },
-              "required": ["name", "jobTitle", "about"]
+              "required": ["name", "jobTitle", "about", "email", "phone", "location"]
             },
             "skills": {
               "type": "array",
@@ -316,106 +321,8 @@ public class GeminiCvParser : ICvParser
 
     private static Result<CvPortfolioDraft> ParseMockCv(byte[] pdfBytes)
     {
-        // Simple binary/string scan for deterministic mock test evaluation
-        var text = Encoding.UTF8.GetString(pdfBytes);
-
-        // Check for empty/blank document test case:
-        // A PDF without fonts/text streams or with empty content length (e.g., Length1 0) is empty
-        bool isEmpty = (!text.Contains("/Font") && !text.Contains("/BaseFont") && !text.Contains("John Doe")) ||
-                       text.Contains("/Length1 0") ||
-                       pdfBytes.Length < 800;
-
-        if (isEmpty)
-        {
-            return Result<CvPortfolioDraft>.Failure("Could not extract readable text from the CV.");
-        }
-
-        // 1. Personal Info
-        var personalInfo = new CvPersonalInfoDraft(
-            "John Doe",
-            "Senior .NET Developer",
-            "Passionate software engineer with 6+ years of experience building scalable web APIs.");
-
-        // 2. Skills
-        var skills = new List<CvSkillCategoryDraft>
-        {
-            new("Backend & Cloud", new List<CvSkillDraft>
-            {
-                new("ASP.NET Core", null),
-                new("C#", null),
-                new("EF Core", null),
-                new("SQL Server", null),
-                new("Angular", null),
-                new("Docker", null)
-            })
-        };
-
-        // 3. Experiences
-        var experiences = new List<CvExperienceDraft>
-        {
-            new(
-                "Senior .NET Developer",
-                "Jedra Solutions",
-                "Built microservices using ASP.NET Core and SQL Server.",
-                "2023",
-                null,
-                true)
-        };
-
-        // 4. Projects
-        var projects = new List<CvProjectDraft>
-        {
-            new(
-                "School Management System",
-                "Web portal for schools built with ASP.NET Core and Angular.",
-                null,
-                "https://example.com/demo",
-                "https://github.com/example/project",
-                new List<string> { "ASP.NET Core", "SQL Server" },
-                false)
-        };
-
-        // 5. Education
-        var education = new List<CvEducationDraft>
-        {
-            new(
-                "Cairo University",
-                "Bachelor of Science",
-                "Computer Science",
-                null,
-                "2018",
-                "2022",
-                false)
-        };
-
-        // 6. Certifications
-        var certifications = new List<CvCertificationDraft>
-        {
-            new(
-                "Microsoft Certified: Azure Developer Associate",
-                "Microsoft",
-                "2024",
-                "CERT-12345",
-                "https://learn.microsoft.com/verify/12345",
-                null)
-        };
-
-        // 7. Social Links
-        var socialLinks = new List<CvSocialLinkDraft>
-        {
-            new("GitHub", "https://github.com/johndoe"),
-            new("LinkedIn", "https://linkedin.com/in/johndoe")
-        };
-
-        var draft = new CvPortfolioDraft(
-            personalInfo,
-            skills,
-            experiences,
-            projects,
-            education,
-            certifications,
-            socialLinks);
-
-        return Result<CvPortfolioDraft>.Success(draft);
+        _ = pdfBytes;
+        return Result<CvPortfolioDraft>.Failure(
+            "CV extraction is unavailable while AI:Provider is set to Mock or Test. Configure Gemini to parse uploaded CVs.");
     }
 }

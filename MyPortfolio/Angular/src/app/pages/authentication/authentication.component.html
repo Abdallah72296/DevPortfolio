@@ -127,7 +127,7 @@
 <!-- Right / Authentication Interactive Container (7 cols on lg) -->
 <div class="lg:col-span-7 bg-surface-container p-space-md sm:p-space-lg lg:p-space-xl flex flex-col justify-center">
 <!-- Mode Switcher Tabs -->
-<div class="w-full flex items-center justify-between mb-space-md">
+<div *ngIf="!showOtpVerification" class="w-full flex items-center justify-between mb-space-md">
 <div class="inline-flex p-1 rounded-lg bg-surface-container-lowest shadow-inner" id="authTabs" role="tablist">
 <button type="button" (click)="switchTab('login')" [attr.aria-selected]="activeTab === 'login'" [ngClass]="activeTab === 'login' ? 'bg-surface-container text-on-surface shadow-sm' : 'text-on-surface-variant hover:text-on-surface'" class="px-space-md py-1.5 rounded-md font-body-sm text-body-sm transition-all duration-200 font-medium flex items-center gap-1.5" id="tabBtnLogin" role="tab">
 <span class="material-symbols-outlined text-body-md text-primary">login</span>
@@ -144,11 +144,13 @@
 </div>
 </div>
 <!-- ================= TAB 1: SIGN IN (LOGIN FORM) ================= -->
-<div [class.hidden]="activeTab !== 'login'" class="flex flex-col gap-space-md transition-opacity duration-200" id="loginView">
+<div *ngIf="!showOtpVerification" [class.hidden]="activeTab !== 'login'" class="flex flex-col gap-space-md transition-opacity duration-200" id="loginView">
 <div>
 <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Welcome back, Architect</h2>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Authenticate to synchronize your deployments and telemetry.</p>
 </div>
+<div *ngIf="confirmationMessage" class="rounded-lg px-3 py-2 text-body-sm" [ngClass]="confirmationEmailSent ? 'bg-tertiary-container text-on-tertiary-container' : 'bg-error-container text-on-error-container'" role="status">{{ confirmationMessage }}</div>
+<div *ngIf="isConfirmingEmail" class="rounded-lg bg-surface-container-high px-3 py-2 text-body-sm text-on-surface-variant" role="status">Confirming your email address…</div>
 <!-- Error Feedback Alert Demo (Collapsible / Closable) -->
 <div *ngIf="authError" class="p-space-sm px-space-md rounded-lg bg-error-container text-on-error-container flex items-start gap-space-sm shadow-sm" id="loginAlertBox">
 <span class="material-symbols-outlined text-headline-sm shrink-0 mt-0.5 text-error">error</span>
@@ -195,11 +197,14 @@
 </label>
 <span class="text-outline">Password reset via support</span>
 </div>
+<button *ngIf="loginEmail.trim()" type="button" class="self-start text-body-sm text-secondary hover:underline disabled:opacity-60" [disabled]="isResendingConfirmation" (click)="resendConfirmationEmail()">
+  {{ isResendingConfirmation ? 'Sending confirmation…' : 'Resend email confirmation' }}
+</button>
 <!-- Primary Submit Button -->
 <button [disabled]="isLoggingIn" class="w-full mt-1 bg-primary text-on-primary font-headline-sm text-body-md font-medium py-2.5 px-space-md rounded-lg shadow-md hover:bg-primary-container hover:text-on-primary-container active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60" id="loginSubmitBtn" type="submit">
 <span id="loginBtnText">{{ loginBtnText }}</span>
-<span class="hidden animate-spin material-symbols-outlined text-body-lg" id="loginSpinner">progress_activity</span>
-<span class="material-symbols-outlined text-body-lg group-hover:translate-x-0.5 transition-transform" id="loginBtnArrow">arrow_forward</span>
+<span *ngIf="isLoggingIn" class="animate-spin material-symbols-outlined text-body-lg" id="loginSpinner">progress_activity</span>
+<span *ngIf="!isLoggingIn" class="material-symbols-outlined text-body-lg group-hover:translate-x-0.5 transition-transform" id="loginBtnArrow">arrow_forward</span>
 </button>
 </form>
 <!-- Footer helper -->
@@ -211,7 +216,7 @@
 </div>
 </div>
 <!-- ================= TAB 2: CREATE ACCOUNT (REGISTER FORM) ================= -->
-<div [class.hidden]="activeTab !== 'register'" class="flex flex-col gap-space-md transition-opacity duration-200" id="registerView">
+<div *ngIf="!showOtpVerification" [class.hidden]="activeTab !== 'register'" class="flex flex-col gap-space-md transition-opacity duration-200" id="registerView">
 <div>
 <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Initialize Dev Profile</h2>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Claim your engineer namespace and configure telemetry nodes.</p>
@@ -269,7 +274,16 @@
 <div class="relative flex items-center">
 <span class="material-symbols-outlined absolute left-3 text-body-lg text-outline pointer-events-none">verified_user</span>
 <input class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline/70 font-body-md text-body-md pl-10 pr-10 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary shadow-inner" id="regConfirmPassword" name="regConfirmPassword" [(ngModel)]="regConfirmPassword" placeholder="Re-enter password" required type="password" autocomplete="new-password"/>
-<span class="material-symbols-outlined absolute right-3 text-body-lg" [ngClass]="passwordsMatch ? 'text-tertiary' : 'text-error'" id="matchIcon">{{ passwordsMatch ? 'done_all' : 'close' }}</span>
+<span class="absolute right-3 flex h-5 w-5 items-center justify-center" [ngClass]="passwordsMatch ? 'text-tertiary' : 'text-error'" id="matchIcon" aria-hidden="true">
+  <svg *ngIf="passwordsMatch; else passwordMismatchIcon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m5 12 4 4L19 6" />
+  </svg>
+  <ng-template #passwordMismatchIcon>
+    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round">
+      <path d="m6 6 12 12M18 6 6 18" />
+    </svg>
+  </ng-template>
+</span>
 </div>
 </div>
 <!-- Subdomain Reservation Preview Component -->
@@ -277,14 +291,14 @@
 <div class="flex items-center gap-2 overflow-hidden">
 <span class="material-symbols-outlined text-secondary text-body-lg shrink-0">public</span>
 <span class="font-label-mono text-code-sm text-on-surface-variant truncate">
-                    https://<span class="text-secondary font-semibold">{{ regSubdomain }}</span>.devfolio.studio
+                    <span class="text-on-surface-variant">/portfolio/</span><span class="text-secondary font-semibold">{{ regUsername || 'username' }}</span>
                   </span>
 </div>
-<span class="font-label-mono text-code-sm text-tertiary bg-surface-container-high px-2 py-0.5 rounded shrink-0">Available</span>
+<span class="font-label-mono text-code-sm text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded shrink-0">Public URL</span>
 </div>
 <!-- Terms & Agreement Checkbox -->
 <div class="flex items-start gap-2 pt-1">
-<input class="mt-1 w-4 h-4 rounded bg-surface-container-lowest text-secondary accent-secondary focus:ring-0 cursor-pointer" id="termsCheck" name="termsCheck" [(ngModel)]="agreeTerms" required type="checkbox"/>
+<input class="mt-1 w-4 h-4 rounded bg-surface-container-lowest text-secondary accent-secondary focus:ring-0 cursor-pointer" id="termsCheck" name="termsCheck" [(ngModel)]="agreeTerms" type="checkbox"/>
 <label class="font-body-sm text-body-sm text-on-surface-variant leading-snug cursor-pointer select-none" for="termsCheck">
                   I agree to the <a class="text-secondary hover:underline" href="javascript:void(0)">Terms of Service</a>, 
                   <a class="text-secondary hover:underline" href="javascript:void(0)">Privacy Policy</a>, and cloud edge telemetry processing.
@@ -292,10 +306,10 @@
 </div>
 <!-- Primary Submit Register Button -->
 <p *ngIf="authError" class="rounded-lg bg-error-container px-3 py-2 text-body-sm text-on-error-container">{{ authError }}</p>
-<button [disabled]="isRegistering || !passwordsMatch || !agreeTerms" class="w-full mt-2 bg-secondary text-on-secondary font-headline-sm text-body-md font-medium py-2.5 px-space-md rounded-lg shadow-md hover:bg-secondary-container hover:text-on-secondary-container active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60" id="registerSubmitBtn" type="submit">
+<button [disabled]="isRegistering" class="w-full mt-2 bg-secondary text-on-secondary font-headline-sm text-body-md font-medium py-2.5 px-space-md rounded-lg shadow-md hover:bg-secondary-container hover:text-on-secondary-container active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60" id="registerSubmitBtn" type="submit">
 <span id="regBtnText">{{ regBtnText }}</span>
-<span class="hidden animate-spin material-symbols-outlined text-body-lg" id="regSpinner">progress_activity</span>
-<span class="material-symbols-outlined text-body-lg group-hover:translate-x-0.5 transition-transform" id="regBtnArrow">rocket_launch</span>
+<span *ngIf="isRegistering" class="animate-spin material-symbols-outlined text-body-lg" id="regSpinner">progress_activity</span>
+<span *ngIf="!isRegistering" class="material-symbols-outlined text-body-lg group-hover:translate-x-0.5 transition-transform" id="regBtnArrow">rocket_launch</span>
 </button>
 </form>
 <!-- Bottom helper link -->
@@ -306,6 +320,28 @@
               </button>
 </div>
 </div>
+<section *ngIf="showOtpVerification" class="flex flex-col gap-space-md" aria-labelledby="otpTitle">
+  <div>
+    <h2 id="otpTitle" class="font-headline-md text-headline-md text-on-surface font-semibold">Verify your email</h2>
+    <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Enter the six-digit code we sent to <strong class="text-on-surface">{{ loginEmail }}</strong>. The code expires in five minutes.</p>
+  </div>
+  <div *ngIf="confirmationMessage" class="rounded-lg px-3 py-2 text-body-sm" [ngClass]="confirmationEmailSent ? 'bg-tertiary-container text-on-tertiary-container' : 'bg-error-container text-on-error-container'" role="status">{{ confirmationMessage }}</div>
+  <form class="flex flex-col gap-space-sm" (ngSubmit)="handleOtpSubmit()">
+    <label for="emailOtp" class="font-label-mono text-label-mono text-on-surface-variant uppercase">Email verification code</label>
+    <input id="emailOtp" name="emailOtp" [(ngModel)]="otpCode" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" class="w-full rounded-lg bg-surface-container-lowest px-4 py-3 text-center font-code-lg tracking-[0.5em] text-on-surface placeholder:text-outline/60 focus:outline-none focus:ring-1 focus:ring-secondary" />
+    <p *ngIf="authError" class="rounded-lg bg-error-container px-3 py-2 text-body-sm text-on-error-container" role="alert">{{ authError }}</p>
+    <button type="submit" [disabled]="isConfirmingOtp" class="w-full rounded-lg bg-secondary px-space-md py-2.5 font-body-md text-body-md font-semibold text-on-secondary transition-colors hover:bg-secondary-container hover:text-on-secondary-container disabled:cursor-wait disabled:opacity-60">
+      {{ isConfirmingOtp ? 'Verifying code…' : 'Verify email' }}
+    </button>
+  </form>
+  <div class="flex items-center justify-between gap-3 text-body-sm">
+    <span class="text-on-surface-variant">Didn't receive the code?</span>
+    <button type="button" [disabled]="isResendingConfirmation || resendCooldownSeconds > 0" (click)="resendConfirmationEmail()" class="font-medium text-secondary hover:underline disabled:opacity-60">
+      {{ isResendingConfirmation ? 'Sending…' : (resendCooldownSeconds > 0 ? 'Resend in ' + resendCooldownSeconds + 's' : 'Resend code') }}
+    </button>
+  </div>
+  <button type="button" (click)="switchTab('login')" class="self-start text-body-sm text-on-surface-variant hover:text-on-surface">Back to sign in</button>
+</section>
 </div>
 </div>
 </div>

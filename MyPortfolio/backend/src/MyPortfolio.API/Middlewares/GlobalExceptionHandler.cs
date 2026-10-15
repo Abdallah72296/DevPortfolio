@@ -23,7 +23,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         {
             Status = StatusCodes.Status500InternalServerError,
             Title = "An unexpected server error occurred.",
-            Detail = exception.Message,
+            Detail = "Please try again later. If the problem continues, contact support.",
             Instance = httpContext.Request.Path
         };
 

@@ -1,8 +1,8 @@
 <app-dashboard-header></app-dashboard-header>
 <app-dashboard-sidebar></app-dashboard-sidebar>
 
-<div class="pl-64">
-  <main class="w-full pt-16 min-h-screen bg-background text-on-surface px-gutter-desktop py-space-lg">
+<div class="pl-0 lg:pl-56">
+  <main class="w-full pt-16 min-h-screen bg-background text-on-surface px-4 sm:px-gutter-desktop py-space-lg">
     <div class="flex flex-col w-full">
 
       <!-- Workbench Header & Navigation Tabs -->
@@ -24,25 +24,44 @@
               <span>Database Connected</span>
             </div>
 
-            <button 
-              type="button" 
-              (click)="taxonomyConfigOpen = !taxonomyConfigOpen" 
+            <button
+              type="button"
+              (click)="taxonomyConfigOpen = !taxonomyConfigOpen"
               class="inline-flex items-center gap-1.5 px-space-md py-2 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-body-sm font-body-sm font-medium transition-colors shadow-sm cursor-pointer border border-outline-variant/20">
               <span class="material-symbols-outlined text-[16px] text-secondary">tune</span>
               <span>Taxonomy Config</span>
             </button>
 
-            <button 
-              type="button" 
-              (click)="openExperienceDrawer()" 
+            <button
+              *ngIf="activeTab === 'experience' || activeTab === 'skills'"
+              type="button"
+              (click)="openExperienceDrawer()"
               class="inline-flex items-center gap-1.5 px-space-md py-2 rounded bg-primary text-on-primary text-body-sm font-body-sm font-medium shadow-md hover:bg-primary-container hover:text-on-primary-container transition-all cursor-pointer">
               <span class="material-symbols-outlined text-[16px]">add_circle</span>
               <span>Add Work History</span>
             </button>
 
-            <button 
-              type="button" 
-              (click)="reload()" 
+            <button
+              *ngIf="activeTab === 'education'"
+              type="button"
+              (click)="openAddEducation()"
+              class="inline-flex items-center gap-1.5 px-space-md py-2 rounded bg-primary text-on-primary text-body-sm font-body-sm font-medium shadow-md hover:bg-primary-container hover:text-on-primary-container transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">school</span>
+              <span>Add Degree</span>
+            </button>
+
+            <button
+              *ngIf="activeTab === 'education'"
+              type="button"
+              (click)="openAddCertification()"
+              class="inline-flex items-center gap-1.5 px-space-md py-2 rounded bg-surface-container-high hover:bg-surface-bright text-secondary border border-secondary/30 text-body-sm font-body-sm font-medium shadow-md transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">workspace_premium</span>
+              <span>Add Certification</span>
+            </button>
+
+            <button
+              type="button"
+              (click)="reload()"
               class="inline-flex items-center gap-1.5 px-space-md py-2 rounded bg-surface-container hover:bg-surface-bright text-on-surface text-body-sm font-body-sm font-medium transition-colors shadow-sm cursor-pointer border border-outline-variant/20">
               <span class="material-symbols-outlined text-[16px]">refresh</span>
               <span>Refresh</span>
@@ -53,9 +72,9 @@
         <!-- Segmented Tabs Navigation -->
         <div class="flex items-center justify-between bg-surface-container-low p-1 rounded-lg border border-outline-variant/20">
           <div class="flex items-center gap-1">
-            <button 
-              type="button" 
-              (click)="selectTab('skills')" 
+            <button
+              type="button"
+              (click)="selectTab('skills')"
               [class]="activeTab === 'skills' ? 'inline-flex items-center gap-2 px-space-md py-2 rounded font-body-sm text-body-sm text-on-surface font-semibold bg-surface-container-high shadow-sm relative transition-all cursor-pointer' : 'inline-flex items-center gap-2 px-space-md py-2 rounded font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all cursor-pointer'">
               <span class="material-symbols-outlined text-[18px] text-secondary">terminal</span>
               <span>Skills &amp; Tech Stack</span>
@@ -63,9 +82,9 @@
               <span *ngIf="activeTab === 'skills'" class="absolute bottom-0 left-2 right-2 h-0.5 bg-secondary rounded-full"></span>
             </button>
 
-            <button 
-              type="button" 
-              (click)="selectTab('experience')" 
+            <button
+              type="button"
+              (click)="selectTab('experience')"
               [class]="activeTab === 'experience' ? 'inline-flex items-center gap-2 px-space-md py-2 rounded font-body-sm text-body-sm text-on-surface font-semibold bg-surface-container-high shadow-sm relative transition-all cursor-pointer' : 'inline-flex items-center gap-2 px-space-md py-2 rounded font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all cursor-pointer'">
               <span class="material-symbols-outlined text-[18px]">history_edu</span>
               <span>Experience &amp; History</span>
@@ -73,9 +92,9 @@
               <span *ngIf="activeTab === 'experience'" class="absolute bottom-0 left-2 right-2 h-0.5 bg-secondary rounded-full"></span>
             </button>
 
-            <button 
-              type="button" 
-              (click)="selectTab('education')" 
+            <button
+              type="button"
+              (click)="selectTab('education')"
               [class]="activeTab === 'education' ? 'inline-flex items-center gap-2 px-space-md py-2 rounded font-body-sm text-body-sm text-on-surface font-semibold bg-surface-container-high shadow-sm relative transition-all cursor-pointer' : 'inline-flex items-center gap-2 px-space-md py-2 rounded font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all cursor-pointer'">
               <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
               <span>Education &amp; Certifications</span>
@@ -119,14 +138,14 @@
           </button>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <input 
-            [(ngModel)]="newCategoryName" 
-            (keydown.enter)="addCategory()" 
-            class="flex-1 min-w-[240px] bg-surface-container-lowest text-on-surface p-2 rounded-lg text-body-sm font-body-sm border border-outline-variant/20 focus:outline-none focus:ring-1 focus:ring-primary" 
+          <input
+            [(ngModel)]="newCategoryName"
+            (keydown.enter)="addCategory()"
+            class="flex-1 min-w-[240px] bg-surface-container-lowest text-on-surface p-2 rounded-lg text-body-sm font-body-sm border border-outline-variant/20 focus:outline-none focus:ring-1 focus:ring-primary"
             placeholder="New cluster name (e.g. AI / Machine Learning, Cloud Systems)...">
-          <button 
-            type="button" 
-            (click)="addCategory()" 
+          <button
+            type="button"
+            (click)="addCategory()"
             class="px-space-md py-2 rounded-lg bg-primary text-on-primary font-body-sm font-medium hover:bg-primary-container hover:text-on-primary-container transition-all cursor-pointer">
             Add Cluster
           </button>
@@ -137,9 +156,9 @@
       <div *ngIf="activeTab === 'skills' || activeTab === 'experience'" class="flex flex-col gap-space-xl">
 
         <!-- SECTION 1: Technical Skills Matrix & Taxonomy Manager -->
-        <div class="flex flex-col gap-space-lg">
-          <!-- Header & Quick Input Bar -->
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md bg-surface-container p-space-lg rounded-xl shadow-md border border-outline-variant/20">
+        <div class="flex flex-col gap-space-md">
+          <!-- 1. Header & Category Creator (Identical layout to Profile & CV editor) -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md bg-surface-container p-space-lg rounded-xl shadow-sm border border-outline-variant/20">
             <div class="flex flex-col gap-1 max-w-xl">
               <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-secondary text-[22px]">hub</span>
@@ -150,15 +169,36 @@
               </p>
             </div>
 
-            <!-- Quick Add Skill Widget with Autocomplete & Custom Icon Upload -->
-            <div class="relative flex flex-col md:flex-row items-stretch md:items-center gap-space-sm w-full md:w-auto">
-              <div class="relative flex items-center gap-space-xs bg-surface-container-lowest p-1 rounded-lg border border-outline-variant/30 shadow-inner w-full md:w-auto">
-                
+            <!-- Add Category Control (Positioned cleanly on the right of the header, just like Profile & CV) -->
+            <div class="flex items-center gap-2 shrink-0">
+              <input
+                type="text"
+                [(ngModel)]="newCategoryName"
+                (keydown.enter)="addCategory()"
+                placeholder="New category..."
+                class="px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-code-sm text-xs outline-none border border-outline-variant/30 focus:border-primary placeholder:text-outline w-36 sm:w-44">
+              <button
+                type="button"
+                (click)="addCategory()"
+                [disabled]="saving"
+                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-xs font-semibold border border-outline-variant/30 transition-colors cursor-pointer shadow-xs whitespace-nowrap active:scale-95 disabled:opacity-50">
+                <svg class="w-3.5 h-3.5 text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>+ Add Category</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Add Skill Inline Composer Bar (Dedicated full-width row, matching Profile & CV) -->
+          <div class="p-space-md rounded-xl bg-surface-container flex flex-col md:flex-row items-stretch md:items-center gap-space-sm border border-outline-variant/30 shadow-xs">
+            <div class="relative flex-1 w-full">
+              <div class="flex items-center gap-2 px-space-sm py-1.5 rounded-lg bg-surface-container-high border border-outline-variant/20 focus-within:border-primary">
                 <!-- Live Detected / Custom Icon Preview & Upload Button -->
-                <div class="relative group ml-1 shrink-0">
-                  <div class="w-7 h-7 rounded-md bg-surface-container-high flex items-center justify-center text-secondary border border-outline-variant/30 shadow-xs cursor-pointer"
-                       (click)="customIconFileInput.click()"
-                       title="أيقونة المهارة (اضغط لرفع صورة أيقونة خاصة إذا لم تكن متوفرة)">
+                <div class="relative group shrink-0 cursor-pointer"
+                     (click)="customIconFileInput.click()"
+                     title="Skill icon (click to upload custom icon)">
+                  <div class="w-7 h-7 rounded-md bg-surface-container flex items-center justify-center text-secondary border border-outline-variant/30 shadow-xs">
                     <img *ngIf="detectedSkillIconDisplay.type === 'image'" [src]="detectedSkillIconDisplay.value" class="w-5 h-5 object-contain rounded" alt="Icon">
                     <i *ngIf="detectedSkillIconDisplay.type === 'devicon'" [class]="detectedSkillIconDisplay.value + ' text-[16px]'"></i>
                     <span *ngIf="detectedSkillIconDisplay.type === 'material'" class="material-symbols-outlined text-[16px]">{{ detectedSkillIconDisplay.value }}</span>
@@ -167,74 +207,74 @@
                 </div>
 
                 <!-- Input with Autocomplete Event Handlers -->
-                <input 
-                  [(ngModel)]="newSkillName" 
+                <input
+                  [(ngModel)]="newSkillName"
                   (input)="onSkillNameInput()"
                   (focus)="onSkillNameInput()"
                   (blur)="hideSkillSuggestionsWithDelay()"
-                  (keydown.enter)="addSkill()" 
-                  class="bg-transparent text-on-surface placeholder:text-outline font-body-sm text-body-sm px-2 py-1.5 focus:outline-none w-44 sm:w-60" 
-                  placeholder="اكتب المهارة (مثال: Angular, Docker)..." 
+                  (keydown.enter)="addSkill()"
+                  class="flex-1 bg-transparent text-on-surface placeholder:text-outline font-body-sm text-body-sm px-1 focus:outline-none"
+                  placeholder="Add a skill (e.g. Angular, Docker, Rust)..."
                   type="text">
 
                 <!-- Reset custom icon if one was set -->
-                <button *ngIf="customSkillIcon" type="button" (click)="clearCustomSkillIcon()" class="text-xs text-outline hover:text-error px-1" title="إلغاء الأيقونة المخصصة">
+                <button *ngIf="customSkillIcon" type="button" (click)="clearCustomSkillIcon()" class="text-xs text-outline hover:text-error px-1" title="Remove custom icon">
                   <span class="material-symbols-outlined text-[14px]">close</span>
                 </button>
+              </div>
 
-                <div class="h-4 w-px bg-outline-variant/30"></div>
-
-                <!-- Category Select -->
-                <select 
-                  [(ngModel)]="selectedCategoryId" 
-                  class="bg-transparent text-on-surface-variant font-code-sm text-code-sm px-2 py-1 focus:outline-none cursor-pointer max-w-[130px] truncate">
-                  <option *ngFor="let cat of categories" [value]="cat.id" class="bg-surface-container-high text-on-surface">
-                    {{ cat.name }}
-                  </option>
-                </select>
-
-                <!-- Add Button -->
-                <button 
-                  type="button" 
-                  (click)="addSkill()" 
-                  class="inline-flex items-center gap-1 px-space-sm py-1.5 rounded bg-primary text-on-primary font-body-sm text-body-sm font-medium hover:bg-primary-container hover:text-on-primary-container transition-all shadow-sm cursor-pointer shrink-0">
-                  <span class="material-symbols-outlined text-[16px]">add</span>
-                  <span>إضافة</span>
-                </button>
-
-                <!-- Autocomplete Dropdown List -->
-                <div *ngIf="showSkillSuggestions && skillSuggestions.length" 
-                     class="absolute top-full left-0 mt-1 w-72 sm:w-80 max-h-64 overflow-y-auto rounded-xl bg-surface-container-highest border border-outline-variant/40 shadow-2xl z-50 p-1 flex flex-col gap-0.5">
-                  <div class="px-2 py-1 text-[11px] font-label-mono text-outline uppercase flex items-center justify-between border-b border-outline-variant/20">
-                    <span>مهارات مقترحة وأيقوناتها</span>
-                    <span class="text-secondary">{{ skillSuggestions.length }} نتيجة</span>
-                  </div>
-                  <button 
-                    *ngFor="let suggestion of skillSuggestions"
-                    type="button"
-                    (mousedown)="selectSkillSuggestion(suggestion)"
-                    class="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg hover:bg-surface-container text-left transition-colors cursor-pointer group">
-                    <div class="flex items-center gap-2 min-w-0">
-                      <div class="w-6 h-6 rounded flex items-center justify-center bg-surface-container-low shrink-0 group-hover:scale-110 transition-transform">
-                        <img *ngIf="suggestion.iconType === 'image'" [src]="suggestion.icon" class="w-4 h-4 object-contain">
-                        <i *ngIf="suggestion.iconType === 'devicon'" [class]="suggestion.icon + ' text-[16px]'"></i>
-                        <span *ngIf="suggestion.iconType === 'material'" class="material-symbols-outlined text-[16px] text-secondary">{{ suggestion.icon }}</span>
-                      </div>
-                      <span class="font-code-sm text-code-sm text-on-surface font-medium truncate">{{ suggestion.name }}</span>
-                    </div>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-container font-label-mono text-outline shrink-0">{{ suggestion.category }}</span>
-                  </button>
+              <!-- Autocomplete Dropdown List -->
+              <div *ngIf="showSkillSuggestions && skillSuggestions.length"
+                   class="absolute top-full left-0 mt-1 w-full max-h-64 overflow-y-auto rounded-xl bg-surface-container-highest border border-outline-variant/40 shadow-2xl z-50 p-1 flex flex-col gap-0.5">
+                <div class="px-2 py-1 text-[11px] font-label-mono text-outline uppercase flex items-center justify-between border-b border-outline-variant/20">
+                  <span>Suggested skills and icons</span>
+                  <span class="text-secondary">{{ skillSuggestions.length }} results</span>
                 </div>
+                <button
+                  *ngFor="let suggestion of skillSuggestions"
+                  type="button"
+                  (mousedown)="selectSkillSuggestion(suggestion)"
+                  class="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg hover:bg-surface-container text-left transition-colors cursor-pointer group">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <div class="w-6 h-6 rounded flex items-center justify-center bg-surface-container-low shrink-0 group-hover:scale-110 transition-transform">
+                      <img *ngIf="suggestion.iconType === 'image'" [src]="suggestion.icon" class="w-4 h-4 object-contain">
+                      <i *ngIf="suggestion.iconType === 'devicon'" [class]="suggestion.icon + ' text-[16px]'"></i>
+                      <span *ngIf="suggestion.iconType === 'material'" class="material-symbols-outlined text-[16px] text-secondary">{{ suggestion.icon }}</span>
+                    </div>
+                    <span class="font-code-sm text-code-sm text-on-surface font-medium truncate">{{ suggestion.name }}</span>
+                  </div>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-container font-label-mono text-outline shrink-0">{{ suggestion.category }}</span>
+                </button>
               </div>
             </div>
+
+            <!-- Category Select -->
+            <div class="w-full md:w-56">
+              <select
+                [(ngModel)]="selectedCategoryId"
+                class="w-full px-space-sm py-2 rounded-lg bg-surface-container-high text-on-surface font-code-sm text-code-sm outline-none border border-outline-variant/20 cursor-pointer">
+                <option *ngFor="let cat of categories" [value]="cat.id">
+                  {{ cat.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Add Button -->
+            <button
+              type="button"
+              (click)="addSkill()"
+              class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary hover:text-on-primary-container font-body-sm text-body-sm font-medium transition-all shadow-sm cursor-pointer shrink-0">
+              <span class="material-symbols-outlined text-[16px]">add</span>
+              <span>Add Skill</span>
+            </button>
           </div>
 
           <!-- Cluster Grid Bento (Real Database Categories) -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
-            <div 
-              *ngFor="let category of categories; let i = index" 
+            <div
+              *ngFor="let category of categories; let i = index"
               class="flex flex-col bg-surface-container-low p-space-md rounded-xl shadow-sm hover:shadow-md transition-shadow border border-outline-variant/20">
-              
+
               <!-- Cluster Header -->
               <div class="flex items-center justify-between pb-space-sm mb-space-sm bg-surface-container/60 -mx-space-md -mt-space-md px-space-md pt-space-md rounded-t-xl border-b border-outline-variant/10">
                 <div class="flex items-center gap-space-sm">
@@ -256,8 +296,8 @@
               <div class="flex flex-col gap-2">
                 <div class="flex flex-wrap items-center gap-2 pt-1">
                   <!-- Skill Badges -->
-                  <div 
-                    *ngFor="let skill of category.skills" 
+                  <div
+                    *ngFor="let skill of category.skills"
                     class="group inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 hover:border-secondary/50 text-on-surface transition-all shadow-sm">
                     <div class="w-4 h-4 flex items-center justify-center shrink-0">
                       <img *ngIf="getSkillDisplay(skill).type === 'image'" [src]="getSkillDisplay(skill).value" class="w-4 h-4 object-contain rounded" alt="">
@@ -266,17 +306,17 @@
                     </div>
                     <span class="font-code-md text-code-md font-medium">{{ skill.name }}</span>
                     <div class="flex items-center gap-0.5 ml-1">
-                      <button 
-                        type="button" 
-                        (click)="renameSkill(category, skill.id, skill.name)" 
-                        class="text-outline hover:text-secondary p-0.5 rounded transition-colors cursor-pointer" 
+                      <button
+                        type="button"
+                        (click)="renameSkill(category, skill.id, skill.name)"
+                        class="text-outline hover:text-secondary p-0.5 rounded transition-colors cursor-pointer"
                         title="Edit skill">
                         <span class="material-symbols-outlined text-[14px]">edit</span>
                       </button>
-                      <button 
-                        type="button" 
-                        (click)="removeSkill(category, skill.id)" 
-                        class="text-outline hover:text-error p-0.5 rounded transition-colors cursor-pointer" 
+                      <button
+                        type="button"
+                        (click)="removeSkill(category, skill.id)"
+                        class="text-outline hover:text-error p-0.5 rounded transition-colors cursor-pointer"
                         title="Remove skill">
                         <span class="material-symbols-outlined text-[14px]">close</span>
                       </button>
@@ -285,30 +325,30 @@
 
                   <!-- Inline Add Skill Field -->
                   <div *ngIf="inlineSkillActive[category.id]" class="inline-flex items-center gap-1 p-1 bg-surface-container-lowest rounded-lg border border-secondary/50">
-                    <input 
-                      [(ngModel)]="inlineSkillInput[category.id]" 
-                      (keydown.enter)="addInlineSkill(category)" 
-                      class="bg-transparent text-on-surface font-code-sm text-code-sm px-2 py-0.5 focus:outline-none w-28" 
+                    <input
+                      [(ngModel)]="inlineSkillInput[category.id]"
+                      (keydown.enter)="addInlineSkill(category)"
+                      class="bg-transparent text-on-surface font-code-sm text-code-sm px-2 py-0.5 focus:outline-none w-28"
                       placeholder="Skill name...">
-                    <button 
-                      type="button" 
-                      (click)="addInlineSkill(category)" 
+                    <button
+                      type="button"
+                      (click)="addInlineSkill(category)"
                       class="text-secondary hover:text-on-surface p-0.5 cursor-pointer">
                       <span class="material-symbols-outlined text-[16px]">check</span>
                     </button>
-                    <button 
-                      type="button" 
-                      (click)="toggleInlineSkill(category.id)" 
+                    <button
+                      type="button"
+                      (click)="toggleInlineSkill(category.id)"
                       class="text-outline hover:text-error p-0.5 cursor-pointer">
                       <span class="material-symbols-outlined text-[16px]">close</span>
                     </button>
                   </div>
 
                   <!-- Add Skill Button for this Category -->
-                  <button 
-                    *ngIf="!inlineSkillActive[category.id]" 
-                    type="button" 
-                    (click)="toggleInlineSkill(category.id)" 
+                  <button
+                    *ngIf="!inlineSkillActive[category.id]"
+                    type="button"
+                    (click)="toggleInlineSkill(category.id)"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container/60 hover:bg-surface-container-high border border-dashed border-outline-variant/50 hover:border-secondary text-on-surface-variant hover:text-secondary font-code-sm text-code-sm transition-all cursor-pointer">
                     <span class="material-symbols-outlined text-[14px]">add</span>
                     <span>Add Skill</span>
@@ -327,12 +367,21 @@
             <span class="material-symbols-outlined text-[40px] text-outline">hub</span>
             <h3 class="font-headline-sm text-on-surface font-semibold">No Taxonomy Clusters in Database</h3>
             <p class="text-body-sm text-on-surface-variant max-w-md">Create clusters (e.g. Languages & Runtimes, Architecture & Cloud) to organize your technical competencies.</p>
-            <button 
-              type="button" 
-              (click)="taxonomyConfigOpen = true" 
-              class="mt-2 px-space-md py-2 rounded-lg bg-primary text-on-primary font-body-sm font-medium hover:bg-primary-container cursor-pointer shadow-md">
-              Create First Cluster
-            </button>
+            <div class="flex items-center gap-2 mt-2">
+              <input
+                [(ngModel)]="newCategoryName"
+                (keydown.enter)="addCategory()"
+                type="text"
+                placeholder="Category name (e.g. Languages & Frameworks)..."
+                class="px-3 py-2 rounded-lg bg-surface-container text-on-surface font-body-sm text-body-sm border border-outline-variant/30 outline-none focus:border-primary">
+              <button
+                type="button"
+                (click)="addCategory()"
+                [disabled]="saving"
+                class="px-space-md py-2 rounded-lg bg-primary text-on-primary font-body-sm font-medium hover:bg-primary-container cursor-pointer shadow-md disabled:opacity-50">
+                + Create Cluster
+              </button>
+            </div>
           </div>
         </div>
 
@@ -358,14 +407,14 @@
 
           <!-- Timeline Entries Container -->
           <div class="flex flex-col gap-space-lg relative before:absolute before:left-4 md:before:left-6 before:top-4 before:bottom-4 before:w-0.5 before:bg-surface-container-highest">
-            
+
             <!-- Real Database Experience Items -->
-            <div 
-              *ngFor="let item of experiences; let i = index" 
+            <div
+              *ngFor="let item of experiences; let i = index"
               class="relative pl-10 md:pl-16">
-              
+
               <!-- Node Bullet Marker -->
-              <div 
+              <div
                 class="absolute left-2.5 md:left-4.5 -translate-x-1/2 top-4 w-4 h-4 rounded-full bg-background border-2 flex items-center justify-center"
                 [ngClass]="i === 0 ? 'border-primary' : (i === 1 ? 'border-secondary' : 'border-outline-variant')">
                 <span class="w-1.5 h-1.5 rounded-full" [ngClass]="i === 0 ? 'bg-primary animate-pulse' : (i === 1 ? 'bg-secondary' : 'bg-outline')"></span>
@@ -399,41 +448,41 @@
 
                   <!-- Action Toolbar for Entry -->
                   <div class="flex items-center gap-1 bg-surface-container-lowest/80 p-1 rounded-lg border border-outline-variant/20">
-                    <button 
-                      type="button" 
-                      (click)="toggleExperience(item)" 
+                    <button
+                      type="button"
+                      (click)="toggleExperience(item)"
                       class="inline-flex items-center gap-1 px-2 py-1 rounded text-body-sm font-body-sm transition-colors cursor-pointer"
-                      [ngClass]="item.isVisible ? 'bg-tertiary/15 text-tertiary hover:bg-tertiary/25' : 'bg-surface-container-high text-outline hover:text-on-surface'" 
+                      [ngClass]="item.isVisible ? 'bg-tertiary/15 text-tertiary hover:bg-tertiary/25' : 'bg-surface-container-high text-outline hover:text-on-surface'"
                       title="Toggle visibility on public site">
                       <span class="material-symbols-outlined text-[16px]">{{ item.isVisible ? 'visibility' : 'visibility_off' }}</span>
                       <span class="font-label-mono text-label-mono">{{ item.isVisible ? 'PUBLIC' : 'HIDDEN' }}</span>
                     </button>
                     <div class="w-px h-4 bg-surface-container-highest mx-0.5"></div>
-                    <button 
-                      type="button" 
-                      (click)="openExperienceDrawer(item)" 
-                      class="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" 
+                    <button
+                      type="button"
+                      (click)="openExperienceDrawer(item)"
+                      class="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
                       title="Edit Entry">
                       <span class="material-symbols-outlined text-[18px]">edit</span>
                     </button>
-                    <button 
-                      type="button" 
-                      (click)="moveExperience(item, -1)" 
-                      class="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" 
+                    <button
+                      type="button"
+                      (click)="moveExperience(item, -1)"
+                      class="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
                       title="Move Up">
                       <span class="material-symbols-outlined text-[18px]">north</span>
                     </button>
-                    <button 
-                      type="button" 
-                      (click)="moveExperience(item, 1)" 
-                      class="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" 
+                    <button
+                      type="button"
+                      (click)="moveExperience(item, 1)"
+                      class="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
                       title="Move Down">
                       <span class="material-symbols-outlined text-[18px]">south</span>
                     </button>
-                    <button 
-                      type="button" 
-                      (click)="deleteExperience(item)" 
-                      class="p-1.5 rounded hover:bg-surface-container-high text-outline hover:text-error transition-colors cursor-pointer" 
+                    <button
+                      type="button"
+                      (click)="deleteExperience(item)"
+                      class="p-1.5 rounded hover:bg-surface-container-high text-outline hover:text-error transition-colors cursor-pointer"
                       title="Delete Entry">
                       <span class="material-symbols-outlined text-[18px]">delete</span>
                     </button>
@@ -464,9 +513,9 @@
                 <span class="material-symbols-outlined text-[40px] text-outline">work_off</span>
                 <h3 class="font-headline-sm text-on-surface font-semibold">No Career Roles in Database</h3>
                 <p class="text-body-sm text-on-surface-variant max-w-md">Record your work history and positions so visitors and recruiters can explore your professional trajectory.</p>
-                <button 
-                  type="button" 
-                  (click)="openExperienceDrawer()" 
+                <button
+                  type="button"
+                  (click)="openExperienceDrawer()"
                   class="mt-2 px-space-md py-2 rounded-lg bg-primary text-on-primary font-body-sm font-medium hover:bg-primary-container cursor-pointer shadow-md">
                   Add First Role
                 </button>
@@ -476,9 +525,9 @@
           </div>
 
           <!-- Bottom Action Ribbon: Add Role Placeholder Card -->
-          <button 
-            type="button" 
-            (click)="openExperienceDrawer()" 
+          <button
+            type="button"
+            (click)="openExperienceDrawer()"
             class="w-full py-space-md rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer border border-outline-variant/20">
             <span class="material-symbols-outlined text-primary text-[20px]">add_box</span>
             <span class="font-body-sm text-body-sm font-medium">Add Prior Career Experience / Internship / Advisory Role</span>
@@ -490,64 +539,128 @@
 
       <!-- VIEW 2: Education & Certifications Tab -->
       <div *ngIf="activeTab === 'education'" class="flex flex-col gap-space-lg">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-2 font-headline-sm text-headline-sm font-semibold text-on-surface">
             <span class="material-symbols-outlined text-secondary">school</span>
             <span>Education &amp; Credentials</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              (click)="openAddEducation()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-all shadow-md cursor-pointer active:scale-95">
+              <span class="material-symbols-outlined text-[16px]">add</span>
+              <span>Add Degree</span>
+            </button>
+            <button
+              type="button"
+              (click)="openAddCertification()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-container-high hover:bg-surface-bright text-secondary border border-secondary/30 text-xs font-semibold transition-all shadow-md cursor-pointer active:scale-95">
+              <span class="material-symbols-outlined text-[16px]">add</span>
+              <span>Add Certification</span>
+            </button>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
           <!-- Educations list -->
-          <div class="flex flex-col gap-3 p-space-md rounded-xl bg-surface-container-low border border-outline-variant/20">
+          <div class="flex flex-col gap-3 p-space-md rounded-xl bg-surface-container-low border border-outline-variant/20 shadow-sm">
             <div class="flex items-center justify-between pb-2 border-b border-outline-variant/10">
-              <h3 class="font-headline-sm text-[16px] font-semibold text-on-surface">Degrees &amp; Academic Background</h3>
-              <span class="font-label-mono text-xs text-secondary">{{ education.length }} records</span>
-            </div>
-            <div *ngFor="let item of education" class="p-3 rounded-lg bg-surface-container flex flex-col gap-1 border border-outline-variant/10">
-              <div class="flex items-center justify-between">
-                <span class="font-body-md font-semibold text-on-surface">{{ item.degree }}</span>
-                <button type="button" (click)="deleteEducation(item)" class="text-outline hover:text-error cursor-pointer">
-                  <span class="material-symbols-outlined text-[16px]">delete</span>
-                </button>
+              <div class="flex items-center gap-2">
+                <h3 class="font-headline-sm text-[16px] font-semibold text-on-surface">Degrees &amp; Academic Background</h3>
+                <span class="font-label-mono text-xs text-secondary">{{ education.length }} records</span>
               </div>
-              <span class="text-body-sm text-primary">{{ item.institutionName }}</span>
-              <span class="text-xs text-on-surface-variant">{{ item.startDate | date:'yyyy' }} — {{ item.isCurrent ? 'Present' : (item.endDate | date:'yyyy') }}</span>
-              <p *ngIf="item.description" class="text-xs text-on-surface-variant mt-1">{{ item.description }}</p>
+              <button
+                type="button"
+                (click)="openAddEducation()"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-medium transition-colors cursor-pointer"
+                title="Add Academic Degree">
+                <span class="material-symbols-outlined text-[15px]">add</span>
+                <span>Add Degree</span>
+              </button>
             </div>
-            <p *ngIf="!education.length" class="text-xs text-on-surface-variant/70 italic">No academic degrees recorded in database.</p>
+            <div *ngFor="let item of education" class="p-3.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex flex-col gap-1.5 border border-outline-variant/15 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-body-md font-semibold text-on-surface text-[15px]">{{ item.degree }}</span>
+                <div class="flex items-center gap-1">
+                  <button type="button" (click)="editEducation(item)" class="text-outline hover:text-secondary p-1 rounded transition-colors cursor-pointer" title="Edit Degree">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                  <button type="button" (click)="deleteEducation(item)" class="text-outline hover:text-error p-1 rounded transition-colors cursor-pointer" title="Delete Degree">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                  </button>
+                </div>
+              </div>
+              <span class="text-body-sm text-primary font-medium">{{ item.institutionName }}</span>
+              <span class="text-xs text-on-surface-variant font-mono">{{ item.startDate | date:'yyyy' }} — {{ item.isCurrent ? 'Present' : (item.endDate | date:'yyyy') }}</span>
+              <p *ngIf="item.description" class="text-xs text-on-surface-variant mt-1 leading-relaxed">{{ item.description }}</p>
+            </div>
+            <div *ngIf="!education.length" class="text-center py-6 flex flex-col items-center gap-2">
+              <span class="material-symbols-outlined text-outline text-3xl">school</span>
+              <p class="text-xs text-on-surface-variant/70 italic">No academic degrees recorded in database.</p>
+              <button
+                type="button"
+                (click)="openAddEducation()"
+                class="mt-1 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 text-xs font-semibold cursor-pointer transition-colors">
+                + Add First Degree
+              </button>
+            </div>
           </div>
 
           <!-- Certifications list -->
-          <div class="flex flex-col gap-3 p-space-md rounded-xl bg-surface-container-low border border-outline-variant/20">
+          <div class="flex flex-col gap-3 p-space-md rounded-xl bg-surface-container-low border border-outline-variant/20 shadow-sm">
             <div class="flex items-center justify-between pb-2 border-b border-outline-variant/10">
-              <h3 class="font-headline-sm text-[16px] font-semibold text-on-surface">Professional Certifications</h3>
-              <span class="font-label-mono text-xs text-tertiary">{{ certifications.length }} credentials</span>
-            </div>
-            <div *ngFor="let cert of certifications" class="p-3 rounded-lg bg-surface-container flex flex-col gap-1 border border-outline-variant/10">
-              <div class="flex items-center justify-between">
-                <span class="font-body-md font-semibold text-on-surface">{{ cert.name }}</span>
-                <button type="button" (click)="deleteCertification(cert)" class="text-outline hover:text-error cursor-pointer">
-                  <span class="material-symbols-outlined text-[16px]">delete</span>
-                </button>
+              <div class="flex items-center gap-2">
+                <h3 class="font-headline-sm text-[16px] font-semibold text-on-surface">Professional Certifications</h3>
+                <span class="font-label-mono text-xs text-tertiary">{{ certifications.length }} credentials</span>
               </div>
-              <span class="text-body-sm text-secondary">{{ cert.issuingOrganization }}</span>
-              <span class="text-xs text-on-surface-variant">Issued: {{ cert.issueDate | date:'mediumDate' }}</span>
-              <a *ngIf="cert.credentialUrl" [href]="cert.credentialUrl" target="_blank" class="text-xs text-tertiary hover:underline inline-flex items-center gap-1 mt-1">
+              <button
+                type="button"
+                (click)="openAddCertification()"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-tertiary/10 hover:bg-tertiary/20 text-tertiary border border-tertiary/20 text-xs font-medium transition-colors cursor-pointer"
+                title="Add Certification">
+                <span class="material-symbols-outlined text-[15px]">add</span>
+                <span>Add Certification</span>
+              </button>
+            </div>
+            <div *ngFor="let cert of certifications" class="p-3.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex flex-col gap-1.5 border border-outline-variant/15 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-body-md font-semibold text-on-surface text-[15px]">{{ cert.name }}</span>
+                <div class="flex items-center gap-1">
+                  <button type="button" (click)="editCertification(cert)" class="text-outline hover:text-secondary p-1 rounded transition-colors cursor-pointer" title="Edit Certification">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                  <button type="button" (click)="deleteCertification(cert)" class="text-outline hover:text-error p-1 rounded transition-colors cursor-pointer" title="Delete Certification">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                  </button>
+                </div>
+              </div>
+              <span class="text-body-sm text-secondary font-medium">{{ cert.issuingOrganization }}</span>
+              <span class="text-xs text-on-surface-variant font-mono">Issued: {{ cert.issueDate | date:'mediumDate' }}</span>
+              <a *ngIf="cert.credentialUrl" [href]="cert.credentialUrl" target="_blank" class="text-xs text-tertiary hover:underline inline-flex items-center gap-1 mt-1 font-mono">
                 <span>Verify Credential</span>
                 <span class="material-symbols-outlined text-[12px]">open_in_new</span>
               </a>
             </div>
-            <p *ngIf="!certifications.length" class="text-xs text-on-surface-variant/70 italic">No certifications recorded in database.</p>
+            <div *ngIf="!certifications.length" class="text-center py-6 flex flex-col items-center gap-2">
+              <span class="material-symbols-outlined text-outline text-3xl">workspace_premium</span>
+              <p class="text-xs text-on-surface-variant/70 italic">No certifications recorded in database.</p>
+              <button
+                type="button"
+                (click)="openAddCertification()"
+                class="mt-1 px-3 py-1.5 rounded-lg bg-tertiary/10 hover:bg-tertiary/20 text-tertiary border border-tertiary/30 text-xs font-semibold cursor-pointer transition-colors">
+                + Add First Certification
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Slide-in Drawer: Experience Form -->
-      <div 
-        class="fixed inset-y-0 right-0 w-full max-w-xl bg-surface-container-low shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col border-l border-outline-variant/30" 
+      <div
+        class="fixed inset-y-0 right-0 w-full max-w-xl bg-surface-container-low shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col border-l border-outline-variant/30"
         [class.translate-x-0]="experienceDrawerOpen"
-        [class.translate-x-full]="!experienceDrawerOpen" 
+        [class.translate-x-full]="!experienceDrawerOpen"
         id="experienceDrawer">
 
         <!-- Drawer Header -->
@@ -561,9 +674,9 @@
               <span class="font-label-mono text-label-mono text-outline">DATABASE ENTITY • CAREER TIMELINE</span>
             </div>
           </div>
-          <button 
-            type="button" 
-            (click)="closeExperienceDrawer()" 
+          <button
+            type="button"
+            (click)="closeExperienceDrawer()"
             class="w-8 h-8 rounded hover:bg-surface-bright flex items-center justify-center text-outline hover:text-on-surface transition-colors cursor-pointer">
             <span class="material-symbols-outlined text-[20px]">close</span>
           </button>
@@ -575,7 +688,7 @@
           <div *ngIf="experienceDrawerError" class="p-3 rounded-xl bg-error/15 border border-error/40 text-error text-body-sm flex items-start gap-2.5 animate-fadeIn" id="experienceDrawerError">
             <span class="material-symbols-outlined text-[20px] text-error shrink-0 mt-0.5">error</span>
             <div class="flex flex-col">
-              <span class="font-semibold text-xs uppercase tracking-wider">تنبيه / Validation Error</span>
+              <span class="font-semibold text-xs uppercase tracking-wider">Validation Error</span>
               <span>{{ experienceDrawerError }}</span>
             </div>
           </div>
@@ -585,18 +698,18 @@
               <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">
                 Job / Position Title <span class="text-error font-bold">*</span>
               </label>
-              <span class="text-xs text-error font-label-mono font-medium">مطلوب *</span>
+              <span class="text-xs text-error font-label-mono font-medium">Required *</span>
             </div>
-            <input 
-              [(ngModel)]="experienceForm.jobTitle" 
+            <input
+              [(ngModel)]="experienceForm.jobTitle"
               (input)="experienceDrawerError = ''; experienceFormTouched = true"
               [class.border-error]="experienceFormTouched && (!experienceForm.jobTitle || !experienceForm.jobTitle.trim())"
               [class.focus:ring-error]="experienceFormTouched && (!experienceForm.jobTitle || !experienceForm.jobTitle.trim())"
-              class="bg-surface-container-lowest text-on-surface p-2.5 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-inner border border-outline-variant/20 transition-colors" 
+              class="bg-surface-container-lowest text-on-surface p-2.5 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-inner border border-outline-variant/20 transition-colors"
               placeholder="e.g. Staff Software Engineer">
             <p *ngIf="experienceFormTouched && (!experienceForm.jobTitle || !experienceForm.jobTitle.trim())" class="text-error text-xs flex items-center gap-1 mt-0.5">
               <span class="material-symbols-outlined text-[14px]">error</span>
-              <span>المسمى الوظيفي مطلوب (حقل إجباري).</span>
+              <span>Job title is required.</span>
             </p>
           </div>
 
@@ -605,18 +718,18 @@
               <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">
                 Company / Organization <span class="text-error font-bold">*</span>
               </label>
-              <span class="text-xs text-error font-label-mono font-medium">مطلوب *</span>
+              <span class="text-xs text-error font-label-mono font-medium">Required *</span>
             </div>
-            <input 
-              [(ngModel)]="experienceForm.companyName" 
+            <input
+              [(ngModel)]="experienceForm.companyName"
               (input)="experienceDrawerError = ''; experienceFormTouched = true"
               [class.border-error]="experienceFormTouched && (!experienceForm.companyName || !experienceForm.companyName.trim())"
               [class.focus:ring-error]="experienceFormTouched && (!experienceForm.companyName || !experienceForm.companyName.trim())"
-              class="bg-surface-container-lowest text-on-surface p-2.5 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-inner border border-outline-variant/20 transition-colors" 
+              class="bg-surface-container-lowest text-on-surface p-2.5 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary shadow-inner border border-outline-variant/20 transition-colors"
               placeholder="e.g. Stripe, Google, Datadog">
             <p *ngIf="experienceFormTouched && (!experienceForm.companyName || !experienceForm.companyName.trim())" class="text-error text-xs flex items-center gap-1 mt-0.5">
               <span class="material-symbols-outlined text-[14px]">error</span>
-              <span>اسم الشركة أو المؤسسة مطلوب (حقل إجباري).</span>
+              <span>Company or organization is required.</span>
             </p>
           </div>
 
@@ -627,51 +740,51 @@
                   Start Date <span class="text-error font-bold">*</span>
                 </label>
               </div>
-              <input 
-                [(ngModel)]="experienceForm.startDate" 
+              <input
+                [(ngModel)]="experienceForm.startDate"
                 (change)="experienceDrawerError = ''; experienceFormTouched = true"
                 [class.border-error]="experienceFormTouched && !experienceForm.startDate"
-                type="date" 
+                type="date"
                 class="bg-surface-container-lowest text-on-surface p-2 rounded-lg text-body-sm font-body-sm border border-outline-variant/20 focus:outline-none focus:ring-1 focus:ring-secondary transition-colors">
               <p *ngIf="experienceFormTouched && !experienceForm.startDate" class="text-error text-xs flex items-center gap-1 mt-0.5">
                 <span class="material-symbols-outlined text-[14px]">error</span>
-                <span>تاريخ البداية مطلوب.</span>
+                <span>Start date is required.</span>
               </p>
             </div>
             <div class="flex flex-col gap-space-xs">
               <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">End Date</label>
-              <input 
-                [(ngModel)]="experienceForm.endDate" 
-                type="date" 
-                [disabled]="experienceForm.isCurrent" 
+              <input
+                [(ngModel)]="experienceForm.endDate"
+                type="date"
+                [disabled]="experienceForm.isCurrent"
                 class="bg-surface-container-lowest text-on-surface p-2 rounded-lg text-body-sm font-body-sm border border-outline-variant/20 focus:outline-none focus:ring-1 focus:ring-secondary disabled:opacity-40">
             </div>
           </div>
 
           <label class="flex items-center gap-2 text-on-surface cursor-pointer text-body-sm">
-            <input 
-              type="checkbox" 
-              [(ngModel)]="experienceForm.isCurrent" 
+            <input
+              type="checkbox"
+              [(ngModel)]="experienceForm.isCurrent"
               class="rounded accent-primary w-4 h-4 cursor-pointer">
             <span>Currently working in this role (Active Position)</span>
           </label>
 
           <div class="flex flex-col gap-space-xs">
             <label class="font-label-mono text-label-mono text-outline uppercase tracking-wider">Role Description &amp; Technical Highlights</label>
-            <textarea 
-              [(ngModel)]="experienceForm.description" 
-              rows="5" 
-              class="bg-surface-container-lowest text-on-surface p-2.5 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none shadow-inner border border-outline-variant/20" 
+            <textarea
+              [(ngModel)]="experienceForm.description"
+              rows="5"
+              class="bg-surface-container-lowest text-on-surface p-2.5 rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none shadow-inner border border-outline-variant/20"
               placeholder="Responsibilities, achievements, distributed architecture notes, impact metrics..."></textarea>
           </div>
         </div>
 
         <!-- Drawer Footer Actions -->
         <div class="p-space-md bg-surface-container flex items-center justify-between border-t border-outline-variant/20">
-          <button 
-            *ngIf="editingExperience" 
-            type="button" 
-            (click)="deleteExperience(editingExperience); closeExperienceDrawer()" 
+          <button
+            *ngIf="editingExperience"
+            type="button"
+            (click)="deleteExperience(editingExperience); closeExperienceDrawer()"
             class="px-space-md py-2 rounded-lg bg-surface-container-high hover:bg-surface-bright text-error font-body-sm text-body-sm transition-colors flex items-center gap-1 cursor-pointer">
             <span class="material-symbols-outlined text-[16px]">delete</span>
             <span>Delete Role</span>
@@ -679,16 +792,16 @@
           <div *ngIf="!editingExperience"></div>
 
           <div class="flex items-center gap-space-sm">
-            <button 
-              type="button" 
-              (click)="closeExperienceDrawer()" 
+            <button
+              type="button"
+              (click)="closeExperienceDrawer()"
               class="px-space-md py-2 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-sm text-body-sm transition-colors cursor-pointer">
               Cancel
             </button>
-            <button 
-              type="button" 
-              (click)="saveExperience()" 
-              [disabled]="saving" 
+            <button
+              type="button"
+              (click)="saveExperience()"
+              [disabled]="saving"
               class="px-space-md py-2 rounded-lg bg-primary text-on-primary font-body-sm text-body-sm font-medium hover:bg-primary-container hover:text-on-primary-container transition-all shadow-md cursor-pointer flex items-center gap-1.5">
               <span *ngIf="saving" class="material-symbols-outlined text-[16px] animate-spin">sync</span>
               <span>{{ saving ? 'Saving...' : 'Save to Database' }}</span>
@@ -699,25 +812,25 @@
       </div>
 
       <!-- Backdrop Overlay for Experience Drawer -->
-      <div 
-        (click)="closeExperienceDrawer()" 
-        class="fixed inset-0 bg-background/70 backdrop-blur-sm z-40 transition-opacity" 
+      <div
+        (click)="closeExperienceDrawer()"
+        class="fixed inset-0 bg-background/70 backdrop-blur-sm z-40 transition-opacity"
         [class.hidden]="!experienceDrawerOpen">
       </div>
 
       <!-- ======================================================================= -->
-      <!-- IN-PAGE CONFIRMATION MODAL (كارت تأكيد الحذف التفاعلي داخل الصفحة)      -->
+      <!-- In-page deletion confirmation modal -->
       <!-- ======================================================================= -->
-      <div 
-        *ngIf="deleteModal.isOpen" 
+      <div
+        *ngIf="deleteModal.isOpen"
         class="fixed inset-0 z-[100] bg-background/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
         (keydown.escape)="closeDeleteConfirm()"
         tabindex="0">
-        
-        <div 
+
+        <div
           class="w-full max-w-md rounded-2xl bg-surface-container-high border border-outline-variant/40 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
           (click)="$event.stopPropagation()">
-          
+
           <!-- Header with Red Accent Badge -->
           <div class="p-space-lg pb-space-sm flex items-start gap-space-md">
             <div class="w-12 h-12 rounded-2xl bg-error/15 border border-error/30 flex items-center justify-center text-error shrink-0">
@@ -728,9 +841,9 @@
                 <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">
                   {{ deleteModal.title }}
                 </h3>
-                <button 
-                  type="button" 
-                  (click)="closeDeleteConfirm()" 
+                <button
+                  type="button"
+                  (click)="closeDeleteConfirm()"
                   [disabled]="deleteModal.isDeleting"
                   class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors disabled:opacity-40 cursor-pointer">
                   <span class="material-symbols-outlined text-[20px]">close</span>
@@ -764,23 +877,120 @@
 
           <!-- Modal Actions -->
           <div class="p-space-lg pt-space-md bg-surface-container/50 border-t border-outline-variant/20 flex items-center justify-end gap-space-sm">
-            <button 
-              type="button" 
-              (click)="closeDeleteConfirm()" 
+            <button
+              type="button"
+              (click)="closeDeleteConfirm()"
               [disabled]="deleteModal.isDeleting"
               class="px-4 py-2.5 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-sm font-medium transition-colors disabled:opacity-40 cursor-pointer">
-              إلغاء / Cancel
+              Cancel
             </button>
-            <button 
-              type="button" 
-              (click)="confirmDelete()" 
+            <button
+              type="button"
+              (click)="confirmDelete()"
               [disabled]="deleteModal.isDeleting"
               class="px-5 py-2.5 rounded-xl bg-error hover:bg-error/90 text-on-error font-body-sm font-semibold flex items-center gap-2 shadow-lg shadow-error/20 transition-all cursor-pointer disabled:opacity-50">
               <span *ngIf="deleteModal.isDeleting" class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
               <span *ngIf="!deleteModal.isDeleting" class="material-symbols-outlined text-[18px]">delete</span>
-              <span>{{ deleteModal.isDeleting ? 'جاري الحذف...' : 'تأكيد الحذف' }}</span>
+              <span>{{ deleteModal.isDeleting ? 'Deleting...' : 'Confirm deletion' }}</span>
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- MODAL: ADD / EDIT CREDENTIAL (EDUCATION / CERTIFICATION) -->
+      <div *ngIf="educationModalOpen" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div class="w-full max-w-lg p-space-lg rounded-2xl bg-surface-container-high border border-outline-variant/40 shadow-2xl flex flex-col gap-space-md animate-in zoom-in-95 duration-200">
+          <div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                (click)="credentialModalType = 'education'"
+                [class]="credentialModalType === 'education' ? 'px-3 py-1.5 rounded-lg bg-primary text-on-primary font-body-sm text-xs font-semibold shadow-sm' : 'px-3 py-1.5 rounded-lg bg-surface-container text-on-surface-variant font-body-sm text-xs hover:text-on-surface cursor-pointer'">
+                Education
+              </button>
+              <button
+                type="button"
+                (click)="credentialModalType = 'certification'"
+                [class]="credentialModalType === 'certification' ? 'px-3 py-1.5 rounded-lg bg-primary text-on-primary font-body-sm text-xs font-semibold shadow-sm' : 'px-3 py-1.5 rounded-lg bg-surface-container text-on-surface-variant font-body-sm text-xs hover:text-on-surface cursor-pointer'">
+                Certification
+              </button>
+            </div>
+            <button type="button" (click)="educationModalOpen = false" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+          </div>
+
+          <!-- Education Form -->
+          <form *ngIf="credentialModalType === 'education'" (ngSubmit)="saveEducation()" class="flex flex-col gap-space-sm">
+            <div class="flex flex-col gap-1">
+              <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Degree / Qualification</label>
+              <input [(ngModel)]="educationForm.degree" name="eduDegree" required class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm" placeholder="e.g. Bachelor of Science in Computer Science">
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Institution / University</label>
+              <input [(ngModel)]="educationForm.institutionName" name="eduInst" required class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm" placeholder="e.g. Sinai University">
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Field of Study</label>
+              <input [(ngModel)]="educationForm.fieldOfStudy" name="eduField" class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm" placeholder="e.g. Computer Science">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="flex flex-col gap-1">
+                <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Start Date</label>
+                <input [(ngModel)]="educationForm.startDate" name="eduStart" type="date" required class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm">
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">End Date</label>
+                <input [(ngModel)]="educationForm.endDate" [disabled]="educationForm.isCurrent" name="eduEnd" type="date" class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm disabled:opacity-50">
+              </div>
+            </div>
+            <label class="flex items-center gap-2 text-xs text-on-surface cursor-pointer select-none py-1">
+              <input type="checkbox" [(ngModel)]="educationForm.isCurrent" name="eduCurrent" class="rounded accent-primary">
+              <span>Currently enrolled</span>
+            </label>
+            <div class="flex flex-col gap-1">
+              <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Description / Highlights</label>
+              <textarea [(ngModel)]="educationForm.description" name="eduDesc" rows="2" class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm resize-none" placeholder="GPA, honors, graduation project..."></textarea>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/20">
+              <button type="button" (click)="educationModalOpen = false" class="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-sm text-xs cursor-pointer">Cancel</button>
+              <button type="submit" [disabled]="saving" class="px-5 py-2 rounded-xl bg-primary text-on-primary font-body-sm text-xs font-semibold cursor-pointer shadow-md hover:bg-primary-container disabled:opacity-50">
+                {{ editingEducation ? 'Update Degree' : 'Save Degree' }}
+              </button>
+            </div>
+          </form>
+
+          <!-- Certification Form -->
+          <form *ngIf="credentialModalType === 'certification'" (ngSubmit)="saveCertification()" class="flex flex-col gap-space-sm">
+            <div class="flex flex-col gap-1">
+              <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Certification Name</label>
+              <input [(ngModel)]="certificationForm.name" name="certName" required class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm" placeholder="e.g. AWS Certified Solutions Architect">
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Issuing Organization</label>
+              <input [(ngModel)]="certificationForm.issuingOrganization" name="certIssuer" required class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm" placeholder="e.g. Amazon Web Services">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="flex flex-col gap-1">
+                <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Issue Date</label>
+                <input [(ngModel)]="certificationForm.issueDate" name="certDate" type="date" required class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm">
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Credential ID</label>
+                <input [(ngModel)]="certificationForm.credentialId" name="certId" class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm" placeholder="Optional ID">
+              </div>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="font-label-mono text-label-mono text-on-surface-variant uppercase text-xs">Verification URL</label>
+              <input [(ngModel)]="certificationForm.credentialUrl" name="certUrl" class="p-2 rounded-lg bg-surface-container text-on-surface border border-outline-variant/30 outline-none focus:border-primary text-sm" placeholder="https://...">
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/20">
+              <button type="button" (click)="educationModalOpen = false" class="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-sm text-xs cursor-pointer">Cancel</button>
+              <button type="submit" [disabled]="saving" class="px-5 py-2 rounded-xl bg-primary text-on-primary font-body-sm text-xs font-semibold cursor-pointer shadow-md hover:bg-primary-container disabled:opacity-50">
+                {{ editingCertification ? 'Update Certification' : 'Save Certification' }}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 

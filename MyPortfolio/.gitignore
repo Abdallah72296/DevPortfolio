@@ -61,3 +61,17 @@ desktop.ini
 $RECYCLE.BIN/
 *.zip
 
+# --------------------------------------------------
+# Temporary, Build Validation & Archive Artifacts
+# --------------------------------------------------
+_build*/
+*_build*/
+.build*/
+*.build*/
+**/_build*/
+**/.build*/
+**/artifacts/
+.pnpm-store/
+_security-test/
+*.zip
+portfolio-frontend.zip

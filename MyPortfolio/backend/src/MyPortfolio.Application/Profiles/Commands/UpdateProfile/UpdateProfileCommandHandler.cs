@@ -11,13 +11,16 @@ namespace MyPortfolio.Application.Profiles.Commands.UpdateProfile;
 public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Result<ProfileDto>>
 {
     private readonly IGenericRepository<UserProfile> _profileRepository;
+    private readonly IGenericRepository<PortfolioSiteSettings> _siteSettingsRepository;
     private readonly ILogger<UpdateProfileCommandHandler> _logger;
 
     public UpdateProfileCommandHandler(
         IGenericRepository<UserProfile> profileRepository,
+        IGenericRepository<PortfolioSiteSettings> siteSettingsRepository,
         ILogger<UpdateProfileCommandHandler> logger)
     {
         _profileRepository = profileRepository;
+        _siteSettingsRepository = siteSettingsRepository;
         _logger = logger;
     }
 
@@ -82,6 +85,18 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
             );
             _profileRepository.Update(profile);
         }
+
+        var settings = await _siteSettingsRepository.FirstOrDefaultAsync(
+            item => item.OwnerUserId == userId,
+            cancellationToken);
+        if (settings == null)
+        {
+            settings = new PortfolioSiteSettings();
+            settings.AssignOwner(userId);
+            await _siteSettingsRepository.AddAsync(settings, cancellationToken);
+        }
+        settings.MarkPublished();
+        _siteSettingsRepository.Update(settings);
 
         await _profileRepository.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Profile for user {UserId} saved successfully via Generic Repository.", userId);

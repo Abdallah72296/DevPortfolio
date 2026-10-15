@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse, AuthResponseDto, LoginCredentials } from '../models/admin.models';
+import { ApiResponse, AuthResponseDto, LoginCredentials, RegistrationResponseDto } from '../models/admin.models';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,7 @@ export class AuthService {
   private readonly tokenKey = 'myportfolio_admin_token';
   private readonly emailKey = 'myportfolio_admin_email';
   private readonly expiresAtKey = 'myportfolio_admin_expires_at';
-  private readonly rolesKey = 'myportfolio_user_roles';
+  private sessionRoles: string[] = [];
 
   private get apiUrl(): string {
     return environment.apiUrl;
@@ -28,30 +28,33 @@ export class AuthService {
           localStorage.setItem(this.tokenKey, res.data.accessToken);
           localStorage.setItem(this.emailKey, res.data.email);
           localStorage.setItem(this.expiresAtKey, res.data.expiresAt);
-          localStorage.setItem(this.rolesKey, JSON.stringify(res.data.roles ?? []));
+          this.sessionRoles = res.data.roles ?? [];
         }
       })
     );
   }
 
-  register(data: { fullName: string; username: string; email: string; password: string }): Observable<ApiResponse<AuthResponseDto>> {
-    return this.http.post<ApiResponse<AuthResponseDto>>(`${this.apiUrl}/api/auth/register`, data).pipe(
-      tap(res => {
-        if (res.succeeded && res.data?.accessToken) {
-          localStorage.setItem(this.tokenKey, res.data.accessToken);
-          localStorage.setItem(this.emailKey, res.data.email);
-          localStorage.setItem(this.expiresAtKey, res.data.expiresAt);
-          localStorage.setItem(this.rolesKey, JSON.stringify(res.data.roles ?? []));
-        }
-      })
-    );
+  register(data: { fullName: string; username: string; email: string; password: string }): Observable<ApiResponse<RegistrationResponseDto>> {
+    return this.http.post<ApiResponse<RegistrationResponseDto>>(`${this.apiUrl}/api/auth/register`, data);
+  }
+
+  confirmEmail(email: string, token: string): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(`${this.apiUrl}/api/auth/confirm-email`, { email, token });
+  }
+
+  confirmEmailOtp(email: string, code: string): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(`${this.apiUrl}/api/auth/confirm-email-otp`, { email, code });
+  }
+
+  resendConfirmationEmail(email: string): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(`${this.apiUrl}/api/auth/resend-confirmation`, { email });
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.emailKey);
     localStorage.removeItem(this.expiresAtKey);
-    localStorage.removeItem(this.rolesKey);
+    this.sessionRoles = [];
     this.router.navigate(['/auth']);
   }
 
@@ -64,33 +67,48 @@ export class AuthService {
   }
 
   getUsername(): string {
-    const email = this.getUserEmail() ?? '';
-    return email.split('@')[0].trim().toLowerCase();
+    const token = this.getToken();
+    if (token) {
+      try {
+        const payloadPart = token.split('.')[1];
+        if (payloadPart) {
+          const base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+          const payload = JSON.parse(decodeURIComponent(atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='))
+            .split('').map(character => `%${character.charCodeAt(0).toString(16).padStart(2, '0')}`).join('')));
+          const username = payload['unique_name']
+            || payload['name']
+            || payload['preferred_username']
+            || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+          if (typeof username === 'string' && username.trim()) return username.trim().toLowerCase();
+        }
+      } catch { }
+    }
+
+    return (this.getUserEmail() ?? '').split('@')[0].trim().toLowerCase();
   }
 
   getUserRoles(): string[] {
-    try {
-      const stored = localStorage.getItem(this.rolesKey);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch { }
+    if (this.sessionRoles.length) return [...this.sessionRoles];
 
     const token = this.getToken();
     if (token) {
       try {
         const base64Url = token.split('.')[1];
         if (base64Url) {
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const unpaddedBase64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const base64 = unpaddedBase64.padEnd(Math.ceil(unpaddedBase64.length / 4) * 4, '=');
           const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
           const roleClaim = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+                         || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role']
                          || payload['role']
                          || payload['roles'];
           if (Array.isArray(roleClaim)) return roleClaim;
           if (typeof roleClaim === 'string') return [roleClaim];
+          const mappedRoleClaims = Object.entries(payload)
+            .filter(([claim]) => /(?:\/|\.)role$/i.test(claim))
+            .flatMap(([, value]) => Array.isArray(value) ? value : [value])
+            .filter((value): value is string => typeof value === 'string');
+          if (mappedRoleClaims.length) return mappedRoleClaims;
         }
       } catch { }
     }
@@ -100,10 +118,7 @@ export class AuthService {
 
   isAdmin(): boolean {
     const roles = this.getUserRoles();
-    if (roles.some(role => role.toLowerCase() === 'admin')) return true;
-    const email = (this.getUserEmail() ?? '').toLowerCase();
-    if (!email || email.includes('admin') || email.includes('alex') || this.isAuthenticated()) return true;
-    return false;
+    return this.isAuthenticated() && roles.some(role => role.toLowerCase() === 'admin');
   }
 
   isAuthenticated(): boolean {

@@ -17,6 +17,15 @@ public class CvPortfolioDraftValidator : AbstractValidator<CvPortfolioDraft>
 
             RuleFor(x => x.PersonalInfo!.About)
                 .MaximumLength(2000).WithMessage("About section must not exceed 2000 characters.");
+
+            RuleFor(x => x.PersonalInfo!.Email)
+                .MaximumLength(254).WithMessage("Email must not exceed 254 characters.");
+
+            RuleFor(x => x.PersonalInfo!.Phone)
+                .MaximumLength(50).WithMessage("Phone must not exceed 50 characters.");
+
+            RuleFor(x => x.PersonalInfo!.Location)
+                .MaximumLength(200).WithMessage("Location must not exceed 200 characters.");
         });
 
         RuleForEach(x => x.Skills).ChildRules(category =>

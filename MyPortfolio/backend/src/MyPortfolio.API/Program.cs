@@ -1,5 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -38,7 +40,10 @@ try
     builder.Services.AddProblemDetails();
 
     // 4. JWT Authentication Foundation
-    var jwtKey = builder.Configuration["Jwt:Key"] ?? "MyPortfolio_SuperSecret_Jwt_SigningKey_For_Production_Ready_Auth_2026_Key!";
+    var jwtKey = builder.Configuration["Jwt:Key"]
+        ?? throw new InvalidOperationException("JWT signing key is not configured (Jwt:Key).");
+    if (Encoding.UTF8.GetByteCount(jwtKey) < 32)
+        throw new InvalidOperationException("JWT signing key must contain at least 32 UTF-8 bytes.");
     var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MyPortfolioAPI";
     var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MyPortfolioClient";
 
@@ -49,7 +54,7 @@ try
     })
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false;
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -79,10 +84,8 @@ try
             policy.SetIsOriginAllowed(origin =>
                   {
                       if (string.IsNullOrEmpty(origin)) return false;
-                      if (allowedOrigins.Contains("*") || allowedOrigins.Contains(origin)) return true;
-                      // Allow localhost & monsterasp subdomains by default
-                      if (origin.Contains("localhost") || origin.Contains("monsterasp.net")) return true;
-                      return false;
+                      return !allowedOrigins.Contains("*") &&
+                             allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase);
                   })
                   .AllowAnyHeader()
                   .AllowAnyMethod()
@@ -92,6 +95,55 @@ try
 
     // 6. Controllers & Swagger/OpenAPI
     builder.Services.AddControllers();
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        options.AddPolicy("public-contact", context => RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(15),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+        options.AddPolicy("analytics-events", context => RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 120,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+        options.AddPolicy("auth-login", context => RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(15),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+        options.AddPolicy("email-confirmation", context => RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(15),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+        options.AddPolicy("email-resend", context => RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(15),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+    });
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -128,17 +180,19 @@ try
 
     app.UseSerilogRequestLogging();
 
-    //if (app.Environment.IsDevelopment() || true)
-    //{ }
-    app.UseSwagger();
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyPortfolio API v1");
             c.RoutePrefix = "swagger";
         });
-    
+    }
 
+    app.UseRouting();
     app.UseCors("AllowAngularClient");
+    app.UseRateLimiter();
 
     // Security Headers & Document Access Hardening Middleware
     app.Use(async (context, next) =>

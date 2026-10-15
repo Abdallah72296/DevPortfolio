@@ -19,52 +19,14 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, Result<Pr
 
     public async Task<Result<ProfileDto>> Handle(GetProfileQuery request, CancellationToken cancellationToken)
     {
-        var query = _profileRepository.Query().AsNoTracking();
+        if (string.IsNullOrWhiteSpace(request.UserId))
+            return Result<ProfileDto>.Failure("User identifier is required.");
 
-        UserProfile? profile = null;
-
-        if (!string.IsNullOrWhiteSpace(request.UserId))
-        {
-            profile = await query.FirstOrDefaultAsync(item => item.UserId == request.UserId, cancellationToken);
-        }
-        else if (!string.IsNullOrWhiteSpace(request.QueryUser))
-        {
-            profile = await query.IgnoreQueryFilters().FirstOrDefaultAsync(
-                item => item.UserId == request.QueryUser || item.Email == request.QueryUser || item.FullName == request.QueryUser,
-                cancellationToken);
-        }
-        else
-        {
-            profile = await query.FirstOrDefaultAsync(cancellationToken);
-        }
+        var profile = await _profileRepository.Query().AsNoTracking()
+            .FirstOrDefaultAsync(item => item.UserId == request.UserId, cancellationToken);
 
         if (profile == null)
-        {
-            // Default placeholder profile
-            return Result<ProfileDto>.Success(new ProfileDto
-            {
-                FullName = "Abdallah Abdeltawab",
-                Title = ".NET Backend Developer",
-                HeadlineRole = ".NET Backend Developer",
-                Badge = ".NET BACKEND DEVELOPER • CLEAN ARCHITECTURE",
-                Location = "Giza, Egypt (Remote & Worldwide)",
-                CardCaption = ".NET Backend Developer • Giza, Egypt",
-                Email = "abdallahabdeltawab6@gmail.com",
-                Phone = "+20 1002215065",
-                YearsOfExperience = "3+",
-                Summary = ".NET Backend Developer with professional and freelance experience building backend systems using C#, ASP.NET Core Web API, EF Core, Clean Architecture, CQRS, and RabbitMQ.",
-                LongBio = "I am a passionate .NET Backend Developer with professional and freelance experience building robust enterprise backend architectures.",
-                Paragraphs = new List<string>
-                {
-                    ".NET Backend Developer with professional and freelance experience building robust enterprise backend systems using C#, ASP.NET Core Web API, EF Core, Clean Architecture, CQRS, and RabbitMQ.",
-                    "Experienced in financial, banking, project management, and business systems, with hands-on experience in RESTful API development, external banking integrations, asynchronous workflows, authentication, and relational databases.",
-                    "Proven track record delivering mission-critical applications at Jedra and international freelance clients, including RabbitMQ-based pipelines and financial transaction aggregation engines. Military Service: Completed."
-                },
-                AvatarUrl = "assets/images/developer_avatar.jpg",
-                CvUrl = "#contact",
-                AvailableForHire = true
-            });
-        }
+            return Result<ProfileDto>.Failure("Profile was not found for the authenticated user.");
 
         List<string> paragraphsList = new();
         if (!string.IsNullOrWhiteSpace(profile.ParagraphsJson))

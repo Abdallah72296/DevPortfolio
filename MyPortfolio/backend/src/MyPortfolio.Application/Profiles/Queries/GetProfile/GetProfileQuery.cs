@@ -4,4 +4,4 @@ using MyPortfolio.Application.Profiles.Models;
 
 namespace MyPortfolio.Application.Profiles.Queries.GetProfile;
 
-public record GetProfileQuery(string? UserId = null, string? QueryUser = null) : IRequest<Result<ProfileDto>>;
+public record GetProfileQuery(string? UserId = null) : IRequest<Result<ProfileDto>>;
