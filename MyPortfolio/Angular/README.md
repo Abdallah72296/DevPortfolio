@@ -1,27 +1,25 @@
-# PortfolioApp
+# PortfolioApp - Angular 17+ Enterprise SPA
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+Modern developer portfolio frontend and administrative studio built with Angular 17.3, TypeScript, and a modern CSS tokens design system.
 
-## Development server
+## Key Modules & Routes
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- **Public Portfolio**: Dedicated multi-tenant views available via `/portfolio/{username}` or `/u/{username}` (desktop and mobile optimized).
+- **Studio Dashboard**: Career management workbench available via `/dashboard`.
+- **Multimodal CV Ingestion**: Autonomous resume parsing and schema staging at `/dashboard/cv-import`.
+- **Access Control**: Administrative user management and directory at `/dashboard/access-control`.
+- **Authentication**: JWT login, registration, and OTP email confirmation at `/auth`.
 
-## Code scaffolding
+## Development Server
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `npm start` (or `ng serve`) to launch the development server. The application will automatically reload if you change any of the source files.
 
-## Build
+## Production Build & Packaging
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+To generate the production bundle packaged for IIS / MonsterASP deployment:
 
-## Running unit tests
+```powershell
+npm run build:zip
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+The output archive is created at `MyPortfolio/portfolio-frontend.zip`, containing the complete production build along with `web.config` configured for SPA URL rewriting and security headers.
