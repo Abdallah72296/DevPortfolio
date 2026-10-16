@@ -223,14 +223,14 @@
 
           <!-- Profile Hero Portrait Card -->
           <div class="lg:col-span-5 flex flex-col gap-space-md">
-            <div class="relative p-space-md rounded-xl bg-surface-container shadow-xl flex flex-col gap-space-md group overflow-hidden">
+            <div class="relative p-space-md rounded-xl bg-surface-container shadow-xl flex flex-col gap-space-md overflow-hidden">
               <div class="absolute -inset-1 rounded-xl bg-gradient-to-tr from-primary/20 via-secondary/15 to-transparent blur-xl pointer-events-none"></div>
 
-              <div class="relative w-full aspect-[4/5] max-h-[460px] rounded-xl overflow-hidden bg-surface-container-lowest flex items-center justify-center">
-                <div class="absolute -inset-1 bg-gradient-to-tr from-primary to-secondary opacity-70 group-hover:opacity-100 blur-sm transition duration-500"></div>
+              <div class="relative w-full aspect-[4/5] max-h-[460px] rounded-xl overflow-hidden bg-surface-container-lowest flex items-center justify-center group/portrait cursor-pointer">
+                <div class="absolute -inset-1 bg-gradient-to-tr from-primary to-secondary opacity-70 group-hover/portrait:opacity-100 blur-sm transition duration-500 pointer-events-none"></div>
 
                 <img *ngIf="portfolio?.profile?.avatarUrl && !avatarImageFailed" 
-                     class="relative w-full h-full object-cover rounded-xl shadow-lg transition-transform duration-500 group-hover:scale-105" 
+                     class="relative w-full h-full object-cover rounded-xl shadow-lg transition-transform duration-500 group-hover/portrait:scale-105" 
                      [src]="resolveMediaUrl(portfolio.profile.avatarUrl)" 
                      [alt]="portfolio?.profile?.fullName || 'Portrait'"
                      (error)="onAvatarError()">
@@ -270,18 +270,18 @@
 
                 <!-- Dynamic Social Nodes Row with Official SVGs -->
                 <div class="flex flex-wrap gap-space-xs pt-space-xs">
-                  <a *ngFor="let social of portfolio?.socialLinks" [href]="social.url" [title]="social.platform" target="_blank" rel="noopener" class="flex-1 min-w-[70px] p-space-xs rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-secondary transition-all flex flex-col items-center justify-center gap-1 group shadow-xs">
-                    <svg *ngIf="getSocialSvg(social)" viewBox="0 0 24 24" class="w-4 h-4 fill-current text-secondary group-hover:scale-110 transition-transform shrink-0">
+                  <a *ngFor="let social of portfolio?.socialLinks" [href]="social.url" [title]="social.platform" target="_blank" rel="noopener" class="flex-1 min-w-[70px] p-space-xs rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-secondary transition-all flex flex-col items-center justify-center gap-1 group/social shadow-xs">
+                    <svg *ngIf="getSocialSvg(social)" viewBox="0 0 24 24" class="w-4 h-4 fill-current text-secondary group-hover/social:scale-110 transition-transform shrink-0">
                       <path [attr.d]="getSocialSvg(social)"/>
                     </svg>
-                    <span *ngIf="!getSocialSvg(social)" class="material-symbols-outlined text-[18px] text-secondary group-hover:scale-110 transition-transform shrink-0">
+                    <span *ngIf="!getSocialSvg(social)" class="material-symbols-outlined text-[18px] text-secondary group-hover/social:scale-110 transition-transform shrink-0">
                       {{ getSocialIcon(social) }}
                     </span>
-                    <span class="text-[10px] font-code-sm truncate">{{ social.platform }}</span>
+                    <span class="text-[10px] font-code-sm truncate group-hover/social:text-secondary transition-colors">{{ social.platform }}</span>
                   </a>
-                  <a (click)="scrollToSection('contact', 'contact', $event)" class="flex-1 min-w-[70px] p-space-xs rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-primary transition-all flex flex-col items-center justify-center gap-1 group shadow-xs cursor-pointer">
-                    <span class="material-symbols-outlined text-[18px] text-primary group-hover:scale-110 transition-transform shrink-0">mail</span>
-                    <span class="text-[10px] font-code-sm truncate">Email</span>
+                  <a (click)="scrollToSection('contact', 'contact', $event)" class="flex-1 min-w-[70px] p-space-xs rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-primary transition-all flex flex-col items-center justify-center gap-1 group/email shadow-xs cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px] text-primary group-hover/email:scale-110 transition-transform shrink-0">mail</span>
+                    <span class="text-[10px] font-code-sm truncate group-hover/email:text-primary transition-colors">Email</span>
                   </a>
                 </div>
               </div>
@@ -399,11 +399,11 @@
 
         <!-- Systems Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
-          <article *ngFor="let project of filteredProjects" class="p-space-lg rounded-xl bg-surface-container-low shadow-xl hover:bg-surface-container transition-all flex flex-col justify-between gap-space-md group">
+          <article *ngFor="let project of filteredProjects" class="p-space-lg rounded-xl bg-surface-container-low shadow-xl hover:bg-surface-container transition-all flex flex-col justify-between gap-space-md">
             <div class="flex flex-col gap-space-md">
               <!-- Visual Architectural Thumbnail if available -->
-              <div *ngIf="project.image" class="w-full h-48 rounded-lg overflow-hidden relative bg-surface-container-lowest">
-                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" [src]="resolveMediaUrl(project.image)" [alt]="project.title">
+              <div *ngIf="project.image" class="w-full h-48 rounded-lg overflow-hidden relative bg-surface-container-lowest group/thumb cursor-pointer">
+                <img class="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-500" [src]="resolveMediaUrl(project.image)" [alt]="project.title">
                 <div class="absolute top-space-xs right-space-xs flex items-center gap-space-xs px-space-xs py-0.5 rounded bg-surface-dim/90 font-code-sm text-code-sm text-tertiary">
                   <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
                   <span>Active Production</span>
@@ -416,7 +416,7 @@
                   <span class="font-code-sm text-code-sm text-secondary uppercase font-semibold">
                     {{ project.technologies?.[0] || 'ENGINEERING SYSTEM' }}
                   </span>
-                  <h3 class="font-headline-md text-headline-md text-on-surface font-semibold group-hover:text-primary transition-colors">
+                  <h3 class="font-headline-md text-headline-md text-on-surface font-semibold hover:text-primary transition-colors cursor-pointer">
                     {{ project.title }}
                   </h3>
                 </div>
@@ -541,7 +541,7 @@
 
         <!-- Timeline Entries -->
         <div class="flex flex-col gap-space-lg">
-          <div *ngFor="let experience of portfolio?.experiences" class="p-space-lg rounded-xl bg-surface-container-low shadow-xl flex flex-col md:flex-row gap-space-lg relative group">
+          <div *ngFor="let experience of portfolio?.experiences" class="p-space-lg rounded-xl bg-surface-container-low shadow-xl flex flex-col md:flex-row gap-space-lg relative">
             <!-- Left Column: Dates & Company Badge -->
             <div class="md:w-64 shrink-0 flex flex-col gap-space-xs">
               <span class="px-space-sm py-1 rounded bg-tertiary-container/20 text-tertiary font-code-sm text-code-sm inline-block w-fit">
@@ -636,7 +636,7 @@
 
               <div class="flex flex-col gap-space-sm pt-space-sm font-code-sm text-code-sm">
                 <!-- Dynamic 3 to 4 Contact Rows based on user profile & links -->
-                <div *ngFor="let item of contactRows" class="flex items-center gap-space-sm p-space-xs rounded bg-surface-container hover:bg-surface-container-high transition-colors group">
+                <div *ngFor="let item of contactRows" class="flex items-center gap-space-sm p-space-xs rounded bg-surface-container hover:bg-surface-container-high transition-colors group/contact">
                   <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-container-high/60 shrink-0">
                     <svg *ngIf="item.iconType === 'svg'" viewBox="0 0 24 24" class="w-4 h-4 fill-current shrink-0" [ngClass]="item.colorClass">
                       <path [attr.d]="getSocialSvg(item.icon)"/>
@@ -646,7 +646,7 @@
                   <div class="flex flex-col truncate flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-1">
                       <span class="text-outline text-[10px] font-label-mono uppercase tracking-wider">{{ item.label }}</span>
-                      <span *ngIf="item.isExternal" class="text-[10px] font-code-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                      <span *ngIf="item.isExternal" class="text-[10px] font-code-sm text-primary opacity-0 group-hover/contact:opacity-100 transition-opacity flex items-center gap-0.5">
                         OPEN
                         <span class="material-symbols-outlined text-[12px]">north_east</span>
                       </span>

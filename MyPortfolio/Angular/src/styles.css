@@ -78,6 +78,26 @@
 
 /* Shared palette tokens keep every portfolio surface and both studio top bars in sync. */
 
+/* Default Palette Tokens (Obsidian Dark) */
+:root {
+  --pt-page: #0f131c;
+  --pt-topbar: #0f131c;
+  --pt-lowest: #0a0e16;
+  --pt-low: #181c24;
+  --pt-surface: #1c2028;
+  --pt-high: #262a33;
+  --pt-highest: #31353e;
+  --pt-ink: #dfe2ee;
+  --pt-muted: #cbc3d7;
+  --pt-primary: #d0bcff;
+  --pt-on-primary: #3c0091;
+  --pt-secondary: #4cd7f6;
+  --pt-on-secondary: #003640;
+  --pt-tertiary: #4edea3;
+  --pt-on-tertiary: #003824;
+  --pt-border: #494454;
+}
+
 /* 1. Obsidian (Original Charcoal with violet accents - Default Theme) */
 :root[data-portfolio-theme="obsidian-dark"],
 body[data-portfolio-theme="obsidian-dark"] {
@@ -862,7 +882,6 @@ body[data-portfolio-theme="ecosync-dark"] .project-tech-badge {
 body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-low"],
 body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-low"] {
   background-color: var(--pt-low) !important;
-  border: 1px solid color-mix(in srgb, var(--pt-border) 45%, transparent);
 }
 
 /* Light themes card elevation & crisp separation */
@@ -877,14 +896,4 @@ body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-conta
   box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
 }
 
-/* Card hover elevation across all themes */
-body[data-portfolio-theme] app-public-portfolio-desktop article,
-body[data-portfolio-theme] app-public-portfolio-mobile article {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
-}
-
-body[data-portfolio-theme] app-public-portfolio-desktop article:hover,
-body[data-portfolio-theme] app-public-portfolio-mobile article:hover {
-  transform: translateY(-2px) !important;
-  border-color: color-mix(in srgb, var(--pt-primary) 40%, var(--pt-border)) !important;
-}
+/* Card hover elevation removed to preserve original clean design */

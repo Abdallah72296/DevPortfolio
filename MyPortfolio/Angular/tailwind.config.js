@@ -21,7 +21,7 @@ module.exports = {
         "inverse-on-surface": "#2c3039",
         "surface-container": "#1c2028",
         "secondary": "#4cd7f6",
-        "on-primary": "#ffffff",
+        "on-primary": "#3c0091",
         "surface-container-high": "#262a33",
         "surface-container-low": "#181c24",
         "surface-bright": "#353942",
@@ -37,9 +37,9 @@ module.exports = {
         "on-primary-fixed": "#23005c",
         "tertiary": "#4edea3",
         "primary-fixed": "#e9ddff",
-        "primary": "#6366f1",
+        "primary": "#d0bcff",
         "tertiary-container": "#00a572",
-        "primary-fixed-dim": "#818cf8",
+        "primary-fixed-dim": "#d0bcff",
         "on-error": "#690005",
         "on-error-container": "#ffdad6",
         "secondary-container": "#03b5d3",
@@ -61,9 +61,9 @@ module.exports = {
         "on-primary-container": "#ffffff",
         "surface-dim": "#0f131c",
         "surface-variant": "#31353e",
-        "primary-container": "#4f46e5",
+        "primary-container": "#a078ff",
         "secondary-fixed": "#acedff",
-        "surface-tint": "#6366f1"
+        "surface-tint": "#d0bcff"
       },
       borderRadius: {
         DEFAULT: "0.125rem",
