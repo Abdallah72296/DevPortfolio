@@ -42,20 +42,25 @@ export class SiteIntegrationsSettingsComponent implements OnInit {
   error = '';
   notice = '';
 
+  savedThemeKey = 'obsidian-dark';
+
   ngOnInit(): void {
     this.api.getSiteSettings().subscribe({
       next: response => {
         if (response.succeeded && response.data) {
           const { themeKey, customDomain, seoTitle, seoDescription, seoKeywords } = response.data;
           this.settings = { themeKey, customDomain, seoTitle, seoDescription, seoKeywords };
-          this.presentation.applyTheme(themeKey);
+          this.savedThemeKey = themeKey || 'obsidian-dark';
+          this.presentation.applyTheme(this.savedThemeKey);
         } else {
           this.settings.themeKey = this.presentation.selectedTheme;
+          this.savedThemeKey = this.settings.themeKey;
           this.error = response.message || 'Theme settings could not be loaded.';
         }
         this.loading = false;
       }, error: error => {
         this.settings.themeKey = this.presentation.selectedTheme;
+        this.savedThemeKey = this.settings.themeKey;
         this.error = this.getError(error, 'Theme settings could not be loaded.');
         this.loading = false;
       }
@@ -65,19 +70,23 @@ export class SiteIntegrationsSettingsComponent implements OnInit {
   saveSettings(): void {
     this.savingSettings = true;
     this.error = '';
+    this.notice = '';
     this.api.updateSiteSettings(this.settings).subscribe({
       next: response => {
         this.savingSettings = false;
         if (!response.succeeded) { this.error = response.message || 'Settings could not be saved.'; return; }
+        this.savedThemeKey = this.settings.themeKey;
         this.presentation.saveTheme(this.settings.themeKey, this.auth.getUsername() || '');
-        this.notice = 'Settings saved.';
+        this.notice = 'Theme saved successfully!';
       }, error: error => { this.savingSettings = false; this.error = this.getError(error, 'Settings could not be saved.'); }
     });
   }
 
   selectTheme(themeKey: string): void {
     this.settings.themeKey = themeKey;
-    this.presentation.preview(themeKey);
+    this.presentation.applyTheme(themeKey);
+    const username = this.auth.getUsername() || '';
+    this.presentation.broadcastPreview(themeKey, username);
   }
 
   private getError(error: any, fallback: string): string {

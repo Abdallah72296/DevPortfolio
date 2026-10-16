@@ -260,18 +260,21 @@
 </div>
 <div class="flex flex-col">
 <div class="flex items-center gap-space-sm">
-<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Custom Layout Theme</span>
-<span class="font-label-mono text-label-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">Theme backend unavailable</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Portfolio Visual Theme</span>
+<span class="font-label-mono text-label-mono text-tertiary bg-tertiary/10 px-2 py-0.5 rounded flex items-center gap-1">
+  <span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+  ACTIVE: {{ currentThemeName }}
+</span>
 </div>
 <p class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">
-                  High contrast dark theme with JetBrains Mono monospace headings &amp; neon telemetry
+                  {{ getThemeDescription(currentThemeKey) }}
                 </p>
 </div>
 </div>
 <div class="flex items-center gap-space-sm mt-space-sm sm:mt-0">
-<button class="px-space-sm py-1.5 rounded bg-surface-container-high text-on-surface/60 font-body-sm text-body-sm transition-colors flex items-center gap-1 opacity-60 cursor-not-allowed" type="button" disabled title="Theme management is not implemented in the backend">
+<a routerLink="/site-integrations" class="px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-primary hover:text-on-primary text-on-surface font-body-sm text-body-sm transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
 <span class="material-symbols-outlined text-[14px]">brush</span>Switch Theme
-              </button>
+</a>
 </div>
 </div>
 </div>

@@ -37,6 +37,8 @@ export class DashboardOverviewComponent implements OnInit {
   analyticsSummary: PortfolioAnalyticsSummary | null = null;
   isAuthenticated = false;
   portfolioPreviewUrl: SafeResourceUrl | null = null;
+  currentThemeKey = 'obsidian-dark';
+  currentThemeName = 'Obsidian';
 
   ngOnInit(): void {
     this.refreshHealth();
@@ -57,6 +59,14 @@ export class DashboardOverviewComponent implements OnInit {
       this.adminApi.getAnalyticsSummary().subscribe({
         next: response => this.analyticsSummary = response.succeeded ? response.data : null,
         error: () => this.analyticsSummary = null
+      });
+      this.adminApi.getSiteSettings().subscribe({
+        next: response => {
+          if (response.succeeded && response.data?.themeKey) {
+            this.currentThemeKey = response.data.themeKey;
+            this.currentThemeName = this.getThemeDisplayName(response.data.themeKey);
+          }
+        }
       });
     }
   }
@@ -141,5 +151,41 @@ export class DashboardOverviewComponent implements OnInit {
       },
       error: () => this.contactMessageError = 'Message could not be deleted.'
     });
+  }
+
+  getThemeDisplayName(key: string): string {
+    const names: Record<string, string> = {
+      'obsidian-dark': 'Obsidian',
+      'light': 'Porcelain',
+      'midnight': 'Midnight',
+      'emerald': 'Emerald',
+      'rose': 'Rose Quartz',
+      'ocean': 'Ocean',
+      'graphite': 'Graphite',
+      'sunset': 'Sunset',
+      'lavender': 'Lavender',
+      'paper': 'Paper',
+      'ecosync': 'EcoSync',
+      'ecosync-dark': 'EcoSync Dark'
+    };
+    return names[key] || key || 'Obsidian';
+  }
+
+  getThemeDescription(key: string): string {
+    const desc: Record<string, string> = {
+      'obsidian-dark': 'Charcoal with violet accents & JetBrains Mono telemetry',
+      'light': 'Bright, clean and minimal porcelain aesthetic',
+      'midnight': 'Deep navy with cool blue tones & luminous accents',
+      'emerald': 'Dark forest with vivid neon green telemetry',
+      'rose': 'Deep plum with soft rose quartz accents',
+      'ocean': 'Blue slate with bright aqua & teal accents',
+      'graphite': 'Monochrome, crisp and understated engineering theme',
+      'sunset': 'Warm charcoal with coral and amber accents',
+      'lavender': 'Soft violet palette for a creative technical portfolio',
+      'paper': 'Warm editorial white with clean typography',
+      'ecosync': 'Clean canvas with deep forest green and electric water blue',
+      'ecosync-dark': 'Night navy with neon energy green & water blue'
+    };
+    return desc[key] || 'Visual style applied to your public engineering portfolio.';
   }
 }

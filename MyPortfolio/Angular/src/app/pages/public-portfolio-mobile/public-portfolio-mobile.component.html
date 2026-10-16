@@ -1,5 +1,34 @@
 <!-- Public Portfolio Mobile - DevFolio Studio Template -->
-<header class="fixed top-0 w-full z-50 bg-surface-dim/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+<!-- Interactive Live Theme Preview Banner -->
+<div *ngIf="isPreviewMode && authService.isAuthenticated()" 
+     class="fixed top-0 left-0 right-0 z-[60] w-full bg-surface-container-highest/95 backdrop-blur-md border-b border-primary/40 px-3 py-2 shadow-2xl flex flex-wrap items-center justify-between gap-2 text-on-surface">
+  <div class="flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+    <span class="font-label-mono text-[11px] text-primary uppercase font-semibold">Preview:</span>
+    <span class="text-xs font-bold text-on-surface">{{ getThemeName(previewThemeKey) }}</span>
+  </div>
+  <div class="flex items-center gap-1.5">
+    <button type="button" 
+            (click)="savePreviewTheme()" 
+            [disabled]="savingTheme" 
+            class="px-2.5 py-1 rounded bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-all shadow cursor-pointer disabled:opacity-50">
+      {{ savingTheme ? 'Saving…' : 'Save Theme' }}
+    </button>
+    <button type="button" 
+            (click)="backToThemes()" 
+            class="px-2.5 py-1 rounded bg-surface-container-high text-on-surface text-xs font-medium hover:bg-surface-container transition-all border border-outline-variant/30 cursor-pointer">
+      Themes
+    </button>
+  </div>
+</div>
+
+<div *ngIf="previewSavedNotice" 
+     class="fixed bottom-6 right-4 left-4 z-[130] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-tertiary text-on-tertiary shadow-2xl text-xs font-semibold">
+  <span class="material-symbols-outlined text-[18px]">check</span>
+  <span>Theme saved successfully!</span>
+</div>
+
+<header class="fixed w-full z-50 bg-surface-dim/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.4)]" [ngClass]="isPreviewMode && authService.isAuthenticated() ? 'top-[41px]' : 'top-0'">
   <div class="h-16 px-gutter flex items-center justify-between">
     <div class="relative" (click)="$event.stopPropagation()">
       <button type="button" 
@@ -105,7 +134,7 @@
   </div>
 </header>
 
-<main class="flex-1 flex flex-col relative w-full pt-16 bg-surface min-h-screen font-body-md text-on-surface antialiased">
+<main class="flex-1 flex flex-col relative w-full bg-surface min-h-screen font-body-md text-on-surface antialiased" [ngClass]="isPreviewMode && authService.isAuthenticated() ? 'pt-[105px]' : 'pt-16'">
   <div class="flex flex-col w-full">
 
     <!-- Top Ambient Telemetry Strip -->

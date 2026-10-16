@@ -15,7 +15,39 @@
 </ng-container>
 <ng-template #portfolioContent>
 <!-- Public Portfolio Desktop - DevFolio Studio Template -->
-<header class="fixed top-0 left-0 w-full z-50 bg-surface-dim/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+<!-- Interactive Live Theme Preview Banner -->
+<div *ngIf="isPreviewMode && authService.isAuthenticated()" 
+     class="fixed top-0 left-0 right-0 z-[60] w-full bg-surface-container-highest/95 backdrop-blur-md border-b border-primary/40 px-4 py-2.5 shadow-2xl flex flex-wrap items-center justify-between gap-3 text-on-surface">
+  <div class="flex items-center gap-2.5">
+    <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+    <span class="font-label-mono text-label-mono text-primary uppercase tracking-wider font-semibold">Live Theme Preview:</span>
+    <span class="font-body-md text-body-md font-bold text-on-surface">{{ getThemeName(previewThemeKey) }}</span>
+    <span class="font-code-sm text-code-sm text-on-surface-variant hidden md:inline">• Preview mode (unsaved) — only you see this preview</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <button type="button" 
+            (click)="savePreviewTheme()" 
+            [disabled]="savingTheme" 
+            class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-on-primary font-body-sm text-body-sm font-semibold hover:bg-primary-container hover:text-on-primary-container transition-all shadow-md cursor-pointer disabled:opacity-50">
+      <span class="material-symbols-outlined text-[16px]">check_circle</span>
+      <span>{{ savingTheme ? 'Saving…' : 'Save Theme' }}</span>
+    </button>
+    <button type="button" 
+            (click)="backToThemes()" 
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-body-sm text-body-sm font-medium hover:bg-surface-container hover:text-primary transition-all border border-outline-variant/30 cursor-pointer">
+      <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+      <span>Back to Themes</span>
+    </button>
+  </div>
+</div>
+
+<div *ngIf="previewSavedNotice" 
+     class="fixed bottom-6 right-6 z-[130] flex items-center gap-2 px-4 py-3 rounded-xl bg-tertiary text-on-tertiary shadow-2xl font-body-sm text-body-sm font-semibold">
+  <span class="material-symbols-outlined text-[20px]">check</span>
+  <span>Theme saved successfully to your public portfolio!</span>
+</div>
+
+<header class="fixed left-0 w-full z-50 bg-surface-dim/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]" [ngClass]="isPreviewMode && authService.isAuthenticated() ? 'top-[49px]' : 'top-0'">
   <div class="h-16 max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-space-md">
     <div class="flex items-center gap-space-md shrink-0">
       <div class="relative" (click)="$event.stopPropagation()">
@@ -147,7 +179,7 @@
   </div>
 </header>
 
-<main class="w-full pt-16 bg-surface min-h-[calc(100vh-16rem)]">
+<main class="w-full bg-surface min-h-[calc(100vh-16rem)]" [ngClass]="isPreviewMode && authService.isAuthenticated() ? 'pt-[113px]' : 'pt-16'">
   <div class="flex flex-col w-full">
     <!-- Hero Editorial Section -->
     <section class="w-full px-4 sm:px-6 lg:px-12 py-space-xl relative overflow-hidden bg-gradient-to-b from-surface via-surface-container-lowest to-surface">

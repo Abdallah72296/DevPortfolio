@@ -78,34 +78,34 @@
 
 /* Shared palette tokens keep every portfolio surface and both studio top bars in sync. */
 
-/* 1. Obsidian (Charcoal with violet accents) */
+/* 1. Obsidian (Original Charcoal with violet accents - Default Theme) */
 :root[data-portfolio-theme="obsidian-dark"],
 body[data-portfolio-theme="obsidian-dark"] {
   --pt-page: #0f131c;
-  --pt-topbar: rgba(15, 19, 28, 0.88);
+  --pt-topbar: #0f131c;
   --pt-lowest: #0a0e16;
-  --pt-low: #141822;
+  --pt-low: #181c24;
   --pt-surface: #1c2028;
   --pt-high: #262a33;
   --pt-highest: #31353e;
   --pt-ink: #dfe2ee;
-  --pt-muted: #958ea0;
+  --pt-muted: #cbc3d7;
   --pt-primary: #d0bcff;
   --pt-on-primary: #3c0091;
   --pt-secondary: #4cd7f6;
   --pt-on-secondary: #003640;
   --pt-tertiary: #4edea3;
   --pt-on-tertiary: #003824;
-  --pt-border: #31353e;
+  --pt-border: #494454;
 }
 
 /* 2. Porcelain (Bright, clean and minimal light) */
 :root[data-portfolio-theme="light"],
 body[data-portfolio-theme="light"] {
   --pt-page: #f8fafc;
-  --pt-topbar: rgba(255, 255, 255, 0.92);
+  --pt-topbar: rgba(255, 255, 255, 0.95);
   --pt-lowest: #f1f5f9;
-  --pt-low: #f8fafc;
+  --pt-low: #ffffff;
   --pt-surface: #ffffff;
   --pt-high: #f1f5f9;
   --pt-highest: #e2e8f0;
@@ -124,159 +124,159 @@ body[data-portfolio-theme="light"] {
 :root[data-portfolio-theme="midnight"],
 body[data-portfolio-theme="midnight"] {
   --pt-page: #080d19;
-  --pt-topbar: rgba(8, 13, 25, 0.88);
+  --pt-topbar: rgba(8, 13, 25, 0.92);
   --pt-lowest: #050914;
-  --pt-low: #0c1424;
-  --pt-surface: #10192b;
-  --pt-high: #162238;
-  --pt-highest: #20314d;
+  --pt-low: #10192b;
+  --pt-surface: #162238;
+  --pt-high: #1c2b44;
+  --pt-highest: #283a5a;
   --pt-ink: #e1e7ff;
-  --pt-muted: #8fa2c7;
+  --pt-muted: #9bb0d6;
   --pt-primary: #8da4ff;
   --pt-on-primary: #0b1c54;
   --pt-secondary: #5ad8ff;
   --pt-on-secondary: #003547;
   --pt-tertiary: #4ce6ba;
   --pt-on-tertiary: #003829;
-  --pt-border: #1c2c47;
+  --pt-border: #223554;
 }
 
 /* 4. Emerald (Dark forest with vivid green accents) */
 :root[data-portfolio-theme="emerald"],
 body[data-portfolio-theme="emerald"] {
   --pt-page: #081410;
-  --pt-topbar: rgba(8, 20, 16, 0.88);
+  --pt-topbar: rgba(8, 20, 16, 0.92);
   --pt-lowest: #050d0a;
-  --pt-low: #0d1a15;
-  --pt-surface: #12231d;
-  --pt-high: #192e26;
-  --pt-highest: #233e34;
+  --pt-low: #10211a;
+  --pt-surface: #152b22;
+  --pt-high: #1c362b;
+  --pt-highest: #264a3b;
   --pt-ink: #e3f5ec;
-  --pt-muted: #8aa99b;
+  --pt-muted: #96b8a8;
   --pt-primary: #4ee39d;
   --pt-on-primary: #003821;
   --pt-secondary: #5ee6d0;
   --pt-on-secondary: #003730;
   --pt-tertiary: #f4cf66;
   --pt-on-tertiary: #3a2b00;
-  --pt-border: #1f372e;
+  --pt-border: #244437;
 }
 
 /* 5. Rose Quartz (Deep plum with soft rose accents) */
 :root[data-portfolio-theme="rose"],
 body[data-portfolio-theme="rose"] {
   --pt-page: #170f15;
-  --pt-topbar: rgba(23, 15, 21, 0.88);
+  --pt-topbar: rgba(23, 15, 21, 0.92);
   --pt-lowest: #0f0a0e;
-  --pt-low: #1f141d;
-  --pt-surface: #281a25;
-  --pt-high: #342231;
-  --pt-highest: #462e42;
+  --pt-low: #241621;
+  --pt-surface: #2d1c2a;
+  --pt-high: #382434;
+  --pt-highest: #4b3046;
   --pt-ink: #fae9f1;
-  --pt-muted: #b491a4;
+  --pt-muted: #c29eb1;
   --pt-primary: #ff94bf;
   --pt-on-primary: #4a0d2a;
   --pt-secondary: #e59cf7;
   --pt-on-secondary: #420f4c;
   --pt-tertiary: #ffba7a;
   --pt-on-tertiary: #452100;
-  --pt-border: #3d273a;
+  --pt-border: #42283e;
 }
 
 /* 6. Ocean (Blue slate with bright aqua accents) */
 :root[data-portfolio-theme="ocean"],
 body[data-portfolio-theme="ocean"] {
   --pt-page: #08131a;
-  --pt-topbar: rgba(8, 19, 26, 0.88);
+  --pt-topbar: rgba(8, 19, 26, 0.92);
   --pt-lowest: #050d12;
-  --pt-low: #0d1a22;
-  --pt-surface: #11222d;
-  --pt-high: #172d3b;
-  --pt-highest: #213c4e;
+  --pt-low: #10202b;
+  --pt-surface: #152937;
+  --pt-high: #1c3446;
+  --pt-highest: #26465e;
   --pt-ink: #e0f2fe;
-  --pt-muted: #86a4b8;
+  --pt-muted: #92b0c4;
   --pt-primary: #38bdf8;
   --pt-on-primary: #003554;
   --pt-secondary: #2dd4bf;
   --pt-on-secondary: #003830;
   --pt-tertiary: #a3e635;
   --pt-on-tertiary: #273800;
-  --pt-border: #1d3647;
+  --pt-border: #223f54;
 }
 
 /* 7. Graphite (Monochrome, crisp and understated) */
 :root[data-portfolio-theme="graphite"],
 body[data-portfolio-theme="graphite"] {
   --pt-page: #0f1011;
-  --pt-topbar: rgba(15, 16, 17, 0.88);
+  --pt-topbar: rgba(15, 16, 17, 0.92);
   --pt-lowest: #090a0a;
-  --pt-low: #161719;
-  --pt-surface: #1e2022;
-  --pt-high: #27292c;
-  --pt-highest: #36393c;
+  --pt-low: #1a1c1e;
+  --pt-surface: #222527;
+  --pt-high: #2b2e31;
+  --pt-highest: #3b3f43;
   --pt-ink: #f4f4f5;
-  --pt-muted: #a1a1aa;
+  --pt-muted: #abaeb3;
   --pt-primary: #e4e4e7;
   --pt-on-primary: #18181b;
   --pt-secondary: #94a3b8;
   --pt-on-secondary: #0f172a;
   --pt-tertiary: #f59e0b;
   --pt-on-tertiary: #451a03;
-  --pt-border: #2e3135;
+  --pt-border: #35393d;
 }
 
 /* 8. Sunset (Warm charcoal with coral and amber accents) */
 :root[data-portfolio-theme="sunset"],
 body[data-portfolio-theme="sunset"] {
   --pt-page: #170f0e;
-  --pt-topbar: rgba(23, 15, 14, 0.88);
+  --pt-topbar: rgba(23, 15, 14, 0.92);
   --pt-lowest: #0f0a09;
-  --pt-low: #1f1412;
-  --pt-surface: #291a18;
-  --pt-high: #36221f;
-  --pt-highest: #4a2e2a;
+  --pt-low: #241614;
+  --pt-surface: #2e1d1a;
+  --pt-high: #392420;
+  --pt-highest: #4d312c;
   --pt-ink: #fff1ee;
-  --pt-muted: #b9938b;
+  --pt-muted: #c49e96;
   --pt-primary: #ff8c69;
   --pt-on-primary: #451306;
   --pt-secondary: #ffb84d;
   --pt-on-secondary: #422600;
   --pt-tertiary: #4ade80;
   --pt-on-tertiary: #052e16;
-  --pt-border: #3f2723;
+  --pt-border: #442a25;
 }
 
 /* 9. Lavender (Soft violet palette for a creative portfolio) */
 :root[data-portfolio-theme="lavender"],
 body[data-portfolio-theme="lavender"] {
   --pt-page: #120e1a;
-  --pt-topbar: rgba(18, 14, 26, 0.88);
+  --pt-topbar: rgba(18, 14, 26, 0.92);
   --pt-lowest: #0b0811;
-  --pt-low: #1a1426;
-  --pt-surface: #231b33;
-  --pt-high: #2d2342;
-  --pt-highest: #3d3059;
+  --pt-low: #1c1529;
+  --pt-surface: #251c37;
+  --pt-high: #2f2345;
+  --pt-highest: #40305e;
   --pt-ink: #f3efff;
-  --pt-muted: #a79bbd;
+  --pt-muted: #b4a8cb;
   --pt-primary: #c084fc;
   --pt-on-primary: #3b0764;
   --pt-secondary: #e879f9;
   --pt-on-secondary: #4a044e;
   --pt-tertiary: #38bdf8;
   --pt-on-tertiary: #082f49;
-  --pt-border: #35294e;
+  --pt-border: #3a2b54;
 }
 
 /* 10. Paper (Warm editorial white with ink accents) */
 :root[data-portfolio-theme="paper"],
 body[data-portfolio-theme="paper"] {
-  --pt-page: #fbf8f2;
-  --pt-topbar: rgba(251, 248, 242, 0.92);
-  --pt-lowest: #f3ede2;
-  --pt-low: #faf6ee;
+  --pt-page: #f6f3eb;
+  --pt-topbar: rgba(246, 243, 235, 0.95);
+  --pt-lowest: #ece6d8;
+  --pt-low: #ffffff;
   --pt-surface: #ffffff;
-  --pt-high: #f4eee3;
-  --pt-highest: #e9e1d2;
+  --pt-high: #f0e9dc;
+  --pt-highest: #e3dbc9;
   --pt-ink: #2a221b;
   --pt-muted: #6e6255;
   --pt-primary: #a84b29;
@@ -291,13 +291,13 @@ body[data-portfolio-theme="paper"] {
 /* 11. EcoSync (Clean canvas with deep forest green and electric water blue) */
 :root[data-portfolio-theme="ecosync"],
 body[data-portfolio-theme="ecosync"] {
-  --pt-page: #f8fafc;
-  --pt-topbar: rgba(255, 255, 255, 0.92);
-  --pt-lowest: #f1f5f9;
-  --pt-low: #f8fafc;
+  --pt-page: #f1f5f9;
+  --pt-topbar: rgba(241, 245, 249, 0.95);
+  --pt-lowest: #e2e8f0;
+  --pt-low: #ffffff;
   --pt-surface: #ffffff;
-  --pt-high: #f1f5f9;
-  --pt-highest: #e2e8f0;
+  --pt-high: #e2e8f0;
+  --pt-highest: #cbd5e1;
   --pt-ink: #0f172a;
   --pt-muted: #475569;
   --pt-primary: #005a36;
@@ -313,21 +313,21 @@ body[data-portfolio-theme="ecosync"] {
 :root[data-portfolio-theme="ecosync-dark"],
 body[data-portfolio-theme="ecosync-dark"] {
   --pt-page: #0b111e;
-  --pt-topbar: rgba(11, 17, 30, 0.88);
+  --pt-topbar: rgba(11, 17, 30, 0.92);
   --pt-lowest: #070c15;
-  --pt-low: #0e1726;
-  --pt-surface: #121c2d;
-  --pt-high: #1a283f;
-  --pt-highest: #233754;
+  --pt-low: #111b2d;
+  --pt-surface: #16243b;
+  --pt-high: #1d2f4d;
+  --pt-highest: #283f66;
   --pt-ink: #f1f5f9;
-  --pt-muted: #8b9db7;
+  --pt-muted: #99abc5;
   --pt-primary: #00df81;
   --pt-on-primary: #022c19;
   --pt-secondary: #38bdf8;
   --pt-on-secondary: #082f49;
   --pt-tertiary: #818cf8;
   --pt-on-tertiary: #1e1b4b;
-  --pt-border: #1e2e47;
+  --pt-border: #233757;
 }
 
 /* ==========================================================================
@@ -854,4 +854,37 @@ body[data-portfolio-theme="ecosync-dark"] .project-tech-badge {
   background-color: color-mix(in srgb, #00df81 9%, #121c2d);
   border-color: color-mix(in srgb, #00df81 25%, transparent);
   color: #00df81;
+}
+
+/* ==========================================================================
+   Card System Refinements - Distinct Contrast & Elevating Transitions
+   ========================================================================== */
+body[data-portfolio-theme] app-public-portfolio-desktop [class~="bg-surface-container-low"],
+body[data-portfolio-theme] app-public-portfolio-mobile [class~="bg-surface-container-low"] {
+  background-color: var(--pt-low) !important;
+  border: 1px solid color-mix(in srgb, var(--pt-border) 45%, transparent);
+}
+
+/* Light themes card elevation & crisp separation */
+:root[data-portfolio-theme="light"] app-public-portfolio-desktop [class~="bg-surface-container-low"],
+:root[data-portfolio-theme="light"] app-public-portfolio-mobile [class~="bg-surface-container-low"],
+:root[data-portfolio-theme="paper"] app-public-portfolio-desktop [class~="bg-surface-container-low"],
+:root[data-portfolio-theme="paper"] app-public-portfolio-mobile [class~="bg-surface-container-low"],
+:root[data-portfolio-theme="ecosync"] app-public-portfolio-desktop [class~="bg-surface-container-low"],
+:root[data-portfolio-theme="ecosync"] app-public-portfolio-mobile [class~="bg-surface-container-low"] {
+  background-color: #ffffff !important;
+  border: 1px solid var(--pt-border) !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Card hover elevation across all themes */
+body[data-portfolio-theme] app-public-portfolio-desktop article,
+body[data-portfolio-theme] app-public-portfolio-mobile article {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+body[data-portfolio-theme] app-public-portfolio-desktop article:hover,
+body[data-portfolio-theme] app-public-portfolio-mobile article:hover {
+  transform: translateY(-2px) !important;
+  border-color: color-mix(in srgb, var(--pt-primary) 40%, var(--pt-border)) !important;
 }

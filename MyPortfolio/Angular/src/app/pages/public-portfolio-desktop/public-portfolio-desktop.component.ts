@@ -1,8 +1,7 @@
-import { Component, inject, HostListener, OnInit } from '@angular/core';
+import { Component, inject, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { AdminApiService } from '../../core/services/admin-api.service';
 import { PortfolioDataService } from '../../core/services/portfolio-data.service';
 import { PortfolioPresentationService } from '../../core/services/portfolio-presentation.service';
@@ -19,7 +18,13 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './public-portfolio-desktop.component.html',
   styleUrl: './public-portfolio-desktop.component.css'
 })
-export class PublicPortfolioDesktopComponent implements OnInit {
+export class PublicPortfolioDesktopComponent implements OnInit, OnDestroy {
+  private readonly router = inject(Router);
+  isPreviewMode = false;
+  previewThemeKey: string | null = null;
+  savingTheme = false;
+  previewSavedNotice = false;
+  private unsubscribePreview: (() => void) | null = null;
   readonly adminApi = inject(AdminApiService);
   readonly authService = inject(AuthService);
   private readonly portfolioData = inject(PortfolioDataService);
@@ -319,7 +324,25 @@ export class PublicPortfolioDesktopComponent implements OnInit {
       const isDashboardPreview = this.route.snapshot.queryParamMap.get('preview') === 'dashboard'
         && this.authService.isAuthenticated();
 
-      this.presentation.preparePublicTheme(username);
+      const previewThemeParam = this.route.snapshot.queryParamMap.get('previewTheme');
+      if (previewThemeParam && (isDashboardPreview || this.authService.isAuthenticated())) {
+        this.isPreviewMode = true;
+        this.previewThemeKey = previewThemeParam;
+        this.presentation.applyTheme(previewThemeParam);
+      } else {
+        this.presentation.preparePublicTheme(username);
+      }
+
+      // Listen for live broadcast preview from theme manager
+      this.unsubscribePreview?.();
+      this.unsubscribePreview = this.presentation.listenForPreview(username || '', (liveTheme) => {
+        if (this.authService.isAuthenticated()) {
+          this.isPreviewMode = true;
+          this.previewThemeKey = liveTheme;
+          this.presentation.applyTheme(liveTheme);
+        }
+      });
+
       this.portfolio = null;
       this.portfolioLoading = true;
       this.portfolioError = '';
@@ -331,7 +354,11 @@ export class PublicPortfolioDesktopComponent implements OnInit {
           this.portfolio = result?.succeeded ? result.data ?? null : null;
           this.portfolioLoading = false;
           if (this.portfolio) {
-            this.presentation.applyPublicSettings(this.portfolio, username);
+            if (this.isPreviewMode && this.previewThemeKey) {
+              this.presentation.applyTheme(this.previewThemeKey);
+            } else {
+              this.presentation.applyPublicSettings(this.portfolio, username);
+            }
             if (username && !isDashboardPreview) this.trackPublicViewOnce(username);
           } else {
             this.portfolioError = result?.message || 'This portfolio does not exist or is not public.';
@@ -747,6 +774,67 @@ export class PublicPortfolioDesktopComponent implements OnInit {
     const cleanUrl = url.startsWith('/') ? url : `/${url}`;
     return `${environment.apiUrl}${cleanUrl}`;
   }
+
+  ngOnDestroy(): void {
+    this.unsubscribePreview?.();
+  }
+
+  savePreviewTheme(): void {
+    if (!this.previewThemeKey) return;
+    this.savingTheme = true;
+    this.adminApi.getSiteSettings().subscribe({
+      next: res => {
+        const current = res.succeeded && res.data ? res.data : {
+          themeKey: this.previewThemeKey!,
+          customDomain: '',
+          seoTitle: '',
+          seoDescription: '',
+          seoKeywords: ''
+        };
+        const updated = {
+          themeKey: this.previewThemeKey!,
+          customDomain: current.customDomain,
+          seoTitle: current.seoTitle,
+          seoDescription: current.seoDescription,
+          seoKeywords: current.seoKeywords
+        };
+        this.adminApi.updateSiteSettings(updated).subscribe({
+          next: updateRes => {
+            this.savingTheme = false;
+            if (updateRes.succeeded) {
+              const username = this.authService.getUsername() || '';
+              this.presentation.saveTheme(this.previewThemeKey!, username);
+              this.isPreviewMode = false;
+              this.previewSavedNotice = true;
+              setTimeout(() => this.previewSavedNotice = false, 4000);
+            }
+          },
+          error: () => { this.savingTheme = false; }
+        });
+      },
+      error: () => { this.savingTheme = false; }
+    });
+  }
+
+  backToThemes(): void {
+    this.router.navigate(['/site-integrations']);
+  }
+
+  getThemeName(key: string | null): string {
+    const names: Record<string, string> = {
+      'obsidian-dark': 'Obsidian',
+      'light': 'Porcelain',
+      'midnight': 'Midnight',
+      'emerald': 'Emerald',
+      'rose': 'Rose Quartz',
+      'ocean': 'Ocean',
+      'graphite': 'Graphite',
+      'sunset': 'Sunset',
+      'lavender': 'Lavender',
+      'paper': 'Paper',
+      'ecosync': 'EcoSync',
+      'ecosync-dark': 'EcoSync Dark'
+    };
+    return (key && names[key]) || key || 'Default';
+  }
 }
-
-

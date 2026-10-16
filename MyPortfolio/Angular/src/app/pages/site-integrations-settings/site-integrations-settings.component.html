@@ -1,25 +1,169 @@
 <app-dashboard-header></app-dashboard-header>
 <app-dashboard-sidebar></app-dashboard-sidebar>
+
 <div class="pl-0 lg:pl-56">
   <main class="min-h-screen bg-background pt-16 px-4 sm:px-gutter-desktop py-space-lg text-on-surface">
-    <div class="mx-auto max-w-5xl space-y-6">
-    <header class="flex flex-wrap items-start justify-between gap-4"><div><h1 class="text-3xl font-semibold">Portfolio themes</h1><p class="mt-2 text-on-surface-variant">Choose a complete visual style for your public portfolio.</p></div><div class="flex gap-2"><a [routerLink]="['/portfolio', auth.getUsername()]" class="rounded bg-surface-container-high px-4 py-2">Preview portfolio</a><a routerLink="/dashboard" class="rounded bg-surface-container-high px-4 py-2">Back to dashboard</a></div></header>
-    <p *ngIf="error" role="alert" class="rounded-lg bg-error/10 p-3 text-error">{{ error }}</p>
-    <p *ngIf="notice" role="status" class="rounded-lg bg-tertiary/10 p-3 text-tertiary">{{ notice }}</p>
-
-    <section class="space-y-4 rounded-xl bg-surface-container-low p-5">
-      <div class="flex flex-wrap items-center justify-between gap-3"><div><h2 class="text-xl font-semibold">Choose a portfolio theme</h2><p class="text-sm text-on-surface-variant">Choose a theme and preview it. Save your choice to keep it.</p></div></div>
-      <p *ngIf="loading" class="text-on-surface-variant">Loading settings…</p>
-      <form *ngIf="!loading" (ngSubmit)="saveSettings()" class="grid gap-4">
-        <div class="grid gap-3 md:col-span-2 sm:grid-cols-2 lg:grid-cols-3">
-          <button *ngFor="let theme of themes" type="button" (click)="selectTheme(theme.key)" [attr.aria-pressed]="settings.themeKey === theme.key" class="rounded-xl border p-4 text-left transition hover:-translate-y-0.5" [ngClass]="settings.themeKey === theme.key ? 'border-primary ring-2 ring-primary/40 bg-surface-container-high' : 'border-outline-variant bg-surface-container-lowest'">
-            <div class="mb-3 flex h-12 overflow-hidden rounded-lg"><span *ngFor="let swatch of theme.swatches" class="flex-1" [style.backgroundColor]="swatch"></span></div><strong>{{ theme.name }}</strong><p class="mt-1 text-sm text-on-surface-variant">{{ theme.description }}</p><span *ngIf="settings.themeKey === theme.key" class="mt-2 inline-block text-xs text-primary">Selected</span>
-          </button>
+    <div class="mx-auto max-w-6xl space-y-6">
+      
+      <!-- Page Header -->
+      <header class="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-outline-variant/20">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[28px]">palette</span>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Portfolio Themes</h1>
+          </div>
+          <p class="mt-1.5 text-sm sm:text-base text-on-surface-variant">
+            Choose from 12 carefully designed themes with tailored typography, contrast, and layout styling.
+          </p>
         </div>
-        <div class="flex flex-wrap gap-3"><button type="submit" [disabled]="savingSettings" class="rounded bg-primary px-4 py-2 text-on-primary disabled:opacity-50">{{ savingSettings ? 'Saving…' : 'Save theme' }}</button><a [routerLink]="['/portfolio', auth.getUsername()]" class="rounded bg-surface-container-high px-4 py-2">Preview portfolio</a></div>
-      </form>
-    </section>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <a [routerLink]="['/portfolio', auth.getUsername()]" 
+             [queryParams]="{ previewTheme: settings.themeKey }" 
+             target="_blank" 
+             class="flex items-center gap-1.5 rounded-lg bg-surface-container-high px-3.5 py-2 text-sm font-medium hover:bg-surface-container hover:text-primary transition-all border border-outline-variant/30 shadow-sm cursor-pointer"
+             title="Open live preview in a new window/tab">
+            <span class="material-symbols-outlined text-[18px] text-primary">open_in_new</span>
+            <span>Live Preview</span>
+          </a>
+          <a routerLink="/dashboard" class="flex items-center gap-1.5 rounded-lg bg-surface-container-high px-3.5 py-2 text-sm font-medium hover:bg-surface-container transition-all border border-outline-variant/30 shadow-sm cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">dashboard</span>
+            <span>Dashboard</span>
+          </a>
+        </div>
+      </header>
 
-  </div>
-</main>
+      <!-- Alert & Notification Banners -->
+      <div *ngIf="error" role="alert" class="flex items-center gap-2.5 rounded-xl bg-error/10 border border-error/20 p-3.5 text-error text-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">error</span>
+        <span>{{ error }}</span>
+      </div>
+
+      <div *ngIf="notice" role="status" class="flex items-center gap-2.5 rounded-xl bg-tertiary/10 border border-tertiary/20 p-3.5 text-tertiary text-sm font-medium animate-fadeIn">
+        <span class="material-symbols-outlined text-[20px]">check_circle</span>
+        <span>{{ notice }}</span>
+      </div>
+
+      <!-- Real-Time Preview Explanation Banner -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-surface-container-low border border-outline-variant/20 shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+            <span class="material-symbols-outlined text-[18px]">visibility</span>
+          </div>
+          <div>
+            <span class="text-sm font-semibold text-on-surface">Interactive Real-Time Preview</span>
+            <p class="text-xs text-on-surface-variant mt-0.5">
+              Clicking any theme previews it instantly. If you have your public portfolio open in another window, it updates in real time without refreshing. 
+              Changes are only saved permanently when you click <strong>Save Theme</strong>.
+            </p>
+          </div>
+        </div>
+        <div class="shrink-0 flex items-center gap-2">
+          <a [routerLink]="['/portfolio', auth.getUsername()]" 
+             [queryParams]="{ previewTheme: settings.themeKey }" 
+             target="_blank"
+             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 text-primary hover:bg-primary/25 text-xs font-semibold transition-all">
+            <span class="material-symbols-outlined text-[14px]">preview</span>
+            <span>View Public Portfolio</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Main Theme Selection Section -->
+      <section class="space-y-5 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 sm:p-6 shadow-md">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-outline-variant/15">
+          <div>
+            <h2 class="text-lg font-bold">Select Visual Theme</h2>
+            <p class="text-xs text-on-surface-variant mt-0.5">
+              Current Active Theme in Database: 
+              <span class="font-semibold text-primary uppercase font-mono">{{ savedThemeKey }}</span>
+            </p>
+          </div>
+          <div *ngIf="settings.themeKey !== savedThemeKey" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary/15 text-secondary text-xs font-semibold animate-pulse">
+            <span class="w-2 h-2 rounded-full bg-secondary"></span>
+            <span>Previewing {{ settings.themeKey }} (Unsaved)</span>
+          </div>
+        </div>
+
+        <p *ngIf="loading" class="text-on-surface-variant py-8 text-center text-sm">Loading theme configurations…</p>
+
+        <form *ngIf="!loading" (ngSubmit)="saveSettings()" class="space-y-6">
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div *ngFor="let theme of themes" 
+                 (click)="selectTheme(theme.key)" 
+                 class="relative rounded-xl border p-4 text-left transition-all duration-200 cursor-pointer flex flex-col justify-between group hover:-translate-y-1 hover:shadow-lg"
+                 [ngClass]="settings.themeKey === theme.key 
+                   ? 'border-primary ring-2 ring-primary/40 bg-surface-container-high shadow-md' 
+                   : 'border-outline-variant/30 bg-surface-container-lowest hover:border-outline-variant/60'">
+              
+              <div>
+                <!-- Theme Palette Swatch Bar -->
+                <div class="mb-3.5 flex h-10 w-full overflow-hidden rounded-lg shadow-inner border border-black/10">
+                  <span *ngFor="let swatch of theme.swatches" class="flex-1 transition-transform group-hover:scale-105" [style.backgroundColor]="swatch"></span>
+                </div>
+
+                <!-- Theme Title & Status Badges -->
+                <div class="flex items-center justify-between gap-2">
+                  <strong class="text-base font-bold text-on-surface group-hover:text-primary transition-colors">{{ theme.name }}</strong>
+                  <div class="flex items-center gap-1">
+                    <span *ngIf="savedThemeKey === theme.key" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-tertiary/15 text-tertiary border border-tertiary/30">
+                      Active
+                    </span>
+                    <span *ngIf="settings.themeKey === theme.key && savedThemeKey !== theme.key" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/15 text-primary border border-primary/30 animate-pulse">
+                      Previewing
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Theme Description -->
+                <p class="mt-1 text-xs text-on-surface-variant leading-relaxed">
+                  {{ theme.description }}
+                </p>
+              </div>
+
+              <!-- Card Action Row -->
+              <div class="mt-4 pt-3 border-t border-outline-variant/15 flex items-center justify-between text-xs">
+                <span class="text-on-surface-variant font-mono text-[11px]">
+                  {{ theme.key }}
+                </span>
+                <span class="font-medium flex items-center gap-1 text-primary group-hover:underline">
+                  <span class="material-symbols-outlined text-[14px]">touch_app</span>
+                  <span>{{ settings.themeKey === theme.key ? 'Selected' : 'Click to Preview' }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Action Toolbar -->
+          <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-outline-variant/20">
+            <div class="flex flex-wrap items-center gap-3">
+              <button type="submit" 
+                      [disabled]="savingSettings || settings.themeKey === savedThemeKey" 
+                      class="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-sm text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">save</span>
+                <span>{{ savingSettings ? 'Saving Theme…' : 'Save Theme' }}</span>
+              </button>
+
+              <a [routerLink]="['/portfolio', auth.getUsername()]" 
+                 [queryParams]="{ previewTheme: settings.themeKey }" 
+                 target="_blank" 
+                 class="flex items-center gap-2 rounded-xl bg-surface-container-high px-4 py-2.5 font-medium text-sm text-on-surface hover:bg-surface-container hover:text-primary transition-all border border-outline-variant/30 cursor-pointer shadow-sm">
+                <span class="material-symbols-outlined text-[18px] text-primary">visibility</span>
+                <span>Open Preview in New Tab</span>
+              </a>
+            </div>
+
+            <div class="text-xs text-on-surface-variant font-medium">
+              <span *ngIf="settings.themeKey !== savedThemeKey" class="text-secondary font-semibold">
+                ⚠️ Unsaved preview active: click "Save Theme" to commit changes.
+              </span>
+              <span *ngIf="settings.themeKey === savedThemeKey" class="text-tertiary">
+                ✓ Active theme is synchronized with database.
+              </span>
+            </div>
+          </div>
+        </form>
+      </section>
+
+    </div>
+  </main>
 </div>
