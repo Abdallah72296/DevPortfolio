@@ -84,8 +84,19 @@ try
             policy.SetIsOriginAllowed(origin =>
                   {
                       if (string.IsNullOrEmpty(origin)) return false;
-                      return !allowedOrigins.Contains("*") &&
-                             allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase);
+                      if (allowedOrigins.Contains("*")) return true;
+                      if (allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase)) return true;
+
+                      if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                      {
+                          if (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                              uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase))
+                          {
+                              return true;
+                          }
+                      }
+
+                      return false;
                   })
                   .AllowAnyHeader()
                   .AllowAnyMethod()

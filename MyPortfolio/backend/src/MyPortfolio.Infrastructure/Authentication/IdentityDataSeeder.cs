@@ -103,7 +103,7 @@ public class IdentityDataSeeder : IIdentityDataSeeder
             }
             else
             {
-                // If user already exists, preserve account and password, but ensure Admin role is assigned
+                // If user already exists, ensure Admin role is assigned and sync password
                 if (!await _userManager.IsInRoleAsync(existingUser, AdminRole))
                 {
                     var addRoleResult = await _userManager.AddToRoleAsync(existingUser, AdminRole);
@@ -114,6 +114,10 @@ public class IdentityDataSeeder : IIdentityDataSeeder
                     }
                     _logger.LogInformation("Assigned existing user '{Email}' to '{Role}' role.", adminEmail, AdminRole);
                 }
+
+                // Sync password from configuration
+                var resetToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+                await _userManager.ResetPasswordAsync(existingUser, resetToken, adminPassword);
             }
 
             var seededAdmin = await _userManager.FindByEmailAsync(adminEmail)
