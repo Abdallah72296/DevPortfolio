@@ -64,7 +64,6 @@ public static class DependencyInjection
         services.AddScoped<IAdminUserManagementService, Authentication.AdminUserManagementService>();
         services.AddScoped<IIdentityService, Authentication.IdentityService>();
         services.AddScoped<Authentication.IIdentityDataSeeder, Authentication.IdentityDataSeeder>();
-        services.AddScoped<Data.IGuestPortfolioDataSeeder, Data.GuestPortfolioDataSeeder>();
 
         // Register CV Parsing and AI Options
         services.Configure<CV.AiOptions>(configuration.GetSection(CV.AiOptions.SectionName));

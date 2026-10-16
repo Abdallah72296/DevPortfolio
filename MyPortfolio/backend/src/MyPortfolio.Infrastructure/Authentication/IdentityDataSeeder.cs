@@ -136,6 +136,42 @@ public class IdentityDataSeeder : IIdentityDataSeeder
             }
             await AssignUnownedRecords(_dbContext.PortfolioAnalyticsEvents, seededAdmin.Id);
             await AssignUnownedRecords(_dbContext.PortfolioSiteSettings, seededAdmin.Id);
+
+            // Clean up any guest user and reassign its portfolio data to admin
+            var guestUser = await _userManager.FindByEmailAsync("guest@myportfolio.local")
+                ?? await _userManager.FindByNameAsync("guest");
+            if (guestUser != null)
+            {
+                var guestProfiles = await _dbContext.UserProfiles.IgnoreQueryFilters()
+                    .Where(p => p.OwnerUserId == guestUser.Id || p.UserId == guestUser.Id).ToListAsync();
+                foreach (var p in guestProfiles)
+                {
+                    p.AssignToUser(seededAdmin.Id);
+                }
+
+                await ReassignRecords(_dbContext.PortfolioSections, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.SkillCategories, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.Skills, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.Experiences, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.Projects, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.Educations, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.Certifications, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.SocialLinks, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.ContactMessages, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.PortfolioAnalyticsEvents, guestUser.Id, seededAdmin.Id);
+                await ReassignRecords(_dbContext.PortfolioSiteSettings, guestUser.Id, seededAdmin.Id);
+
+                await _dbContext.SaveChangesAsync();
+
+                await _userManager.DeleteAsync(guestUser);
+                var guestRole = await _roleManager.FindByNameAsync("Guest");
+                if (guestRole != null)
+                {
+                    await _roleManager.DeleteAsync(guestRole);
+                }
+                _logger.LogInformation("Guest user and role successfully removed. All portfolio records assigned to admin.");
+            }
+
             await _dbContext.SaveChangesAsync();
         });
     }
@@ -145,5 +181,12 @@ public class IdentityDataSeeder : IIdentityDataSeeder
     {
         var unowned = await records.IgnoreQueryFilters().Where(record => record.OwnerUserId == string.Empty).ToListAsync();
         foreach (var record in unowned) record.AssignOwner(ownerId);
+    }
+
+    private async Task ReassignRecords<TEntity>(DbSet<TEntity> records, string oldOwnerId, string newOwnerId)
+        where TEntity : BaseEntity
+    {
+        var ownedByOld = await records.IgnoreQueryFilters().Where(r => r.OwnerUserId == oldOwnerId).ToListAsync();
+        foreach (var r in ownedByOld) r.AssignOwner(newOwnerId);
     }
 }

@@ -234,9 +234,6 @@ try
             await seeder.SeedAsync();
             Log.Information("Identity data seeded successfully.");
 
-            var guestSeeder = scope.ServiceProvider.GetRequiredService<MyPortfolio.Infrastructure.Data.IGuestPortfolioDataSeeder>();
-            await guestSeeder.SeedGuestPortfolioAsync();
-            Log.Information("Guest portfolio data seeded successfully.");
         }
         catch (Exception ex)
         {
