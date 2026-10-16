@@ -111,7 +111,7 @@ public class GuestPortfolioDataSeeder : IGuestPortfolioDataSeeder
                     companyName: "Jedra",
                     description: "Engineered backend services for financial transaction analysis, integrating multiple external banking APIs and automating transaction processing workflows with ASP.NET Core Web API. Implemented an asynchronous RabbitMQ-based pipeline that decoupled transaction processing from the main API flow, improving reliability and scalability under load. Designed and implemented 20+ RESTful APIs using Clean Architecture and CQRS.",
                     startDate: new DateTime(2024, 12, 1, 0, 0, 0, DateTimeKind.Utc),
-                    endDate: new DateTime(2025, 12, 1, 0, 0, 0, DateTimeKind.Utc),
+                    endDate: null,
                     isCurrent: true,
                     displayOrder: 1,
                     isVisible: true
